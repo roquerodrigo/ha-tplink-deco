@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from homeassistant.helpers.device_registry import DeviceInfo
+from homeassistant.helpers.device_registry import CONNECTION_NETWORK_MAC, DeviceInfo
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 from tplink_deco_api import ClientDevice
 
@@ -26,6 +26,7 @@ class TpLinkDecoClientEntity(CoordinatorEntity[TpLinkDecoDataUpdateCoordinator])
         self._client_mac = client.mac
         self._attr_device_info = DeviceInfo(
             identifiers={(DOMAIN, client.mac)},
+            connections={(CONNECTION_NETWORK_MAC, client.mac)},
             name=client.name,
         )
 
