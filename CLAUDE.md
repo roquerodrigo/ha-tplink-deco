@@ -61,4 +61,4 @@ to avoid colliding with this component's namespace).
 
 ## Update interval
 
-Configured in `__init__.py` via `update_interval=timedelta(seconds=10)`.
+Configured in `__init__.py` via `update_interval=timedelta(seconds=20)`.

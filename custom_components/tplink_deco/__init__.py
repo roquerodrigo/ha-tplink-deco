@@ -34,7 +34,7 @@ async def async_setup_entry(
         hass=hass,
         logger=LOGGER,
         name=DOMAIN,
-        update_interval=timedelta(seconds=10),
+        update_interval=timedelta(seconds=20),
     )
     entry.runtime_data = TpLinkDecoData(
         client=TpLinkDecoApiClient(
