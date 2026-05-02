@@ -23,10 +23,19 @@ class TpLinkDecoClientEntity(CoordinatorEntity[TpLinkDecoDataUpdateCoordinator])
     ) -> None:
         super().__init__(coordinator)
         self._client_mac = client.mac
-        self._attr_device_info = DeviceInfo(
-            identifiers={(DOMAIN, client.mac)},
-            connections={(CONNECTION_NETWORK_MAC, client.mac)},
-            name=client.name,
+
+    @property
+    def device_info(self) -> DeviceInfo | None:
+        snapshot = self.coordinator.data
+        master = next(
+            (n for n in snapshot.nodes if n.role == "master"),
+            None,
+        ) if snapshot else None
+        return DeviceInfo(
+            identifiers={(DOMAIN, self._client_mac)},
+            connections={(CONNECTION_NETWORK_MAC, self._client_mac)},
+            name=self.client.name if self.client else None,
+            via_device=(DOMAIN, master.mac) if master else None,
         )
 
     @property
