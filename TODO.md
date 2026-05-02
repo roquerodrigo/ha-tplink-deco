@@ -1,8 +1,7 @@
 # TODO List for the project
 
-Faça APENAS uma tarefa por vez e remova-a da lista quando concluída.
+Faça APENAS uma tarefa por vez, seguindo e ordem e remova-a da lista quando concluída.
 
-- Adicione suporte ao CONNECTION_NETWORK_MAC no deco
 - Corrija as classes Entity. Elas são Device e não Entity.
 - Revise o uso de @property e @property.setter para garantir que estão sendo usados corretamente. Elas devem ser sempre usadas quando possível.
 - Crie um arquivo CODE_STYLE.md com as diretrizes de estilo de código para o projeto.

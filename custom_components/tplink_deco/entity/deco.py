@@ -33,9 +33,19 @@ class TpLinkDecoDecoEntity(CoordinatorEntity[TpLinkDecoDataUpdateCoordinator]):
     def device_info(self) -> DeviceInfo | None:
         """Return device info for this Deco mesh node."""
         node = self.node
+        connections = {(CONNECTION_NETWORK_MAC, self._node_mac)}
+        if node:
+            for bssid in (
+                node.bssid_2g,
+                node.bssid_5g,
+                node.bssid_sta_2g,
+                node.bssid_sta_5g,
+            ):
+                if bssid:
+                    connections.add((CONNECTION_NETWORK_MAC, bssid))
         return DeviceInfo(
             identifiers={(DOMAIN, self._node_mac)},
-            connections={(CONNECTION_NETWORK_MAC, self._node_mac)},
+            connections=connections,
             name=node.custom_nickname or node.nickname if node else None,
             model=node.device_model if node else None,
             sw_version=node.software_ver if node else None,
