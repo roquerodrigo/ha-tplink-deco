@@ -24,11 +24,11 @@ class TpLinkDecoDataUpdateCoordinator(DataUpdateCoordinator[TpLinkDecoSnapshot])
 
     async def _async_update_data(self) -> TpLinkDecoSnapshot:
         try:
-            clients, nodes = await self.hass.async_add_executor_job(
+            clients, nodes, performance = await self.hass.async_add_executor_job(
                 self.config_entry.runtime_data.client.get_snapshot
             )
         except TpLinkDecoApiClientAuthenticationError as exception:
             raise ConfigEntryAuthFailed(exception) from exception
         except TpLinkDecoApiClientError as exception:
             raise UpdateFailed(exception) from exception
-        return TpLinkDecoSnapshot(clients=clients, nodes=nodes)
+        return TpLinkDecoSnapshot(clients=clients, nodes=nodes, performance=performance)

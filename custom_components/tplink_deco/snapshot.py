@@ -5,6 +5,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 from tplink_deco_api import ClientDevice, Device
+from tplink_deco_api import Performance
 
 
 @dataclass
@@ -13,3 +14,4 @@ class TpLinkDecoSnapshot:
 
     clients: list[ClientDevice]
     nodes: list[Device]
+    performance: Performance | None

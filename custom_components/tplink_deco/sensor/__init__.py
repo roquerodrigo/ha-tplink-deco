@@ -9,8 +9,10 @@ from .download import TpLinkDecoDownloadSensor
 from .interface import TpLinkDecoInterfaceSensor
 from .ip import TpLinkDecoIpSensor
 from .mac import TpLinkDecoMacSensor
+from .node_cpu import TpLinkDecoNodeCpuSensor
 from .node_ip import TpLinkDecoNodeIpSensor
 from .node_mac import TpLinkDecoNodeMacSensor
+from .node_memory import TpLinkDecoNodeMemorySensor
 from .upload import TpLinkDecoUploadSensor
 
 if TYPE_CHECKING:
@@ -52,14 +54,18 @@ async def async_setup_entry(
         new_nodes = [n for n in (snapshot.nodes if snapshot else []) if n.mac not in known_node_macs]
         if new_nodes:
             known_node_macs.update(n.mac for n in new_nodes)
-            async_add_entities(
-                entity
-                for node in new_nodes
-                for entity in (
+            entities = []
+            for node in new_nodes:
+                entities.extend([
                     TpLinkDecoNodeMacSensor(coordinator, node),
                     TpLinkDecoNodeIpSensor(coordinator, node),
-                )
-            )
+                ])
+                if node.role == "master":
+                    entities.extend([
+                        TpLinkDecoNodeCpuSensor(coordinator, node),
+                        TpLinkDecoNodeMemorySensor(coordinator, node),
+                    ])
+            async_add_entities(entities)
 
     _add_new_entities()
     entry.async_on_unload(coordinator.async_add_listener(_add_new_entities))

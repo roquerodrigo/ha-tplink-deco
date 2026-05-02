@@ -37,6 +37,12 @@
                     "band6": "6 GHz",
                     "wired": "Cabeado"
                 }
+            },
+            "cpu_usage": {
+                "name": "Uso de CPU"
+            },
+            "mem_usage": {
+                "name": "Uso de Memória"
             }
         }
     },

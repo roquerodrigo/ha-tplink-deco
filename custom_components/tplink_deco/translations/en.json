@@ -37,6 +37,12 @@
                     "band6": "6 GHz",
                     "wired": "Wired"
                 }
+            },
+            "cpu_usage": {
+                "name": "CPU Usage"
+            },
+            "mem_usage": {
+                "name": "Memory Usage"
             }
         }
     },
