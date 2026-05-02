@@ -6,6 +6,7 @@ from typing import TYPE_CHECKING
 
 from .connection_type import TpLinkDecoConnectionTypeSensor
 from .download import TpLinkDecoDownloadSensor
+from .interface import TpLinkDecoInterfaceSensor
 from .ip import TpLinkDecoIpSensor
 from .mac import TpLinkDecoMacSensor
 from .upload import TpLinkDecoUploadSensor
@@ -40,6 +41,7 @@ async def async_setup_entry(
                 TpLinkDecoDownloadSensor(coordinator, client),
                 TpLinkDecoUploadSensor(coordinator, client),
                 TpLinkDecoConnectionTypeSensor(coordinator, client),
+                TpLinkDecoInterfaceSensor(coordinator, client),
             )
         )
 

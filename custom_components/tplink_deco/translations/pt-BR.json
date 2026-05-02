@@ -13,6 +13,14 @@
             "upload": {
                 "name": "Velocidade de Upload"
             },
+            "interface": {
+                "name": "Interface",
+                "state": {
+                    "iot": "IoT",
+                    "mlo": "Multi-Link Operation",
+                    "main": "Principal"
+                }
+            },
             "connection_type": {
                 "name": "Tipo de Conexão",
                 "state": {
