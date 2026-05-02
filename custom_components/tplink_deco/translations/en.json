@@ -1,10 +1,5 @@
 {
     "entity": {
-        "device_tracker": {
-            "client_tracker": {
-                "name": "Tracker"
-            }
-        },
         "binary_sensor": {
             "connected": {
                 "name": "Connected"

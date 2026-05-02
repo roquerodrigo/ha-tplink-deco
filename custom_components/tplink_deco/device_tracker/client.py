@@ -17,7 +17,7 @@ if TYPE_CHECKING:
 class TpLinkDecoClientTracker(TpLinkDecoClientEntity, ScannerEntity):
     """Device tracker for a client connected to the TP-Link Deco network."""
 
-    _attr_translation_key = "client_tracker"
+    _attr_name = None
     source_type = SourceType.ROUTER
 
     def __init__(
