@@ -17,7 +17,11 @@ class TpLinkDecoClientTracker(TpLinkDecoClientDevice, ScannerEntity):
     """Device tracker for a client connected to the TP-Link Deco network."""
 
     _attr_name = None
-    source_type = SourceType.ROUTER
+
+    @property
+    def source_type(self) -> SourceType:
+        """Return the device tracker source type."""
+        return SourceType.ROUTER
 
     @property
     def unique_id(self) -> str:
