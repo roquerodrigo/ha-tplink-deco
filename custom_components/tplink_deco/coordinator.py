@@ -11,7 +11,7 @@ from .api.errors import (
     TpLinkDecoApiClientAuthenticationError,
     TpLinkDecoApiClientError,
 )
-from .snapshot import TpLinkDecoSnapshot
+from .api import TpLinkDecoSnapshot
 
 if TYPE_CHECKING:
     from .data import TpLinkDecoConfigEntry
