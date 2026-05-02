@@ -19,7 +19,7 @@ class TpLinkDecoDecoIpSensor(TpLinkDecoDecoDevice, SensorEntity):
     @property
     def unique_id(self) -> str:
         """Return the unique entity ID."""
-        return f"{self._node_mac}_node_ip"
+        return f"{self._node_mac}_ip"
 
     @property
     def native_value(self) -> str | None:

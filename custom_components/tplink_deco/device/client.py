@@ -1,4 +1,4 @@
-"""Base entity for TP-Link Deco client devices."""
+"""Base device for TP-Link Deco clients."""
 
 from __future__ import annotations
 
@@ -15,7 +15,7 @@ if TYPE_CHECKING:
 
 
 class TpLinkDecoClientDevice(CoordinatorEntity[TpLinkDecoDataUpdateCoordinator]):
-    """Entity representing a client connected to the TP-Link Deco network."""
+    """Device representing a client connected to the TP-Link Deco network."""
 
     _attr_attribution = ATTRIBUTION
     _attr_has_entity_name = True
@@ -25,7 +25,7 @@ class TpLinkDecoClientDevice(CoordinatorEntity[TpLinkDecoDataUpdateCoordinator])
         coordinator: TpLinkDecoDataUpdateCoordinator,
         client: ClientDevice,
     ) -> None:
-        """Initialize the client entity with the coordinator and client device."""
+        """Initialize the client device with the coordinator and client."""
         super().__init__(coordinator)
         self._client_mac = client.mac
 

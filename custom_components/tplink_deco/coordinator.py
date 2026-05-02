@@ -1,4 +1,4 @@
-"""DataUpdateCoordinator for tplink_deco."""
+"""DataUpdateCoordinator for the TP-Link Deco integration."""
 
 from __future__ import annotations
 

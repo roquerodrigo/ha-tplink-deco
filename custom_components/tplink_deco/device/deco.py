@@ -1,4 +1,4 @@
-"""Base entity for TP-Link Deco nodes."""
+"""Base device for TP-Link Deco nodes."""
 
 from __future__ import annotations
 
@@ -15,7 +15,7 @@ if TYPE_CHECKING:
 
 
 class TpLinkDecoDecoDevice(CoordinatorEntity[TpLinkDecoDataUpdateCoordinator]):
-    """Entity representing a TP-Link Deco mesh node."""
+    """Device representing a TP-Link Deco mesh node."""
 
     _attr_attribution = ATTRIBUTION
     _attr_has_entity_name = True
@@ -25,7 +25,7 @@ class TpLinkDecoDecoDevice(CoordinatorEntity[TpLinkDecoDataUpdateCoordinator]):
         coordinator: TpLinkDecoDataUpdateCoordinator,
         node: Device,
     ) -> None:
-        """Initialize the Deco node entity with the coordinator and node."""
+        """Initialize the Deco node device with the coordinator and node."""
         super().__init__(coordinator)
         self._node_mac = node.mac
 

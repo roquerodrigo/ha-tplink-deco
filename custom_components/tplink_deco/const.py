@@ -1,4 +1,4 @@
-"""Constants for tplink_deco."""
+"""Constants for the TP-Link Deco integration."""
 
 from logging import Logger, getLogger
 

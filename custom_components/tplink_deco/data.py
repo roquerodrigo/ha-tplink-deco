@@ -1,4 +1,4 @@
-"""Custom types for tplink_deco."""
+"""Custom types for the TP-Link Deco integration."""
 
 from __future__ import annotations
 
