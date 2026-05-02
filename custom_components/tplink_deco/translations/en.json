@@ -3,6 +3,9 @@
         "binary_sensor": {
             "connected": {
                 "name": "Connected"
+            },
+            "internet": {
+                "name": "Internet"
             }
         },
         "sensor": {
