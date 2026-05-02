@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
-
 from homeassistant.components.sensor import (
     SensorDeviceClass,
     SensorEntity,
@@ -11,12 +9,8 @@ from homeassistant.components.sensor import (
     SensorStateClass,
 )
 from homeassistant.const import UnitOfDataRate
-from tplink_deco_api import ClientDevice
 
 from ..entity import TpLinkDecoClientEntity
-
-if TYPE_CHECKING:
-    from ..coordinator import TpLinkDecoDataUpdateCoordinator
 
 
 class TpLinkDecoUploadSensor(TpLinkDecoClientEntity, SensorEntity):
@@ -31,13 +25,9 @@ class TpLinkDecoUploadSensor(TpLinkDecoClientEntity, SensorEntity):
         icon="mdi:upload",
     )
 
-    def __init__(
-        self,
-        coordinator: TpLinkDecoDataUpdateCoordinator,
-        client: ClientDevice,
-    ) -> None:
-        super().__init__(coordinator, client)
-        self._attr_unique_id = f"{client.mac}_upload"
+    @property
+    def unique_id(self) -> str:
+        return f"{self._client_mac}_upload"
 
     @property
     def native_value(self) -> int | None:

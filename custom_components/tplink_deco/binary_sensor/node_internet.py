@@ -2,19 +2,13 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
-
 from homeassistant.components.binary_sensor import (
     BinarySensorDeviceClass,
     BinarySensorEntity,
     BinarySensorEntityDescription,
 )
-from tplink_deco_api import Device
 
 from ..node_entity import TpLinkDecoNodeEntity
-
-if TYPE_CHECKING:
-    from ..coordinator import TpLinkDecoDataUpdateCoordinator
 
 _INET_STATUS_CONNECTED = "online"
 
@@ -28,13 +22,9 @@ class TpLinkDecoNodeInternetBinarySensor(TpLinkDecoNodeEntity, BinarySensorEntit
         device_class=BinarySensorDeviceClass.CONNECTIVITY,
     )
 
-    def __init__(
-        self,
-        coordinator: TpLinkDecoDataUpdateCoordinator,
-        node: Device,
-    ) -> None:
-        super().__init__(coordinator, node)
-        self._attr_unique_id = f"{node.mac}_internet"
+    @property
+    def unique_id(self) -> str:
+        return f"{self._node_mac}_internet"
 
     @property
     def is_on(self) -> bool | None:

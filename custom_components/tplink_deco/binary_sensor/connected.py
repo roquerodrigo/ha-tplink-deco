@@ -2,20 +2,14 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
-
 from homeassistant.components.binary_sensor import (
     BinarySensorDeviceClass,
     BinarySensorEntity,
     BinarySensorEntityDescription,
 )
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
-from tplink_deco_api import ClientDevice
 
 from ..entity import TpLinkDecoClientEntity
-
-if TYPE_CHECKING:
-    from ..coordinator import TpLinkDecoDataUpdateCoordinator
 
 
 class TpLinkDecoConnectedBinarySensor(TpLinkDecoClientEntity, BinarySensorEntity):
@@ -27,13 +21,9 @@ class TpLinkDecoConnectedBinarySensor(TpLinkDecoClientEntity, BinarySensorEntity
         device_class=BinarySensorDeviceClass.CONNECTIVITY,
     )
 
-    def __init__(
-        self,
-        coordinator: TpLinkDecoDataUpdateCoordinator,
-        client: ClientDevice,
-    ) -> None:
-        super().__init__(coordinator, client)
-        self._attr_unique_id = f"{client.mac}_connected"
+    @property
+    def unique_id(self) -> str:
+        return f"{self._client_mac}_connected"
 
     @property
     def available(self) -> bool:

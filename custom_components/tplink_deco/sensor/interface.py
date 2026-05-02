@@ -2,19 +2,13 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
-
 from homeassistant.components.sensor import (
     SensorDeviceClass,
     SensorEntity,
     SensorEntityDescription,
 )
-from tplink_deco_api import ClientDevice
 
 from ..entity import TpLinkDecoClientEntity
-
-if TYPE_CHECKING:
-    from ..coordinator import TpLinkDecoDataUpdateCoordinator
 
 
 class TpLinkDecoInterfaceSensor(TpLinkDecoClientEntity, SensorEntity):
@@ -28,13 +22,9 @@ class TpLinkDecoInterfaceSensor(TpLinkDecoClientEntity, SensorEntity):
         icon="mdi:lan",
     )
 
-    def __init__(
-        self,
-        coordinator: TpLinkDecoDataUpdateCoordinator,
-        client: ClientDevice,
-    ) -> None:
-        super().__init__(coordinator, client)
-        self._attr_unique_id = f"{client.mac}_interface"
+    @property
+    def unique_id(self) -> str:
+        return f"{self._client_mac}_interface"
 
     @property
     def native_value(self) -> str | None:
