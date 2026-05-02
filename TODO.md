@@ -3,7 +3,6 @@
 Faça APENAS uma tarefa por vez, seguindo e ordem e remova-a da lista quando concluída.
 
 - Revise o uso de @property e @property.setter para garantir que estão sendo usados corretamente. Elas devem ser sempre usadas quando possível.
-- Crie um arquivo CODE_STYLE.md com as diretrizes de estilo de código para o projeto.
 - Crie um README.md em português do Brasil para o projeto.
 - Implemente testes para garantir cobertura de no minimo 90% do código.
 - Implemente um sistema de logging para facilitar a depuração e monitoramento do projeto.
