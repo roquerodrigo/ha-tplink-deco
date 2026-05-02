@@ -5,6 +5,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from homeassistant.components.device_tracker import ScannerEntity, SourceType
+from homeassistant.helpers.device_registry import DeviceInfo
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 from tplink_deco_api import ClientDevice
 
@@ -27,6 +28,10 @@ class TpLinkDecoClientTracker(TpLinkDecoClientEntity, ScannerEntity):
     ) -> None:
         super().__init__(coordinator, client)
         self._attr_unique_id = f"{client.mac}_tracker"
+
+    @property
+    def device_info(self) -> DeviceInfo | None:
+        return self._attr_device_info
 
     @property
     def available(self) -> bool:
