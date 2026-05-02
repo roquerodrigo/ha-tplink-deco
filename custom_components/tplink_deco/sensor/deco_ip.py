@@ -1,14 +1,14 @@
-"""IP address sensor for a TP-Link Deco client."""
+"""IP address sensor for a TP-Link Deco node."""
 
 from __future__ import annotations
 
 from homeassistant.components.sensor import SensorEntity, SensorEntityDescription
 
-from ..entity import TpLinkDecoClientEntity
+from ..deco_entity import TpLinkDecoDecoEntity
 
 
-class TpLinkDecoIpSensor(TpLinkDecoClientEntity, SensorEntity):
-    """Sensor for the IP address of a TP-Link Deco client."""
+class TpLinkDecoDecoIpSensor(TpLinkDecoDecoEntity, SensorEntity):
+    """Sensor for the IP address of a TP-Link Deco node."""
 
     entity_description = SensorEntityDescription(
         key="ip",
@@ -18,9 +18,9 @@ class TpLinkDecoIpSensor(TpLinkDecoClientEntity, SensorEntity):
 
     @property
     def unique_id(self) -> str:
-        return f"{self._client_mac}_ip"
+        return f"{self._node_mac}_node_ip"
 
     @property
     def native_value(self) -> str | None:
-        client = self.client
-        return client.ip if client else None
+        node = self.node
+        return node.device_ip if node else None

@@ -10,10 +10,10 @@ from homeassistant.components.sensor import (
 )
 from homeassistant.const import UnitOfDataRate
 
-from ..entity import TpLinkDecoClientEntity
+from ..client_entity import TpLinkDecoClientEntity
 
 
-class TpLinkDecoUploadSensor(TpLinkDecoClientEntity, SensorEntity):
+class TpLinkDecoClientUploadSensor(TpLinkDecoClientEntity, SensorEntity):
     """Sensor for the upload speed of a TP-Link Deco client."""
 
     entity_description = SensorEntityDescription(

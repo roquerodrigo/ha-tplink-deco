@@ -8,12 +8,12 @@ from homeassistant.components.binary_sensor import (
     BinarySensorEntityDescription,
 )
 
-from ..node_entity import TpLinkDecoNodeEntity
+from ..deco_entity import TpLinkDecoDecoEntity
 
 _INET_STATUS_CONNECTED = "online"
 
 
-class TpLinkDecoNodeInternetBinarySensor(TpLinkDecoNodeEntity, BinarySensorEntity):
+class TpLinkDecoDecoInternetBinarySensor(TpLinkDecoDecoEntity, BinarySensorEntity):
     """Binary sensor for the internet connectivity of a TP-Link Deco node."""
 
     entity_description = BinarySensorEntityDescription(

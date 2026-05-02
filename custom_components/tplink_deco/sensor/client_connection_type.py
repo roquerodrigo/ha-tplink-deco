@@ -8,10 +8,10 @@ from homeassistant.components.sensor import (
     SensorEntityDescription,
 )
 
-from ..entity import TpLinkDecoClientEntity
+from ..client_entity import TpLinkDecoClientEntity
 
 
-class TpLinkDecoConnectionTypeSensor(TpLinkDecoClientEntity, SensorEntity):
+class TpLinkDecoClientConnectionTypeSensor(TpLinkDecoClientEntity, SensorEntity):
     """Sensor for the connection type of a TP-Link Deco client."""
 
     entity_description = SensorEntityDescription(

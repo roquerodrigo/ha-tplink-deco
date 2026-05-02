@@ -4,8 +4,8 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from .connected import TpLinkDecoConnectedBinarySensor
-from .node_internet import TpLinkDecoNodeInternetBinarySensor
+from .client_connected import TpLinkDecoClientConnectedBinarySensor
+from .deco_internet import TpLinkDecoDecoInternetBinarySensor
 
 if TYPE_CHECKING:
     from homeassistant.core import HomeAssistant
@@ -31,7 +31,7 @@ async def async_setup_entry(
         if new_clients:
             known_client_macs.update(c.mac for c in new_clients)
             async_add_entities(
-                TpLinkDecoConnectedBinarySensor(coordinator, client)
+                TpLinkDecoClientConnectedBinarySensor(coordinator, client)
                 for client in new_clients
             )
 
@@ -39,7 +39,7 @@ async def async_setup_entry(
         if new_nodes:
             known_node_macs.update(n.mac for n in new_nodes)
             async_add_entities(
-                TpLinkDecoNodeInternetBinarySensor(coordinator, node)
+                TpLinkDecoDecoInternetBinarySensor(coordinator, node)
                 for node in new_nodes
             )
 

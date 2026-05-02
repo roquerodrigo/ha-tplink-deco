@@ -10,7 +10,7 @@ from .const import ATTRIBUTION, DOMAIN, MANUFACTURER
 from .coordinator import TpLinkDecoDataUpdateCoordinator
 
 
-class TpLinkDecoNodeEntity(CoordinatorEntity[TpLinkDecoDataUpdateCoordinator]):
+class TpLinkDecoDecoEntity(CoordinatorEntity[TpLinkDecoDataUpdateCoordinator]):
     """Entity representing a TP-Link Deco mesh node."""
 
     _attr_attribution = ATTRIBUTION

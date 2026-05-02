@@ -4,16 +4,16 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from .connection_type import TpLinkDecoConnectionTypeSensor
-from .download import TpLinkDecoDownloadSensor
-from .interface import TpLinkDecoInterfaceSensor
-from .ip import TpLinkDecoIpSensor
-from .mac import TpLinkDecoMacSensor
-from .node_cpu import TpLinkDecoNodeCpuSensor
-from .node_ip import TpLinkDecoNodeIpSensor
-from .node_mac import TpLinkDecoNodeMacSensor
-from .node_memory import TpLinkDecoNodeMemorySensor
-from .upload import TpLinkDecoUploadSensor
+from .client_connection_type import TpLinkDecoClientConnectionTypeSensor
+from .client_download import TpLinkDecoClientDownloadSensor
+from .client_interface import TpLinkDecoClientInterfaceSensor
+from .client_ip import TpLinkDecoClientIpSensor
+from .client_mac import TpLinkDecoClientMacSensor
+from .client_upload import TpLinkDecoClientUploadSensor
+from .deco_cpu import TpLinkDecoDecoCpuSensor
+from .deco_ip import TpLinkDecoDecoIpSensor
+from .deco_mac import TpLinkDecoDecoMacSensor
+from .deco_memory import TpLinkDecoDecoMemorySensor
 
 if TYPE_CHECKING:
     from homeassistant.core import HomeAssistant
@@ -42,12 +42,12 @@ async def async_setup_entry(
                 entity
                 for client in new_clients
                 for entity in (
-                    TpLinkDecoMacSensor(coordinator, client),
-                    TpLinkDecoIpSensor(coordinator, client),
-                    TpLinkDecoDownloadSensor(coordinator, client),
-                    TpLinkDecoUploadSensor(coordinator, client),
-                    TpLinkDecoConnectionTypeSensor(coordinator, client),
-                    TpLinkDecoInterfaceSensor(coordinator, client),
+                    TpLinkDecoClientMacSensor(coordinator, client),
+                    TpLinkDecoClientIpSensor(coordinator, client),
+                    TpLinkDecoClientDownloadSensor(coordinator, client),
+                    TpLinkDecoClientUploadSensor(coordinator, client),
+                    TpLinkDecoClientConnectionTypeSensor(coordinator, client),
+                    TpLinkDecoClientInterfaceSensor(coordinator, client),
                 )
             )
 
@@ -57,13 +57,13 @@ async def async_setup_entry(
             entities = []
             for node in new_nodes:
                 entities.extend([
-                    TpLinkDecoNodeMacSensor(coordinator, node),
-                    TpLinkDecoNodeIpSensor(coordinator, node),
+                    TpLinkDecoDecoMacSensor(coordinator, node),
+                    TpLinkDecoDecoIpSensor(coordinator, node),
                 ])
                 if node.role == "master":
                     entities.extend([
-                        TpLinkDecoNodeCpuSensor(coordinator, node),
-                        TpLinkDecoNodeMemorySensor(coordinator, node),
+                        TpLinkDecoDecoCpuSensor(coordinator, node),
+                        TpLinkDecoDecoMemorySensor(coordinator, node),
                     ])
             async_add_entities(entities)
 

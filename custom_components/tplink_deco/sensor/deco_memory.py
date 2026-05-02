@@ -9,10 +9,10 @@ from homeassistant.components.sensor import (
 )
 from homeassistant.const import PERCENTAGE
 
-from ..node_entity import TpLinkDecoNodeEntity
+from ..deco_entity import TpLinkDecoDecoEntity
 
 
-class TpLinkDecoNodeMemorySensor(TpLinkDecoNodeEntity, SensorEntity):
+class TpLinkDecoDecoMemorySensor(TpLinkDecoDecoEntity, SensorEntity):
     """Sensor for the memory usage of a TP-Link Deco node."""
 
     entity_description = SensorEntityDescription(
