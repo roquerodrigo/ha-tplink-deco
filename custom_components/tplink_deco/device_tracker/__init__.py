@@ -4,6 +4,8 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+from custom_components.tplink_deco.const import LOGGER
+
 from .client import TpLinkDecoClientTracker
 
 if TYPE_CHECKING:
@@ -31,6 +33,7 @@ async def async_setup_entry(
         if not new_clients:
             return
         known_macs.update(c.mac for c in new_clients)
+        LOGGER.debug("Adding device_tracker for %d new client(s)", len(new_clients))
         async_add_entities(
             TpLinkDecoClientTracker(coordinator, client) for client in new_clients
         )

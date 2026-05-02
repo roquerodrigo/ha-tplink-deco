@@ -4,6 +4,8 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+from custom_components.tplink_deco.const import LOGGER
+
 from .client_connected import TpLinkDecoClientConnectedBinarySensor
 from .deco_internet import TpLinkDecoDecoInternetBinarySensor
 
@@ -34,6 +36,9 @@ async def async_setup_entry(
         ]
         if new_clients:
             known_client_macs.update(c.mac for c in new_clients)
+            LOGGER.debug(
+                "Adding connected binary_sensor for %d new client(s)", len(new_clients)
+            )
             async_add_entities(
                 TpLinkDecoClientConnectedBinarySensor(coordinator, client)
                 for client in new_clients
@@ -46,6 +51,10 @@ async def async_setup_entry(
         ]
         if new_nodes:
             known_node_macs.update(n.mac for n in new_nodes)
+            LOGGER.debug(
+                "Adding internet binary_sensor for %d new Deco node(s)",
+                len(new_nodes),
+            )
             async_add_entities(
                 TpLinkDecoDecoInternetBinarySensor(coordinator, node)
                 for node in new_nodes

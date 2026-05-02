@@ -4,6 +4,8 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+from custom_components.tplink_deco.const import LOGGER
+
 from .client_connection_type import TpLinkDecoClientConnectionTypeSensor
 from .client_download import TpLinkDecoClientDownloadSensor
 from .client_interface import TpLinkDecoClientInterfaceSensor
@@ -43,6 +45,7 @@ async def async_setup_entry(
         ]
         if new_clients:
             known_client_macs.update(c.mac for c in new_clients)
+            LOGGER.debug("Adding sensors for %d new client(s)", len(new_clients))
             async_add_entities(
                 entity
                 for client in new_clients
@@ -63,6 +66,7 @@ async def async_setup_entry(
         ]
         if new_nodes:
             known_node_macs.update(n.mac for n in new_nodes)
+            LOGGER.debug("Adding sensors for %d new Deco node(s)", len(new_nodes))
             entities = []
             for node in new_nodes:
                 entities.extend(
