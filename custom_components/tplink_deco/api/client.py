@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from tplink_deco_api import ClientDevice, DecoClient, Device, Performance
+from tplink_deco_api import DecoClient
 from tplink_deco_api.exceptions import ApiError, AuthenticationError, DecoError, TransportError
 
 from .errors import (
@@ -10,6 +10,7 @@ from .errors import (
     TpLinkDecoApiClientCommunicationError,
     TpLinkDecoApiClientError,
 )
+from .snapshot import TpLinkDecoSnapshot
 
 
 class TpLinkDecoApiClient:
@@ -20,14 +21,14 @@ class TpLinkDecoApiClient:
         self._username = username
         self._password = password
 
-    def get_snapshot(self) -> tuple[list[ClientDevice], list[Device], Performance | None]:
+    def get_snapshot(self) -> TpLinkDecoSnapshot:
         """Fetch clients, nodes and performance in a single authenticated session."""
         try:
             with DecoClient(self._host, self._username, self._password) as deco:
                 clients = deco.get_client_list()
                 nodes = deco.get_device_list()
                 performance = deco.get_performance()
-            return clients, nodes, performance
+            return TpLinkDecoSnapshot(clients=clients, nodes=nodes, performance=performance)
         except AuthenticationError as exception:
             msg = "Invalid credentials"
             raise TpLinkDecoApiClientAuthenticationError(msg) from exception
