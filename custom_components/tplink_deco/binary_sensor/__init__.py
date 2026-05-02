@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from .conectado import TpLinkDecoConectadoBinarySensor
+from .connected import TpLinkDecoConnectedBinarySensor
 
 if TYPE_CHECKING:
     from homeassistant.core import HomeAssistant
@@ -28,7 +28,7 @@ async def async_setup_entry(
             return
         known_macs.update(c.mac for c in new_clients)
         async_add_entities(
-            TpLinkDecoConectadoBinarySensor(coordinator, client)
+            TpLinkDecoConnectedBinarySensor(coordinator, client)
             for client in new_clients
         )
 

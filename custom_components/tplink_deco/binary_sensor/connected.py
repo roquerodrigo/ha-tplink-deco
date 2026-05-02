@@ -18,12 +18,12 @@ if TYPE_CHECKING:
     from ..coordinator import TpLinkDecoDataUpdateCoordinator
 
 
-class TpLinkDecoConectadoBinarySensor(TpLinkDecoClientEntity, BinarySensorEntity):
+class TpLinkDecoConnectedBinarySensor(TpLinkDecoClientEntity, BinarySensorEntity):
     """Binary sensor for the connected status of a TP-Link Deco client."""
 
     entity_description = BinarySensorEntityDescription(
-        key="conectado",
-        translation_key="conectado",
+        key="connected",
+        translation_key="connected",
         device_class=BinarySensorDeviceClass.CONNECTIVITY,
     )
 
@@ -33,7 +33,7 @@ class TpLinkDecoConectadoBinarySensor(TpLinkDecoClientEntity, BinarySensorEntity
         client: ClientDevice,
     ) -> None:
         super().__init__(coordinator, client)
-        self._attr_unique_id = f"{client.mac}_conectado"
+        self._attr_unique_id = f"{client.mac}_connected"
 
     @property
     def available(self) -> bool:
