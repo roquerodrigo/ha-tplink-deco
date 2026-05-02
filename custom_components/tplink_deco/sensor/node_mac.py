@@ -10,7 +10,7 @@ from tplink_deco_api import Device
 from ..node_entity import TpLinkDecoNodeEntity
 
 if TYPE_CHECKING:
-    from ..node_coordinator import TpLinkDecoNodeCoordinator
+    from ..coordinator import TpLinkDecoDataUpdateCoordinator
 
 
 class TpLinkDecoNodeMacSensor(TpLinkDecoNodeEntity, SensorEntity):
@@ -24,7 +24,7 @@ class TpLinkDecoNodeMacSensor(TpLinkDecoNodeEntity, SensorEntity):
 
     def __init__(
         self,
-        coordinator: TpLinkDecoNodeCoordinator,
+        coordinator: TpLinkDecoDataUpdateCoordinator,
         node: Device,
     ) -> None:
         super().__init__(coordinator, node)

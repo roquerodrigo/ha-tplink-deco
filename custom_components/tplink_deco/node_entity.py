@@ -7,10 +7,10 @@ from homeassistant.helpers.update_coordinator import CoordinatorEntity
 from tplink_deco_api import Device
 
 from .const import ATTRIBUTION, DOMAIN, MANUFACTURER
-from .node_coordinator import TpLinkDecoNodeCoordinator
+from .coordinator import TpLinkDecoDataUpdateCoordinator
 
 
-class TpLinkDecoNodeEntity(CoordinatorEntity[TpLinkDecoNodeCoordinator]):
+class TpLinkDecoNodeEntity(CoordinatorEntity[TpLinkDecoDataUpdateCoordinator]):
     """Entity representing a TP-Link Deco mesh node."""
 
     _attr_attribution = ATTRIBUTION
@@ -18,7 +18,7 @@ class TpLinkDecoNodeEntity(CoordinatorEntity[TpLinkDecoNodeCoordinator]):
 
     def __init__(
         self,
-        coordinator: TpLinkDecoNodeCoordinator,
+        coordinator: TpLinkDecoDataUpdateCoordinator,
         node: Device,
     ) -> None:
         super().__init__(coordinator)
@@ -40,6 +40,6 @@ class TpLinkDecoNodeEntity(CoordinatorEntity[TpLinkDecoNodeCoordinator]):
     @property
     def node(self) -> Device | None:
         return next(
-            (d for d in self.coordinator.data if d.mac == self._node_mac),
+            (d for d in self.coordinator.data.nodes if d.mac == self._node_mac),
             None,
         )

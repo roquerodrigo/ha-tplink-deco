@@ -23,7 +23,7 @@ async def async_setup_entry(
     known_macs: set[str] = set()
 
     def _add_new_entities() -> None:
-        new_clients = [c for c in (coordinator.data or []) if c.mac not in known_macs]
+        new_clients = [c for c in (coordinator.data.clients if coordinator.data else []) if c.mac not in known_macs]
         if not new_clients:
             return
         known_macs.update(c.mac for c in new_clients)

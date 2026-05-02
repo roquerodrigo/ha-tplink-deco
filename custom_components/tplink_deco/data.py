@@ -11,7 +11,6 @@ if TYPE_CHECKING:
 
     from .api import TpLinkDecoApiClient
     from .coordinator import TpLinkDecoDataUpdateCoordinator
-    from .node_coordinator import TpLinkDecoNodeCoordinator
 
 
 type TpLinkDecoConfigEntry = ConfigEntry[TpLinkDecoData]
@@ -23,5 +22,4 @@ class TpLinkDecoData:
 
     client: TpLinkDecoApiClient
     coordinator: TpLinkDecoDataUpdateCoordinator
-    node_coordinator: TpLinkDecoNodeCoordinator
     integration: Integration

@@ -20,26 +20,13 @@ class TpLinkDecoApiClient:
         self._username = username
         self._password = password
 
-    def get_devices(self) -> list[Device]:
-        """Get all Deco nodes from the router."""
+    def get_snapshot(self) -> tuple[list[ClientDevice], list[Device]]:
+        """Fetch clients and nodes in a single authenticated session."""
         try:
             with DecoClient(self._host, self._username, self._password) as deco:
-                return deco.get_device_list()
-        except AuthenticationError as exception:
-            msg = "Invalid credentials"
-            raise TpLinkDecoApiClientAuthenticationError(msg) from exception
-        except (TransportError, ApiError) as exception:
-            msg = f"Error communicating with the router - {exception}"
-            raise TpLinkDecoApiClientCommunicationError(msg) from exception
-        except DecoError as exception:
-            msg = f"Unexpected error - {exception}"
-            raise TpLinkDecoApiClientError(msg) from exception
-
-    def get_clients(self) -> list[ClientDevice]:
-        """Get all connected clients from the TP-Link Deco router."""
-        try:
-            with DecoClient(self._host, self._username, self._password) as deco:
-                return deco.get_client_list()
+                clients = deco.get_client_list()
+                nodes = deco.get_device_list()
+            return clients, nodes
         except AuthenticationError as exception:
             msg = "Invalid credentials"
             raise TpLinkDecoApiClientAuthenticationError(msg) from exception

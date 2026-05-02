@@ -21,7 +21,6 @@ class TpLinkDecoClientEntity(CoordinatorEntity[TpLinkDecoDataUpdateCoordinator])
         coordinator: TpLinkDecoDataUpdateCoordinator,
         client: ClientDevice,
     ) -> None:
-        """Initialize the entity."""
         super().__init__(coordinator)
         self._client_mac = client.mac
         self._attr_device_info = DeviceInfo(
@@ -32,13 +31,11 @@ class TpLinkDecoClientEntity(CoordinatorEntity[TpLinkDecoDataUpdateCoordinator])
 
     @property
     def available(self) -> bool:
-        """Return False when the device is not present in the latest coordinator data."""
         return super().available and self.client is not None
 
     @property
     def client(self) -> ClientDevice | None:
-        """Return the current client data from the coordinator."""
         return next(
-            (c for c in self.coordinator.data if c.mac == self._client_mac),
+            (c for c in self.coordinator.data.clients if c.mac == self._client_mac),
             None,
         )
