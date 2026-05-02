@@ -8,7 +8,7 @@ from homeassistant.exceptions import ConfigEntryAuthFailed
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
 from tplink_deco_api import ClientDevice
 
-from .api import (
+from .api.errors import (
     TpLinkDecoApiClientAuthenticationError,
     TpLinkDecoApiClientError,
 )

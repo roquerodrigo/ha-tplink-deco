@@ -1,4 +1,14 @@
 {
+    "entity": {
+        "sensor": {
+            "mac": {
+                "name": "Endereço MAC"
+            },
+            "ip": {
+                "name": "Endereço IP"
+            }
+        }
+    },
     "config": {
         "step": {
             "user": {

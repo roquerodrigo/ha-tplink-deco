@@ -5,24 +5,17 @@ from __future__ import annotations
 from tplink_deco_api import ClientDevice, DecoClient
 from tplink_deco_api.exceptions import ApiError, AuthenticationError, DecoError, TransportError
 
-
-class TpLinkDecoApiClientError(Exception):
-    """Exception to indicate a general API error."""
-
-
-class TpLinkDecoApiClientCommunicationError(TpLinkDecoApiClientError):
-    """Exception to indicate a communication error."""
-
-
-class TpLinkDecoApiClientAuthenticationError(TpLinkDecoApiClientError):
-    """Exception to indicate an authentication error."""
+from .errors import (
+    TpLinkDecoApiClientAuthenticationError,
+    TpLinkDecoApiClientCommunicationError,
+    TpLinkDecoApiClientError,
+)
 
 
 class TpLinkDecoApiClient:
     """TP-Link Deco API client."""
 
     def __init__(self, host: str, username: str, password: str) -> None:
-        """Initialize the client."""
         self._host = host
         self._username = username
         self._password = password

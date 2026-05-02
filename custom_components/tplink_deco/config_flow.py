@@ -7,8 +7,8 @@ from homeassistant import config_entries
 from homeassistant.const import CONF_HOST, CONF_PASSWORD, CONF_USERNAME
 from homeassistant.helpers import selector
 
-from .api import (
-    TpLinkDecoApiClient,
+from .api import TpLinkDecoApiClient
+from .api.errors import (
     TpLinkDecoApiClientAuthenticationError,
     TpLinkDecoApiClientCommunicationError,
     TpLinkDecoApiClientError,
