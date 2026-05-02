@@ -16,7 +16,7 @@ from ..node_entity import TpLinkDecoNodeEntity
 if TYPE_CHECKING:
     from ..coordinator import TpLinkDecoDataUpdateCoordinator
 
-_INET_STATUS_CONNECTED = "onLine"
+_INET_STATUS_CONNECTED = "online"
 
 
 class TpLinkDecoNodeInternetBinarySensor(TpLinkDecoNodeEntity, BinarySensorEntity):
