@@ -9,10 +9,10 @@ from homeassistant.components.binary_sensor import (
 )
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
-from custom_components.tplink_deco.entity import TpLinkDecoClientEntity
+from custom_components.tplink_deco.device import TpLinkDecoClientDevice
 
 
-class TpLinkDecoClientConnectedBinarySensor(TpLinkDecoClientEntity, BinarySensorEntity):
+class TpLinkDecoClientConnectedBinarySensor(TpLinkDecoClientDevice, BinarySensorEntity):
     """Binary sensor for the connected status of a TP-Link Deco client."""
 
     entity_description = BinarySensorEntityDescription(

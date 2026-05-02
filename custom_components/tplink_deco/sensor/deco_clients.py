@@ -8,10 +8,10 @@ from homeassistant.components.sensor import (
     SensorStateClass,
 )
 
-from custom_components.tplink_deco.entity import TpLinkDecoDecoEntity
+from custom_components.tplink_deco.device import TpLinkDecoDecoDevice
 
 
-class TpLinkDecoDecoClientsSensor(TpLinkDecoDecoEntity, SensorEntity):
+class TpLinkDecoDecoClientsSensor(TpLinkDecoDecoDevice, SensorEntity):
     """Sensor counting online clients on the TP-Link Deco network."""
 
     entity_description = SensorEntityDescription(

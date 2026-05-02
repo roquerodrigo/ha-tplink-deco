@@ -4,10 +4,10 @@ from __future__ import annotations
 
 from homeassistant.components.sensor import SensorEntity, SensorEntityDescription
 
-from custom_components.tplink_deco.entity import TpLinkDecoDecoEntity
+from custom_components.tplink_deco.device import TpLinkDecoDecoDevice
 
 
-class TpLinkDecoDecoMacSensor(TpLinkDecoDecoEntity, SensorEntity):
+class TpLinkDecoDecoMacSensor(TpLinkDecoDecoDevice, SensorEntity):
     """Sensor for the MAC address of a TP-Link Deco node."""
 
     entity_description = SensorEntityDescription(

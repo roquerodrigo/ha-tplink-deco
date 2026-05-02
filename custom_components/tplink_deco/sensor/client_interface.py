@@ -8,10 +8,10 @@ from homeassistant.components.sensor import (
     SensorEntityDescription,
 )
 
-from custom_components.tplink_deco.entity import TpLinkDecoClientEntity
+from custom_components.tplink_deco.device import TpLinkDecoClientDevice
 
 
-class TpLinkDecoClientInterfaceSensor(TpLinkDecoClientEntity, SensorEntity):
+class TpLinkDecoClientInterfaceSensor(TpLinkDecoClientDevice, SensorEntity):
     """Sensor for the network interface of a TP-Link Deco client."""
 
     entity_description = SensorEntityDescription(

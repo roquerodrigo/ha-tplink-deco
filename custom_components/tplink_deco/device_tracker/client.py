@@ -7,13 +7,13 @@ from typing import TYPE_CHECKING
 from homeassistant.components.device_tracker import ScannerEntity, SourceType
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
-from custom_components.tplink_deco.entity import TpLinkDecoClientEntity
+from custom_components.tplink_deco.device import TpLinkDecoClientDevice
 
 if TYPE_CHECKING:
     from homeassistant.helpers.device_registry import DeviceInfo
 
 
-class TpLinkDecoClientTracker(TpLinkDecoClientEntity, ScannerEntity):
+class TpLinkDecoClientTracker(TpLinkDecoClientDevice, ScannerEntity):
     """Device tracker for a client connected to the TP-Link Deco network."""
 
     _attr_name = None
