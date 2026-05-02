@@ -2,20 +2,20 @@
     "config": {
         "step": {
             "user": {
-                "description": "If you need help with the configuration have a look here: {documentation_url}",
                 "data": {
+                    "host": "Router IP Address",
                     "username": "Username",
                     "password": "Password"
                 }
             }
         },
         "error": {
-            "auth": "Username/Password is wrong.",
-            "connection": "Unable to connect to the server.",
+            "auth": "Username or password is incorrect.",
+            "connection": "Unable to connect to the router.",
             "unknown": "Unknown error occurred."
         },
         "abort": {
-            "already_configured": "This entry is already configured."
+            "already_configured": "This router is already configured."
         }
     }
 }

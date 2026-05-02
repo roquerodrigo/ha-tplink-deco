@@ -1,0 +1,21 @@
+{
+    "config": {
+        "step": {
+            "user": {
+                "data": {
+                    "host": "Endereço IP do roteador",
+                    "username": "Usuário",
+                    "password": "Senha"
+                }
+            }
+        },
+        "error": {
+            "auth": "Usuário ou senha incorretos.",
+            "connection": "Não foi possível conectar ao roteador.",
+            "unknown": "Erro desconhecido."
+        },
+        "abort": {
+            "already_configured": "Este roteador já está configurado."
+        }
+    }
+}
