@@ -15,6 +15,17 @@ ignore = [
     "ISC001", # incompatible with formatter
 ]
 
+[lint.per-file-ignores]
+"tests/**" = [
+    "S101",     # asserts are the point of tests
+    "SLF001",   # tests intentionally exercise private members
+    "ARG001",   # unused fixtures are normal
+    "PLR2004",  # magic numbers in tests are fine
+    "D100",     # missing module docstring tolerated in tests
+    "D103",     # missing function docstring tolerated in tests
+    "ANN401",   # tests sometimes use Any
+]
+
 [lint.flake8-pytest-style]
 fixture-parentheses = false
 

@@ -79,6 +79,9 @@ exit cleanly.
 - Default to **no comments**. Add one only when the *why* is not obvious from
   the code (a hidden constraint, a workaround, a subtle invariant).
 - Never describe *what* the code does — well-named identifiers handle that.
+- **No section dividers** like `# --- Client sensors ---` to group related
+  declarations. If a file has so many sections that you feel the need for
+  visual separators, split it into multiple files instead.
 
 ## Coordinator and snapshot
 
