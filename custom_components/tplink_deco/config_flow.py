@@ -58,7 +58,7 @@ class TpLinkDecoFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
                 {
                     vol.Required(
                         CONF_HOST,
-                        default=(user_input or {}).get(CONF_HOST, vol.UNDEFINED),
+                        default=(user_input or {}).get(CONF_HOST, "192.168.0.1"),
                     ): selector.TextSelector(
                         selector.TextSelectorConfig(
                             type=selector.TextSelectorType.TEXT,
@@ -66,7 +66,7 @@ class TpLinkDecoFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
                     ),
                     vol.Required(
                         CONF_USERNAME,
-                        default=(user_input or {}).get(CONF_USERNAME, vol.UNDEFINED),
+                        default=(user_input or {}).get(CONF_USERNAME, "admin"),
                     ): selector.TextSelector(
                         selector.TextSelectorConfig(
                             type=selector.TextSelectorType.TEXT,
@@ -85,4 +85,4 @@ class TpLinkDecoFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
     def _test_credentials(self, host: str, username: str, password: str) -> None:
         """Validate credentials by connecting to the router (runs in executor)."""
         client = TpLinkDecoApiClient(host=host, username=username, password=password)
-        client.get_clients()
+        client.get_snapshot()
