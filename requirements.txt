@@ -2,4 +2,4 @@ colorlog==6.10.1
 homeassistant==2026.2.3
 pip>=26.1
 ruff==0.15.12
-tplink-deco-api==1.0.0
+tplink-deco-api==1.0.1
