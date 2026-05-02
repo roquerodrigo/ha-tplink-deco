@@ -23,13 +23,17 @@ class TpLinkDecoNodeEntity(CoordinatorEntity[TpLinkDecoDataUpdateCoordinator]):
     ) -> None:
         super().__init__(coordinator)
         self._node_mac = node.mac
-        self._attr_device_info = DeviceInfo(
-            identifiers={(DOMAIN, node.mac)},
-            connections={(CONNECTION_NETWORK_MAC, node.mac)},
-            name=node.custom_nickname or node.nickname,
-            model=node.device_model,
-            sw_version=node.software_ver,
-            hw_version=node.hardware_ver,
+
+    @property
+    def device_info(self) -> DeviceInfo | None:
+        node = self.node
+        return DeviceInfo(
+            identifiers={(DOMAIN, self._node_mac)},
+            connections={(CONNECTION_NETWORK_MAC, self._node_mac)},
+            name=node.custom_nickname or node.nickname if node else None,
+            model=node.device_model if node else None,
+            sw_version=node.software_ver if node else None,
+            hw_version=node.hardware_ver if node else None,
             manufacturer=MANUFACTURER,
         )
 
