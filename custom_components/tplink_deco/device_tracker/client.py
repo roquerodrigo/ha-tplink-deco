@@ -5,7 +5,7 @@ from __future__ import annotations
 from homeassistant.components.device_tracker import ScannerEntity, SourceType
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
-from ..client_entity import TpLinkDecoClientEntity
+from ..entity import TpLinkDecoClientEntity
 
 
 class TpLinkDecoClientTracker(TpLinkDecoClientEntity, ScannerEntity):

@@ -8,7 +8,7 @@ from homeassistant.components.binary_sensor import (
     BinarySensorEntityDescription,
 )
 
-from ..deco_entity import TpLinkDecoDecoEntity
+from ..entity import TpLinkDecoDecoEntity
 
 _INET_STATUS_CONNECTED = "online"
 

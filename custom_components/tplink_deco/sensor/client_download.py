@@ -10,7 +10,7 @@ from homeassistant.components.sensor import (
 )
 from homeassistant.const import UnitOfDataRate
 
-from ..client_entity import TpLinkDecoClientEntity
+from ..entity import TpLinkDecoClientEntity
 
 
 class TpLinkDecoClientDownloadSensor(TpLinkDecoClientEntity, SensorEntity):

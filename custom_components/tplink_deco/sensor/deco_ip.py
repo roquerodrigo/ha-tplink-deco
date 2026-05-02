@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from homeassistant.components.sensor import SensorEntity, SensorEntityDescription
 
-from ..deco_entity import TpLinkDecoDecoEntity
+from ..entity import TpLinkDecoDecoEntity
 
 
 class TpLinkDecoDecoIpSensor(TpLinkDecoDecoEntity, SensorEntity):
