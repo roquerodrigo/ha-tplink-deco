@@ -18,7 +18,7 @@ if TYPE_CHECKING:
 
     from .data import TpLinkDecoConfigEntry
 
-PLATFORMS: list[Platform] = [Platform.BINARY_SENSOR, Platform.SENSOR]
+PLATFORMS: list[Platform] = [Platform.BINARY_SENSOR, Platform.DEVICE_TRACKER, Platform.SENSOR]
 
 
 async def async_setup_entry(
