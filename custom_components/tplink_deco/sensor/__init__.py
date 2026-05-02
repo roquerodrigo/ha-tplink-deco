@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+from .connection_type import TpLinkDecoConnectionTypeSensor
 from .download import TpLinkDecoDownloadSensor
 from .ip import TpLinkDecoIpSensor
 from .mac import TpLinkDecoMacSensor
@@ -38,6 +39,7 @@ async def async_setup_entry(
                 TpLinkDecoIpSensor(coordinator, client),
                 TpLinkDecoDownloadSensor(coordinator, client),
                 TpLinkDecoUploadSensor(coordinator, client),
+                TpLinkDecoConnectionTypeSensor(coordinator, client),
             )
         )
 

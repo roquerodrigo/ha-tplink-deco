@@ -12,6 +12,15 @@
             },
             "upload": {
                 "name": "Upload Speed"
+            },
+            "connection_type": {
+                "name": "Connection Type",
+                "state": {
+                    "band2_4": "2.4 GHz",
+                    "band5": "5 GHz",
+                    "band6": "6 GHz",
+                    "wired": "Wired"
+                }
             }
         }
     },
