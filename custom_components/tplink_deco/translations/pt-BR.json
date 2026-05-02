@@ -6,6 +6,12 @@
             },
             "ip": {
                 "name": "Endereço IP"
+            },
+            "download": {
+                "name": "Velocidade de Download"
+            },
+            "upload": {
+                "name": "Velocidade de Upload"
             }
         }
     },

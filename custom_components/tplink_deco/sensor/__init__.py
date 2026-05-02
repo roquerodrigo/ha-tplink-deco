@@ -4,8 +4,10 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+from .download import TpLinkDecoDownloadSensor
 from .ip import TpLinkDecoIpSensor
 from .mac import TpLinkDecoMacSensor
+from .upload import TpLinkDecoUploadSensor
 
 if TYPE_CHECKING:
     from homeassistant.core import HomeAssistant
@@ -34,6 +36,8 @@ async def async_setup_entry(
             for entity in (
                 TpLinkDecoMacSensor(coordinator, client),
                 TpLinkDecoIpSensor(coordinator, client),
+                TpLinkDecoDownloadSensor(coordinator, client),
+                TpLinkDecoUploadSensor(coordinator, client),
             )
         )
 

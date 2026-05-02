@@ -6,6 +6,12 @@
             },
             "ip": {
                 "name": "IP Address"
+            },
+            "download": {
+                "name": "Download Speed"
+            },
+            "upload": {
+                "name": "Upload Speed"
             }
         }
     },
