@@ -9,7 +9,7 @@ from homeassistant.components.sensor import (
 )
 from homeassistant.const import PERCENTAGE
 
-from ..entity import TpLinkDecoDecoEntity
+from custom_components.tplink_deco.entity import TpLinkDecoDecoEntity
 
 
 class TpLinkDecoDecoMemorySensor(TpLinkDecoDecoEntity, SensorEntity):
@@ -25,9 +25,11 @@ class TpLinkDecoDecoMemorySensor(TpLinkDecoDecoEntity, SensorEntity):
 
     @property
     def unique_id(self) -> str:
+        """Return the unique entity ID."""
         return f"{self._node_mac}_mem_usage"
 
     @property
     def native_value(self) -> float | None:
+        """Return the memory usage percentage."""
         performance = self.coordinator.data.performance
         return round(performance.mem_usage * 100, 1) if performance else None

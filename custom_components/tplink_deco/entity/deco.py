@@ -2,12 +2,16 @@
 
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 from homeassistant.helpers.device_registry import CONNECTION_NETWORK_MAC, DeviceInfo
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
-from tplink_deco_api import Device
 
-from .const import ATTRIBUTION, DOMAIN, MANUFACTURER
-from .coordinator import TpLinkDecoDataUpdateCoordinator
+from custom_components.tplink_deco.const import ATTRIBUTION, DOMAIN, MANUFACTURER
+from custom_components.tplink_deco.coordinator import TpLinkDecoDataUpdateCoordinator
+
+if TYPE_CHECKING:
+    from tplink_deco_api import Device
 
 
 class TpLinkDecoDecoEntity(CoordinatorEntity[TpLinkDecoDataUpdateCoordinator]):
@@ -26,6 +30,7 @@ class TpLinkDecoDecoEntity(CoordinatorEntity[TpLinkDecoDataUpdateCoordinator]):
 
     @property
     def device_info(self) -> DeviceInfo | None:
+        """Return device info for this Deco mesh node."""
         node = self.node
         return DeviceInfo(
             identifiers={(DOMAIN, self._node_mac)},
@@ -39,10 +44,12 @@ class TpLinkDecoDecoEntity(CoordinatorEntity[TpLinkDecoDataUpdateCoordinator]):
 
     @property
     def available(self) -> bool:
+        """Return whether the entity is available."""
         return super().available and self.node is not None
 
     @property
     def node(self) -> Device | None:
+        """Return the current Deco node, or None if unavailable."""
         return next(
             (d for d in self.coordinator.data.nodes if d.mac == self._node_mac),
             None,

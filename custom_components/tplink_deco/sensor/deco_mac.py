@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from homeassistant.components.sensor import SensorEntity, SensorEntityDescription
 
-from ..entity import TpLinkDecoDecoEntity
+from custom_components.tplink_deco.entity import TpLinkDecoDecoEntity
 
 
 class TpLinkDecoDecoMacSensor(TpLinkDecoDecoEntity, SensorEntity):
@@ -18,9 +18,11 @@ class TpLinkDecoDecoMacSensor(TpLinkDecoDecoEntity, SensorEntity):
 
     @property
     def unique_id(self) -> str:
+        """Return the unique entity ID."""
         return f"{self._node_mac}_node_mac"
 
     @property
     def native_value(self) -> str | None:
+        """Return the MAC address."""
         node = self.node
         return node.mac if node else None

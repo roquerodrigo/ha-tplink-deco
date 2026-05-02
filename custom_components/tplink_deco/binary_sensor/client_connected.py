@@ -9,7 +9,7 @@ from homeassistant.components.binary_sensor import (
 )
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
-from ..entity import TpLinkDecoClientEntity
+from custom_components.tplink_deco.entity import TpLinkDecoClientEntity
 
 
 class TpLinkDecoClientConnectedBinarySensor(TpLinkDecoClientEntity, BinarySensorEntity):
@@ -23,14 +23,15 @@ class TpLinkDecoClientConnectedBinarySensor(TpLinkDecoClientEntity, BinarySensor
 
     @property
     def unique_id(self) -> str:
+        """Return the unique entity ID."""
         return f"{self._client_mac}_connected"
 
     @property
     def available(self) -> bool:
-        # Always available as long as the coordinator is working, even when
-        # the device is absent from the API response (i.e. offline).
+        """Return True as long as the coordinator is working, even when offline."""
         return CoordinatorEntity.available.fget(self)
 
     @property
     def is_on(self) -> bool:
+        """Return whether the client is connected."""
         return self.client is not None

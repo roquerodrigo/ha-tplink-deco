@@ -7,18 +7,18 @@ from typing import TYPE_CHECKING
 from homeassistant.exceptions import ConfigEntryAuthFailed
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
 
+from .api import TpLinkDecoSnapshot
 from .api.errors import (
     TpLinkDecoApiClientAuthenticationError,
     TpLinkDecoApiClientError,
 )
-from .api import TpLinkDecoSnapshot
 
 if TYPE_CHECKING:
     from .data import TpLinkDecoConfigEntry
 
 
 class TpLinkDecoDataUpdateCoordinator(DataUpdateCoordinator[TpLinkDecoSnapshot]):
-    """Fetches clients and nodes in a single session to avoid concurrent auth conflicts."""
+    """Fetches data in a single session to avoid concurrent auth conflicts."""
 
     config_entry: TpLinkDecoConfigEntry
 

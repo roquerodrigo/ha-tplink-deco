@@ -10,7 +10,7 @@ if TYPE_CHECKING:
     from homeassistant.core import HomeAssistant
     from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
-    from ..data import TpLinkDecoConfigEntry
+    from custom_components.tplink_deco.data import TpLinkDecoConfigEntry
 
 
 async def async_setup_entry(
@@ -23,13 +23,16 @@ async def async_setup_entry(
     known_macs: set[str] = set()
 
     def _add_new_entities() -> None:
-        new_clients = [c for c in (coordinator.data.clients if coordinator.data else []) if c.mac not in known_macs]
+        new_clients = [
+            c
+            for c in (coordinator.data.clients if coordinator.data else [])
+            if c.mac not in known_macs
+        ]
         if not new_clients:
             return
         known_macs.update(c.mac for c in new_clients)
         async_add_entities(
-            TpLinkDecoClientTracker(coordinator, client)
-            for client in new_clients
+            TpLinkDecoClientTracker(coordinator, client) for client in new_clients
         )
 
     _add_new_entities()

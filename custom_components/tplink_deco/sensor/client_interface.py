@@ -8,7 +8,7 @@ from homeassistant.components.sensor import (
     SensorEntityDescription,
 )
 
-from ..entity import TpLinkDecoClientEntity
+from custom_components.tplink_deco.entity import TpLinkDecoClientEntity
 
 
 class TpLinkDecoClientInterfaceSensor(TpLinkDecoClientEntity, SensorEntity):
@@ -24,9 +24,11 @@ class TpLinkDecoClientInterfaceSensor(TpLinkDecoClientEntity, SensorEntity):
 
     @property
     def unique_id(self) -> str:
+        """Return the unique entity ID."""
         return f"{self._client_mac}_interface"
 
     @property
     def native_value(self) -> str | None:
+        """Return the network interface."""
         client = self.client
         return client.interface if client else None

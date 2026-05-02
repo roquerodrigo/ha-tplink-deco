@@ -3,9 +3,10 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from typing import TYPE_CHECKING
 
-from tplink_deco_api import ClientDevice, Device
-from tplink_deco_api import Performance
+if TYPE_CHECKING:
+    from tplink_deco_api import ClientDevice, Device, Performance
 
 
 @dataclass

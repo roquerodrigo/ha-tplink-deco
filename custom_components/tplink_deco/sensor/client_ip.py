@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from homeassistant.components.sensor import SensorEntity, SensorEntityDescription
 
-from ..entity import TpLinkDecoClientEntity
+from custom_components.tplink_deco.entity import TpLinkDecoClientEntity
 
 
 class TpLinkDecoClientIpSensor(TpLinkDecoClientEntity, SensorEntity):
@@ -18,9 +18,11 @@ class TpLinkDecoClientIpSensor(TpLinkDecoClientEntity, SensorEntity):
 
     @property
     def unique_id(self) -> str:
+        """Return the unique entity ID."""
         return f"{self._client_mac}_ip"
 
     @property
     def native_value(self) -> str | None:
+        """Return the IP address."""
         client = self.client
         return client.ip if client else None

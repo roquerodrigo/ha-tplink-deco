@@ -3,7 +3,12 @@
 from __future__ import annotations
 
 from tplink_deco_api import DecoClient
-from tplink_deco_api.exceptions import ApiError, AuthenticationError, DecoError, TransportError
+from tplink_deco_api.exceptions import (
+    ApiError,
+    AuthenticationError,
+    DecoError,
+    TransportError,
+)
 
 from .errors import (
     TpLinkDecoApiClientAuthenticationError,
@@ -28,7 +33,9 @@ class TpLinkDecoApiClient:
                 clients = deco.get_client_list()
                 nodes = deco.get_device_list()
                 performance = deco.get_performance()
-            return TpLinkDecoSnapshot(clients=clients, nodes=nodes, performance=performance)
+            return TpLinkDecoSnapshot(
+                clients=clients, nodes=nodes, performance=performance
+            )
         except AuthenticationError as exception:
             msg = "Invalid credentials"
             raise TpLinkDecoApiClientAuthenticationError(msg) from exception

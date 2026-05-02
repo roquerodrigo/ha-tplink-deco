@@ -8,7 +8,7 @@ from homeassistant.components.binary_sensor import (
     BinarySensorEntityDescription,
 )
 
-from ..entity import TpLinkDecoDecoEntity
+from custom_components.tplink_deco.entity import TpLinkDecoDecoEntity
 
 _INET_STATUS_CONNECTED = "online"
 
@@ -24,9 +24,11 @@ class TpLinkDecoDecoInternetBinarySensor(TpLinkDecoDecoEntity, BinarySensorEntit
 
     @property
     def unique_id(self) -> str:
+        """Return the unique entity ID."""
         return f"{self._node_mac}_internet"
 
     @property
     def is_on(self) -> bool | None:
+        """Return whether the Deco node has internet connectivity."""
         node = self.node
         return node.inet_status == _INET_STATUS_CONNECTED if node else None

@@ -10,7 +10,7 @@ from homeassistant.components.sensor import (
 )
 from homeassistant.const import UnitOfDataRate
 
-from ..entity import TpLinkDecoClientEntity
+from custom_components.tplink_deco.entity import TpLinkDecoClientEntity
 
 
 class TpLinkDecoClientDownloadSensor(TpLinkDecoClientEntity, SensorEntity):
@@ -27,9 +27,11 @@ class TpLinkDecoClientDownloadSensor(TpLinkDecoClientEntity, SensorEntity):
 
     @property
     def unique_id(self) -> str:
+        """Return the unique entity ID."""
         return f"{self._client_mac}_download"
 
     @property
     def native_value(self) -> int | None:
+        """Return the download speed in kbps."""
         client = self.client
         return client.down_speed if client else None

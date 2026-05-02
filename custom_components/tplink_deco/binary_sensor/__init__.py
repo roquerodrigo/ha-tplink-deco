@@ -11,7 +11,7 @@ if TYPE_CHECKING:
     from homeassistant.core import HomeAssistant
     from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
-    from ..data import TpLinkDecoConfigEntry
+    from custom_components.tplink_deco.data import TpLinkDecoConfigEntry
 
 
 async def async_setup_entry(
@@ -27,7 +27,11 @@ async def async_setup_entry(
     def _add_new_entities() -> None:
         snapshot = coordinator.data
 
-        new_clients = [c for c in (snapshot.clients if snapshot else []) if c.mac not in known_client_macs]
+        new_clients = [
+            c
+            for c in (snapshot.clients if snapshot else [])
+            if c.mac not in known_client_macs
+        ]
         if new_clients:
             known_client_macs.update(c.mac for c in new_clients)
             async_add_entities(
@@ -35,7 +39,11 @@ async def async_setup_entry(
                 for client in new_clients
             )
 
-        new_nodes = [n for n in (snapshot.nodes if snapshot else []) if n.mac not in known_node_macs]
+        new_nodes = [
+            n
+            for n in (snapshot.nodes if snapshot else [])
+            if n.mac not in known_node_macs
+        ]
         if new_nodes:
             known_node_macs.update(n.mac for n in new_nodes)
             async_add_entities(
