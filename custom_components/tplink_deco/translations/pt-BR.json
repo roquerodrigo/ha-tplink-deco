@@ -1,5 +1,10 @@
 {
     "entity": {
+        "binary_sensor": {
+            "online": {
+                "name": "Online"
+            }
+        },
         "sensor": {
             "mac": {
                 "name": "Endereço MAC"
