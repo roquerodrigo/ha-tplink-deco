@@ -43,6 +43,9 @@
             },
             "mem_usage": {
                 "name": "Uso de Memória"
+            },
+            "clients_online": {
+                "name": "Clientes Online"
             }
         }
     },

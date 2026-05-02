@@ -10,6 +10,7 @@ from .client_interface import TpLinkDecoClientInterfaceSensor
 from .client_ip import TpLinkDecoClientIpSensor
 from .client_mac import TpLinkDecoClientMacSensor
 from .client_upload import TpLinkDecoClientUploadSensor
+from .deco_clients import TpLinkDecoDecoClientsSensor
 from .deco_cpu import TpLinkDecoDecoCpuSensor
 from .deco_ip import TpLinkDecoDecoIpSensor
 from .deco_mac import TpLinkDecoDecoMacSensor
@@ -75,6 +76,7 @@ async def async_setup_entry(
                         [
                             TpLinkDecoDecoCpuSensor(coordinator, node),
                             TpLinkDecoDecoMemorySensor(coordinator, node),
+                            TpLinkDecoDecoClientsSensor(coordinator, node),
                         ]
                     )
             async_add_entities(entities)
