@@ -21,6 +21,7 @@ class TpLinkDecoClientUploadSensor(TpLinkDecoClientDevice, SensorEntity):
         translation_key="upload",
         device_class=SensorDeviceClass.DATA_RATE,
         native_unit_of_measurement=UnitOfDataRate.KILOBITS_PER_SECOND,
+        suggested_unit_of_measurement=UnitOfDataRate.KILOBITS_PER_SECOND,
         state_class=SensorStateClass.MEASUREMENT,
         icon="mdi:upload",
     )
