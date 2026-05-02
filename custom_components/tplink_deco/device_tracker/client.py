@@ -2,10 +2,15 @@
 
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 from homeassistant.components.device_tracker import ScannerEntity, SourceType
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
 from custom_components.tplink_deco.entity import TpLinkDecoClientEntity
+
+if TYPE_CHECKING:
+    from homeassistant.helpers.device_registry import DeviceInfo
 
 
 class TpLinkDecoClientTracker(TpLinkDecoClientEntity, ScannerEntity):
@@ -39,3 +44,8 @@ class TpLinkDecoClientTracker(TpLinkDecoClientEntity, ScannerEntity):
     def mac_address(self) -> str:
         """Return the client MAC address."""
         return self._client_mac
+
+    @property
+    def device_info(self) -> DeviceInfo | None:
+        """Return the cached device info attribute."""
+        return self._attr_device_info

@@ -25,6 +25,7 @@ class TpLinkDecoClientEntity(CoordinatorEntity[TpLinkDecoDataUpdateCoordinator])
         coordinator: TpLinkDecoDataUpdateCoordinator,
         client: ClientDevice,
     ) -> None:
+        """Initialize the client entity with the coordinator and client device."""
         super().__init__(coordinator)
         self._client_mac = client.mac
 

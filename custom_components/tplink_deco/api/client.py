@@ -22,6 +22,7 @@ class TpLinkDecoApiClient:
     """TP-Link Deco API client."""
 
     def __init__(self, host: str, username: str, password: str) -> None:
+        """Store credentials used for each authenticated session."""
         self._host = host
         self._username = username
         self._password = password

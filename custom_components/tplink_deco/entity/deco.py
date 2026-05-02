@@ -25,6 +25,7 @@ class TpLinkDecoDecoEntity(CoordinatorEntity[TpLinkDecoDataUpdateCoordinator]):
         coordinator: TpLinkDecoDataUpdateCoordinator,
         node: Device,
     ) -> None:
+        """Initialize the Deco node entity with the coordinator and node."""
         super().__init__(coordinator)
         self._node_mac = node.mac
 
