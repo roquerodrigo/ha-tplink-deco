@@ -1,4 +1,4 @@
-"""Online status binary sensor for a TP-Link Deco client."""
+"""Connected status binary sensor for a TP-Link Deco client."""
 
 from __future__ import annotations
 
@@ -18,12 +18,12 @@ if TYPE_CHECKING:
     from ..coordinator import TpLinkDecoDataUpdateCoordinator
 
 
-class TpLinkDecoOnlineBinarySensor(TpLinkDecoClientEntity, BinarySensorEntity):
-    """Binary sensor for the online status of a TP-Link Deco client."""
+class TpLinkDecoConectadoBinarySensor(TpLinkDecoClientEntity, BinarySensorEntity):
+    """Binary sensor for the connected status of a TP-Link Deco client."""
 
     entity_description = BinarySensorEntityDescription(
-        key="online",
-        translation_key="online",
+        key="conectado",
+        translation_key="conectado",
         device_class=BinarySensorDeviceClass.CONNECTIVITY,
     )
 
@@ -33,7 +33,7 @@ class TpLinkDecoOnlineBinarySensor(TpLinkDecoClientEntity, BinarySensorEntity):
         client: ClientDevice,
     ) -> None:
         super().__init__(coordinator, client)
-        self._attr_unique_id = f"{client.mac}_online"
+        self._attr_unique_id = f"{client.mac}_conectado"
 
     @property
     def available(self) -> bool:

@@ -1,7 +1,7 @@
 {
     "entity": {
         "binary_sensor": {
-            "online": {
+            "conectado": {
                 "name": "Online"
             }
         },
