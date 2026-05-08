@@ -42,7 +42,7 @@ def test_client_device_info_without_master_node() -> None:
     client = make_client()
     snapshot = TpLinkDecoSnapshot(clients=[client], nodes=[], performance=None)
     device = TpLinkDecoClientDevice(_coordinator(snapshot), client)
-    assert device.device_info["via_device"] is None
+    assert "via_device" not in device.device_info
 
 
 def test_client_available_when_present() -> None:

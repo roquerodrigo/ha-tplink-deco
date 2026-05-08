@@ -7,7 +7,6 @@ from homeassistant.components.binary_sensor import (
     BinarySensorEntity,
     BinarySensorEntityDescription,
 )
-from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
 from custom_components.tplink_deco.device import TpLinkDecoClientDevice
 
@@ -29,7 +28,7 @@ class TpLinkDecoClientConnectedBinarySensor(TpLinkDecoClientDevice, BinarySensor
     @property
     def available(self) -> bool:
         """Return True as long as the coordinator is working, even when offline."""
-        return CoordinatorEntity.available.fget(self)
+        return self.coordinator.last_update_success
 
     @property
     def is_on(self) -> bool:
