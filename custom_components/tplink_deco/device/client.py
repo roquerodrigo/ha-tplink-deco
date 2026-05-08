@@ -2,12 +2,17 @@
 
 from __future__ import annotations
 
+import time
 from typing import TYPE_CHECKING
 
 from homeassistant.helpers.device_registry import CONNECTION_NETWORK_MAC, DeviceInfo
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
-from custom_components.tplink_deco.const import ATTRIBUTION, DOMAIN
+from custom_components.tplink_deco.const import (
+    ATTRIBUTION,
+    DOMAIN,
+    UNAVAILABLE_GRACE_PERIOD_SECONDS,
+)
 from custom_components.tplink_deco.coordinator import TpLinkDecoDataUpdateCoordinator
 
 if TYPE_CHECKING:
@@ -28,6 +33,8 @@ class TpLinkDecoClientDevice(CoordinatorEntity[TpLinkDecoDataUpdateCoordinator])
         """Initialize the client device with the coordinator and client."""
         super().__init__(coordinator)
         self._client_mac = client.mac
+        self._cached_client: ClientDevice | None = None
+        self._last_seen_at: float | None = None
 
     @property
     def device_info(self) -> DeviceInfo | None:
@@ -57,8 +64,21 @@ class TpLinkDecoClientDevice(CoordinatorEntity[TpLinkDecoDataUpdateCoordinator])
 
     @property
     def client(self) -> ClientDevice | None:
-        """Return the current client device, or None if offline."""
-        return next(
-            (c for c in self.coordinator.data.clients if c.mac == self._client_mac),
-            None,
+        """Return the current client, or the last seen one within the grace period."""
+        snapshot = self.coordinator.data
+        current = (
+            next((c for c in snapshot.clients if c.mac == self._client_mac), None)
+            if snapshot
+            else None
         )
+        if current is not None:
+            self._cached_client = current
+            self._last_seen_at = time.monotonic()
+            return current
+        if (
+            self._cached_client is not None
+            and self._last_seen_at is not None
+            and time.monotonic() - self._last_seen_at < UNAVAILABLE_GRACE_PERIOD_SECONDS
+        ):
+            return self._cached_client
+        return None
