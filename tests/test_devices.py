@@ -9,7 +9,11 @@ from unittest.mock import MagicMock
 from homeassistant.helpers.device_registry import CONNECTION_NETWORK_MAC
 
 from custom_components.tplink_deco.api import TpLinkDecoSnapshot
-from custom_components.tplink_deco.const import DOMAIN, MANUFACTURER
+from custom_components.tplink_deco.const import (
+    DOMAIN,
+    MANUFACTURER,
+    UNAVAILABLE_GRACE_PERIOD_SECONDS,
+)
 from custom_components.tplink_deco.device import (
     TpLinkDecoClientDevice,
     TpLinkDecoDecoDevice,
@@ -112,7 +116,7 @@ def test_deco_unavailable_when_node_missing() -> None:
 def test_client_stays_available_during_grace_period(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    """A client that disappears stays available for 90s using its cached state."""
+    """A client that disappears stays available within the grace period."""
     fake_time = 0.0
     monkeypatch.setattr(time, "monotonic", lambda: fake_time)
 
@@ -125,7 +129,7 @@ def test_client_stays_available_during_grace_period(
     assert device.client is client
 
     coordinator.data = TpLinkDecoSnapshot(clients=[], nodes=[], performance=None)
-    fake_time = 30.0
+    fake_time = UNAVAILABLE_GRACE_PERIOD_SECONDS - 1
     assert device.available is True
     assert device.client is client
 
@@ -133,7 +137,7 @@ def test_client_stays_available_during_grace_period(
 def test_client_unavailable_after_grace_period(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    """The client becomes unavailable once the 90s grace period elapses."""
+    """The client becomes unavailable once the grace period elapses."""
     fake_time = 0.0
     monkeypatch.setattr(time, "monotonic", lambda: fake_time)
 
@@ -145,7 +149,7 @@ def test_client_unavailable_after_grace_period(
     assert device.client is client
 
     coordinator.data = TpLinkDecoSnapshot(clients=[], nodes=[], performance=None)
-    fake_time = 95.0
+    fake_time = UNAVAILABLE_GRACE_PERIOD_SECONDS + 5
     assert device.available is False
     assert device.client is None
 
@@ -178,11 +182,11 @@ def test_client_grace_period_resets_when_device_returns(
     assert device.client is refreshed
 
     coordinator.data = TpLinkDecoSnapshot(clients=[], nodes=[], performance=None)
-    fake_time = 145.0
+    fake_time = 60.0 + UNAVAILABLE_GRACE_PERIOD_SECONDS - 5
     assert device.available is True
     assert device.client is refreshed
 
-    fake_time = 155.0
+    fake_time = 60.0 + UNAVAILABLE_GRACE_PERIOD_SECONDS + 5
     assert device.available is False
     assert device.client is None
 
@@ -190,7 +194,7 @@ def test_client_grace_period_resets_when_device_returns(
 def test_deco_stays_available_during_grace_period(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    """A Deco node that disappears stays available for 90s using cached state."""
+    """A Deco node that disappears stays available within the grace period."""
     fake_time = 0.0
     monkeypatch.setattr(time, "monotonic", lambda: fake_time)
 
@@ -202,7 +206,7 @@ def test_deco_stays_available_during_grace_period(
     assert device.available is True
 
     coordinator.data = TpLinkDecoSnapshot(clients=[], nodes=[], performance=None)
-    fake_time = 89.0
+    fake_time = UNAVAILABLE_GRACE_PERIOD_SECONDS - 1
     assert device.available is True
     assert device.node is node
 
@@ -210,7 +214,7 @@ def test_deco_stays_available_during_grace_period(
 def test_deco_unavailable_after_grace_period(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    """The Deco node becomes unavailable once the 90s grace period elapses."""
+    """The Deco node becomes unavailable once the grace period elapses."""
     fake_time = 0.0
     monkeypatch.setattr(time, "monotonic", lambda: fake_time)
 
@@ -222,6 +226,6 @@ def test_deco_unavailable_after_grace_period(
     assert device.node is node
 
     coordinator.data = TpLinkDecoSnapshot(clients=[], nodes=[], performance=None)
-    fake_time = 90.0
+    fake_time = UNAVAILABLE_GRACE_PERIOD_SECONDS
     assert device.available is False
     assert device.node is None
