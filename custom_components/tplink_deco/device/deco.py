@@ -2,12 +2,18 @@
 
 from __future__ import annotations
 
+import time
 from typing import TYPE_CHECKING
 
 from homeassistant.helpers.device_registry import CONNECTION_NETWORK_MAC, DeviceInfo
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
-from custom_components.tplink_deco.const import ATTRIBUTION, DOMAIN, MANUFACTURER
+from custom_components.tplink_deco.const import (
+    ATTRIBUTION,
+    DOMAIN,
+    MANUFACTURER,
+    UNAVAILABLE_GRACE_PERIOD_SECONDS,
+)
 from custom_components.tplink_deco.coordinator import TpLinkDecoDataUpdateCoordinator
 
 if TYPE_CHECKING:
@@ -28,6 +34,8 @@ class TpLinkDecoDecoDevice(CoordinatorEntity[TpLinkDecoDataUpdateCoordinator]):
         """Initialize the Deco node device with the coordinator and node."""
         super().__init__(coordinator)
         self._node_mac = node.mac
+        self._cached_node: Device | None = None
+        self._last_seen_at: float | None = None
 
     @property
     def device_info(self) -> DeviceInfo | None:
@@ -60,8 +68,21 @@ class TpLinkDecoDecoDevice(CoordinatorEntity[TpLinkDecoDataUpdateCoordinator]):
 
     @property
     def node(self) -> Device | None:
-        """Return the current Deco node, or None if unavailable."""
-        return next(
-            (d for d in self.coordinator.data.nodes if d.mac == self._node_mac),
-            None,
+        """Return the current node, or the last seen one within the grace period."""
+        snapshot = self.coordinator.data
+        current = (
+            next((d for d in snapshot.nodes if d.mac == self._node_mac), None)
+            if snapshot
+            else None
         )
+        if current is not None:
+            self._cached_node = current
+            self._last_seen_at = time.monotonic()
+            return current
+        if (
+            self._cached_node is not None
+            and self._last_seen_at is not None
+            and time.monotonic() - self._last_seen_at < UNAVAILABLE_GRACE_PERIOD_SECONDS
+        ):
+            return self._cached_node
+        return None
