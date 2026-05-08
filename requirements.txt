@@ -1,5 +1,7 @@
 colorlog==6.10.1
 homeassistant==2026.2.3
+mypy==1.18.2
 pip>=26.1
+pre-commit==4.6.0
 ruff==0.15.12
 tplink-deco-api==1.0.1
