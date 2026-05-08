@@ -41,12 +41,14 @@ class TpLinkDecoClientDevice(CoordinatorEntity[TpLinkDecoDataUpdateCoordinator])
             if snapshot
             else None
         )
-        return DeviceInfo(
+        info = DeviceInfo(
             identifiers={(DOMAIN, self._client_mac)},
             connections={(CONNECTION_NETWORK_MAC, self._client_mac)},
             name=self.client.name if self.client else None,
-            via_device=(DOMAIN, master.mac) if master else None,
         )
+        if master:
+            info["via_device"] = (DOMAIN, master.mac)
+        return info
 
     @property
     def available(self) -> bool:

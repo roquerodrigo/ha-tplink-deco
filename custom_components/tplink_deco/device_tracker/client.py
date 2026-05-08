@@ -5,7 +5,6 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from homeassistant.components.device_tracker import ScannerEntity, SourceType
-from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
 from custom_components.tplink_deco.device import TpLinkDecoClientDevice
 
@@ -31,7 +30,7 @@ class TpLinkDecoClientTracker(TpLinkDecoClientDevice, ScannerEntity):
     @property
     def available(self) -> bool:
         """Return True as long as the coordinator is working, even when offline."""
-        return CoordinatorEntity.available.fget(self)
+        return self.coordinator.last_update_success
 
     @property
     def is_connected(self) -> bool:
@@ -49,7 +48,13 @@ class TpLinkDecoClientTracker(TpLinkDecoClientDevice, ScannerEntity):
         """Return the client MAC address."""
         return self._client_mac
 
-    @property
+    @property  # type: ignore[misc]
     def device_info(self) -> DeviceInfo | None:
-        """Return the cached device info attribute."""
+        """
+        Return the cached device info attribute.
+
+        Override of ScannerEntity's @final device_info — intentional to keep
+        the tracker entity attached to the same client device created by the
+        sensor/binary_sensor entities.
+        """
         return self._attr_device_info
