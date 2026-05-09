@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.2](https://github.com/roquerodrigo/ha-tplink-deco/compare/v1.1.1...v1.1.2) (2026-05-09)
+
+
+### Bug Fixes
+
+* apply unavailable grace period in coordinator, not per-entity ([#19](https://github.com/roquerodrigo/ha-tplink-deco/issues/19)) ([c86ae7c](https://github.com/roquerodrigo/ha-tplink-deco/commit/c86ae7cf6d27602714b102e31edc254707f09c35))
+
 ## [1.1.1](https://github.com/roquerodrigo/ha-tplink-deco/compare/v1.1.0...v1.1.1) (2026-05-08)
 
 
