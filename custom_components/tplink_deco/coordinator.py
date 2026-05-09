@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import time
 from typing import TYPE_CHECKING
 
 from homeassistant.exceptions import ConfigEntryAuthFailed
@@ -12,9 +13,11 @@ from .api.errors import (
     TpLinkDecoApiClientAuthenticationError,
     TpLinkDecoApiClientError,
 )
-from .const import LOGGER
+from .const import LOGGER, UNAVAILABLE_GRACE_PERIOD_SECONDS
 
 if TYPE_CHECKING:
+    from tplink_deco_api import ClientDevice, Device
+
     from .data import TpLinkDecoConfigEntry
 
 
@@ -40,4 +43,49 @@ class TpLinkDecoDataUpdateCoordinator(DataUpdateCoordinator[TpLinkDecoSnapshot])
             len(snapshot.nodes),
             "ok" if snapshot.performance else "missing",
         )
-        return snapshot
+        return self._apply_grace(snapshot)
+
+    def _apply_grace(self, snapshot: TpLinkDecoSnapshot) -> TpLinkDecoSnapshot:
+        """
+        Re-include clients/nodes still within the grace period.
+
+        Caches the latest sighting of each client and node by MAC. When the
+        next snapshot arrives missing some entries, this re-injects them
+        (using their last-known state) for up to UNAVAILABLE_GRACE_PERIOD_SECONDS,
+        so transient drops (e.g., mobile WiFi sleep) don't propagate as
+        immediate state changes to dependent sensors.
+        """
+        client_grace = self.__dict__.setdefault("_client_grace", {})
+        node_grace = self.__dict__.setdefault("_node_grace", {})
+
+        now = time.monotonic()
+        cutoff = now - UNAVAILABLE_GRACE_PERIOD_SECONDS
+
+        for client in snapshot.clients:
+            client_grace[client.mac] = (client, now)
+        for node in snapshot.nodes:
+            node_grace[node.mac] = (node, now)
+
+        seen_clients = {c.mac for c in snapshot.clients}
+        graced_clients: list[ClientDevice] = list(snapshot.clients)
+        for mac in list(client_grace):
+            cached, ts = client_grace[mac]
+            if ts < cutoff:
+                del client_grace[mac]
+            elif mac not in seen_clients:
+                graced_clients.append(cached)
+
+        seen_nodes = {n.mac for n in snapshot.nodes}
+        graced_nodes: list[Device] = list(snapshot.nodes)
+        for mac in list(node_grace):
+            cached, ts = node_grace[mac]
+            if ts < cutoff:
+                del node_grace[mac]
+            elif mac not in seen_nodes:
+                graced_nodes.append(cached)
+
+        return TpLinkDecoSnapshot(
+            clients=graced_clients,
+            nodes=graced_nodes,
+            performance=snapshot.performance,
+        )
