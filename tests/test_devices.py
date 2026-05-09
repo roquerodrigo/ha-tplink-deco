@@ -7,7 +7,10 @@ from unittest.mock import MagicMock
 from homeassistant.helpers.device_registry import CONNECTION_NETWORK_MAC
 
 from custom_components.tplink_deco.api import TpLinkDecoSnapshot
-from custom_components.tplink_deco.const import DOMAIN, MANUFACTURER
+from custom_components.tplink_deco.const import (
+    DOMAIN,
+    MANUFACTURER,
+)
 from custom_components.tplink_deco.device import (
     TpLinkDecoClientDevice,
     TpLinkDecoDecoDevice,

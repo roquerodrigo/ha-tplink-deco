@@ -1,5 +1,14 @@
 # Changelog
 
+## [1.1.1](https://github.com/roquerodrigo/ha-tplink-deco/compare/v1.1.0...v1.1.1) (2026-05-08)
+
+
+### Bug Fixes
+
+* increase unavailable grace period to 600s for mobile wifi sleep ([a9b981a](https://github.com/roquerodrigo/ha-tplink-deco/commit/a9b981ae56f286bf84b7be85d8f039430d61067c))
+* **sensor:** map non-enum connection_type values to None ([eea89b5](https://github.com/roquerodrigo/ha-tplink-deco/commit/eea89b5e0b37c043fb816133435113b07c5cd8b1))
+* **sensor:** map non-enum interface values to None ([5f26113](https://github.com/roquerodrigo/ha-tplink-deco/commit/5f26113f5f0c4b72e9aae75e02f33769592f98e5))
+
 ## [1.1.0](https://github.com/roquerodrigo/ha-tplink-deco/compare/v1.0.2...v1.1.0) (2026-05-08)
 
 

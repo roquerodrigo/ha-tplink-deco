@@ -10,6 +10,8 @@ from homeassistant.components.sensor import (
 
 from custom_components.tplink_deco.device import TpLinkDecoClientDevice
 
+INTERFACE_OPTIONS = ("iot", "mlo", "main")
+
 
 class TpLinkDecoClientInterfaceSensor(TpLinkDecoClientDevice, SensorEntity):
     """Sensor for the network interface of a TP-Link Deco client."""
@@ -18,7 +20,7 @@ class TpLinkDecoClientInterfaceSensor(TpLinkDecoClientDevice, SensorEntity):
         key="interface",
         translation_key="interface",
         device_class=SensorDeviceClass.ENUM,
-        options=["iot", "mlo", "main"],
+        options=list(INTERFACE_OPTIONS),
         icon="mdi:lan",
     )
 
@@ -29,6 +31,9 @@ class TpLinkDecoClientInterfaceSensor(TpLinkDecoClientDevice, SensorEntity):
 
     @property
     def native_value(self) -> str | None:
-        """Return the network interface."""
+        """Return the network interface, or None if not in the known options."""
         client = self.client
-        return client.interface if client else None
+        if client is None:
+            return None
+        value = client.interface
+        return value if value in INTERFACE_OPTIONS else None

@@ -10,6 +10,8 @@ from homeassistant.components.sensor import (
 
 from custom_components.tplink_deco.device import TpLinkDecoClientDevice
 
+CONNECTION_TYPE_OPTIONS = ("band2_4", "band5", "band6", "wired")
+
 
 class TpLinkDecoClientConnectionTypeSensor(TpLinkDecoClientDevice, SensorEntity):
     """Sensor for the connection type of a TP-Link Deco client."""
@@ -18,7 +20,7 @@ class TpLinkDecoClientConnectionTypeSensor(TpLinkDecoClientDevice, SensorEntity)
         key="connection_type",
         translation_key="connection_type",
         device_class=SensorDeviceClass.ENUM,
-        options=["band2_4", "band5", "band6", "wired"],
+        options=list(CONNECTION_TYPE_OPTIONS),
         icon="mdi:wifi",
     )
 
@@ -29,6 +31,9 @@ class TpLinkDecoClientConnectionTypeSensor(TpLinkDecoClientDevice, SensorEntity)
 
     @property
     def native_value(self) -> str | None:
-        """Return the connection type."""
+        """Return the connection type, or None if not in the known options."""
         client = self.client
-        return client.connection_type if client else None
+        if client is None:
+            return None
+        value = client.connection_type
+        return value if value in CONNECTION_TYPE_OPTIONS else None

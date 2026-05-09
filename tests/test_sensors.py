@@ -82,6 +82,14 @@ def test_client_connection_type_sensor() -> None:
     assert sensor.unique_id == "AA:BB:CC:DD:EE:05_connection_type"
 
 
+def test_client_connection_type_sensor_returns_none_for_unknown_value() -> None:
+    """Values outside the ENUM options map to None to avoid HA ValueError."""
+    client = make_client(mac="AA:BB:CC:DD:EE:0A", connection_type="unknown")
+    snapshot = TpLinkDecoSnapshot(clients=[client], nodes=[], performance=None)
+    sensor = TpLinkDecoClientConnectionTypeSensor(_coord(snapshot), client)
+    assert sensor.native_value is None
+
+
 def test_client_interface_sensor() -> None:
     """Interface sensor returns the interface field."""
     client = make_client(mac="AA:BB:CC:DD:EE:06", interface="iot")
@@ -89,6 +97,14 @@ def test_client_interface_sensor() -> None:
     sensor = TpLinkDecoClientInterfaceSensor(_coord(snapshot), client)
     assert sensor.native_value == "iot"
     assert sensor.unique_id == "AA:BB:CC:DD:EE:06_interface"
+
+
+def test_client_interface_sensor_returns_none_for_unknown_value() -> None:
+    """Values outside the ENUM options map to None to avoid HA ValueError."""
+    client = make_client(mac="AA:BB:CC:DD:EE:0B", interface="unknown")
+    snapshot = TpLinkDecoSnapshot(clients=[client], nodes=[], performance=None)
+    sensor = TpLinkDecoClientInterfaceSensor(_coord(snapshot), client)
+    assert sensor.native_value is None
 
 
 def test_client_sensor_value_is_none_when_offline() -> None:
