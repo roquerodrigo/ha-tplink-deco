@@ -22,7 +22,7 @@
                 "name": "Velocidade de Upload"
             },
             "interface": {
-                "name": "Interface",
+                "name": "Rede",
                 "state": {
                     "iot": "IoT",
                     "mlo": "Multi-Link Operation",
