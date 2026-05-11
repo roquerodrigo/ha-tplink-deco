@@ -14,9 +14,11 @@ from .client_mac import TpLinkDecoClientMacSensor
 from .client_upload import TpLinkDecoClientUploadSensor
 from .deco_clients import TpLinkDecoDecoClientsSensor
 from .deco_cpu import TpLinkDecoDecoCpuSensor
+from .deco_download import TpLinkDecoDecoDownloadSensor
 from .deco_ip import TpLinkDecoDecoIpSensor
 from .deco_mac import TpLinkDecoDecoMacSensor
 from .deco_memory import TpLinkDecoDecoMemorySensor
+from .deco_upload import TpLinkDecoDecoUploadSensor
 
 if TYPE_CHECKING:
     from homeassistant.core import HomeAssistant
@@ -81,6 +83,8 @@ async def async_setup_entry(
                             TpLinkDecoDecoCpuSensor(coordinator, node),
                             TpLinkDecoDecoMemorySensor(coordinator, node),
                             TpLinkDecoDecoClientsSensor(coordinator, node),
+                            TpLinkDecoDecoDownloadSensor(coordinator, node),
+                            TpLinkDecoDecoUploadSensor(coordinator, node),
                         ]
                     )
             async_add_entities(entities)

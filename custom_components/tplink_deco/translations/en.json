@@ -46,6 +46,12 @@
             },
             "clients_online": {
                 "name": "Online Clients"
+            },
+            "total_download": {
+                "name": "Total Download Speed"
+            },
+            "total_upload": {
+                "name": "Total Upload Speed"
             }
         }
     },

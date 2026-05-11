@@ -4,4 +4,4 @@ mypy==2.0.0
 pip>=26.1.1
 pre-commit==4.6.0
 ruff==0.15.12
-tplink-deco-api==1.0.1
+tplink-deco-api==1.1.0
