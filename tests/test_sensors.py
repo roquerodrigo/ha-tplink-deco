@@ -23,9 +23,15 @@ from custom_components.tplink_deco.sensor.deco_clients import (
     TpLinkDecoDecoClientsSensor,
 )
 from custom_components.tplink_deco.sensor.deco_cpu import TpLinkDecoDecoCpuSensor
+from custom_components.tplink_deco.sensor.deco_download import (
+    TpLinkDecoDecoDownloadSensor,
+)
 from custom_components.tplink_deco.sensor.deco_ip import TpLinkDecoDecoIpSensor
 from custom_components.tplink_deco.sensor.deco_mac import TpLinkDecoDecoMacSensor
 from custom_components.tplink_deco.sensor.deco_memory import TpLinkDecoDecoMemorySensor
+from custom_components.tplink_deco.sensor.deco_upload import (
+    TpLinkDecoDecoUploadSensor,
+)
 
 from .factories import make_client, make_node, make_performance
 
@@ -175,3 +181,38 @@ def test_deco_clients_counter_returns_count() -> None:
     sensor = TpLinkDecoDecoClientsSensor(_coord(snapshot), node)
     assert sensor.native_value == 3
     assert sensor.unique_id == "DE:CO:00:00:00:05_clients_online"
+
+
+def test_deco_total_download_sensor_sums_clients() -> None:
+    """Total download sensor sums down_speed across all clients."""
+    node = make_node(mac="DE:CO:00:00:00:06")
+    clients = [
+        make_client(mac="AA:00:00:00:00:01", down_speed=100),
+        make_client(mac="AA:00:00:00:00:02", down_speed=250),
+        make_client(mac="AA:00:00:00:00:03", down_speed=50),
+    ]
+    snapshot = TpLinkDecoSnapshot(clients=clients, nodes=[node], performance=None)
+    sensor = TpLinkDecoDecoDownloadSensor(_coord(snapshot), node)
+    assert sensor.native_value == 400
+    assert sensor.unique_id == "DE:CO:00:00:00:06_total_download"
+
+
+def test_deco_total_upload_sensor_sums_clients() -> None:
+    """Total upload sensor sums up_speed across all clients."""
+    node = make_node(mac="DE:CO:00:00:00:07")
+    clients = [
+        make_client(mac="AA:00:00:00:00:01", up_speed=80),
+        make_client(mac="AA:00:00:00:00:02", up_speed=120),
+    ]
+    snapshot = TpLinkDecoSnapshot(clients=clients, nodes=[node], performance=None)
+    sensor = TpLinkDecoDecoUploadSensor(_coord(snapshot), node)
+    assert sensor.native_value == 200
+    assert sensor.unique_id == "DE:CO:00:00:00:07_total_upload"
+
+
+def test_deco_total_download_returns_zero_for_no_clients() -> None:
+    """Totals are zero when no clients are connected."""
+    node = make_node(mac="DE:CO:00:00:00:08")
+    snapshot = TpLinkDecoSnapshot(clients=[], nodes=[node], performance=None)
+    sensor = TpLinkDecoDecoDownloadSensor(_coord(snapshot), node)
+    assert sensor.native_value == 0

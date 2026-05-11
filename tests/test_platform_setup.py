@@ -33,7 +33,7 @@ def _entry_with_snapshot(snapshot: TpLinkDecoSnapshot) -> MagicMock:
 @pytest.mark.parametrize(
     ("setup", "expected_count"),
     [
-        (async_setup_sensor, 6 + 5),  # 6 client sensors + 5 deco sensors (master)
+        (async_setup_sensor, 6 + 7),  # 6 client sensors + 7 deco sensors (master)
         (async_setup_binary_sensor, 1 + 1),  # 1 client + 1 deco binary sensor
         (async_setup_tracker, 1),  # 1 tracker per client
     ],
