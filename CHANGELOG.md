@@ -1,5 +1,24 @@
 # Changelog
 
+## [1.2.0](https://github.com/roquerodrigo/ha-tplink-deco/compare/v1.1.2...v1.2.0) (2026-05-11)
+
+
+### Features
+
+* add total download and upload speed sensors ([3977374](https://github.com/roquerodrigo/ha-tplink-deco/commit/39773748edba8e0536d53a953f125f8132d5988b))
+* total download and upload speed sensors ([aecfd8c](https://github.com/roquerodrigo/ha-tplink-deco/commit/aecfd8cc2cc9f8a1a7aab139261e3dbc9703124c))
+
+
+### Dependencies
+
+* bump tplink-deco-api to 1.1.0 ([7e2969c](https://github.com/roquerodrigo/ha-tplink-deco/commit/7e2969c4fc38fd1c6e57bbea73a8f92954507aaf))
+
+
+### Documentation
+
+* standardize CODE_STYLE.md template ([83cfeaa](https://github.com/roquerodrigo/ha-tplink-deco/commit/83cfeaaaf9e82689d93d3e6617faa1bc87b8aa72))
+* standardize CODE_STYLE.md template ([0c0fd67](https://github.com/roquerodrigo/ha-tplink-deco/commit/0c0fd6730fa489fbc553f27751f143b7eba5e2d2))
+
 ## [1.1.2](https://github.com/roquerodrigo/ha-tplink-deco/compare/v1.1.1...v1.1.2) (2026-05-09)
 
 
