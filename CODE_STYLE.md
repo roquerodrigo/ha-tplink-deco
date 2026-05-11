@@ -1,38 +1,84 @@
 # Code Style Guide
 
-Style conventions for the `ha-tplink-deco` project. Run `bash scripts/lint`
-before committing — it executes `ruff format` then `ruff check --fix` and must
-exit cleanly.
+Style conventions for the `ha-tplink-deco` project. Run `scripts/lint`
+before committing — it executes `ruff format`, `ruff check --fix` and `mypy`,
+and must exit cleanly. `pytest` (with the 95 % coverage gate) follows.
+
+**Always read this file before adding or restructuring code.**
 
 ## Language
 
-- All code is written in **English**: file names, class names, function names,
-  variable names, dictionary keys, translation keys and any identifier that
-  appears in code.
-- User-facing strings live in `translations/{en,pt-BR}.json` only — do not
-  hardcode them in Python files.
+- Code is written in **English**: file names, class names, function names,
+  variable names, dictionary keys, identifier strings.
+- The conversation language with the user can be Portuguese or anything else;
+  what is committed to disk stays English.
+- User-facing strings live in `custom_components/tplink_deco/translations/{en,pt-BR}.json`
+  only — never hardcoded in Python.
 
 ## File organization
 
-- **One class per file.** Each `.py` file under `custom_components/tplink_deco`
-  contains exactly one public class.
+- **One top-level class per file.** Multiple semantically related classes (e.g.
+  exception families, sensor entities for one platform) get grouped into a
+  package directory with one class per submodule and an `__init__.py`
+  re-exporting the public symbols.
 - **Subdirectories group classes by context**:
-  - `api/` — SDK wrapper, errors, snapshot dataclass
-  - `device/` — base device classes (`TpLinkDecoClientDevice`, `TpLinkDecoDecoDevice`)
-  - `sensor/`, `binary_sensor/`, `device_tracker/` — Home Assistant platforms
+  - `api/` — SDK wrapper, errors, snapshot dataclass.
+  - `device/` — base device classes (`TpLinkDecoClientDevice`, `TpLinkDecoDecoDevice`).
+  - `sensor/`, `binary_sensor/`, `device_tracker/` — Home Assistant platforms.
+- **TypedDicts and `type` aliases do not count as "classes"** for this rule —
+  they live alongside related code and don't need their own file.
+- **File name prefixes** mirror the represented entity:
+  - `client_*.py` → entities for connected clients.
+  - `deco_*.py` → entities for the Deco mesh nodes themselves.
 - **Platform `__init__.py` files** contain only `async_setup_entry`.
 - **Subpackage `__init__.py` files** only re-export public symbols via `__all__`.
-- **File name prefixes** mirror the represented entity:
-  - `client_*.py` → entities for connected clients
-  - `deco_*.py` → entities for the Deco mesh nodes themselves
+- **`__init__.py` of the integration package** wires `async_setup_entry`,
+  `async_unload_entry`, `async_reload_entry` and nothing else.
+
+## Entities: one class per entity
+
+- **One class per entity.** Every entity gets its own dedicated class — never
+  share a generic class parameterized by an `EntityDescription` subclass with
+  callable fields like `value_fn` or `action_fn`. Encode the entity's behaviour
+  directly in its class via `@property` and class-level `_attr_*` constants
+  (or a plain `EntityDescription` instance assigned at the class level).
+  - Don't write a `TpLinkDecoSensorDescription` subclass with a `value_fn` field.
+  - Do write `TpLinkDecoClientMacSensor`, `TpLinkDecoClientConnectedBinarySensor`,
+    `TpLinkDecoDecoCpuSensor`, etc. — one file each under `sensor/` /
+    `binary_sensor/` / `device_tracker/`.
+- The reason: each entity is a discrete contract; mixing them through a
+  generic class hides the contract behind indirection and discourages per-entity
+  refinement (icons, state attributes, custom logic).
 
 ## Naming
 
 - Public classes are prefixed with `TpLinkDeco`.
-- Base device classes end with `Device` (e.g. `TpLinkDecoClientDevice`).
+- Base device classes end with `Device` (e.g. `TpLinkDecoClientDevice`,
+  `TpLinkDecoDecoDevice`).
 - Concrete Home Assistant entities end with the entity type
   (e.g. `TpLinkDecoClientMacSensor`, `TpLinkDecoClientConnectedBinarySensor`).
+- Exception classes end with `Error`: `TpLinkDecoApiClientError`,
+  `TpLinkDecoApiClientCommunicationError`,
+  `TpLinkDecoApiClientAuthenticationError`.
 - Private attributes are prefixed with `_` (e.g. `self._client_mac`).
+
+## Typing
+
+**Strict typing. No generics, no `Any`.** Mypy on `scripts/lint` enforces this.
+
+Banned: `typing.Any`, `object` as a value type, bare `dict` / `list` / `tuple` /
+`set`, `dict[str, Any]`, `Mapping[str, Any]`.
+
+Required:
+
+- `@dataclass` for structured records (`TpLinkDecoSnapshot`, `TpLinkDecoData`).
+- `frozenset[str]` / `tuple[str, ...]` for fixed string collections.
+- `cast("TypedDictName", value)` at HA framework boundaries that hand us a
+  permissive type (e.g. `entry.data` is `MappingProxyType[str, Any]`).
+
+When narrowing an HA-provided callback signature, mypy reports `[override]`
+(Liskov violation). Add `# type: ignore[override]` with a one-line comment
+explaining the deliberate narrowing.
 
 ## Properties and `__init__`
 
@@ -44,6 +90,8 @@ exit cleanly.
 
 ## Imports
 
+- Always start every module with `from __future__ import annotations` so type
+  hints become lazy strings.
 - Use **absolute imports from the package root** for parent modules:
 
   ```python
@@ -63,47 +111,127 @@ exit cleanly.
       from tplink_deco_api import ClientDevice
   ```
 
-- Always start runtime-typed modules with `from __future__ import annotations`
-  so type hints become lazy strings.
+- `noqa` comments are reserved for unavoidable framework constraints. Never
+  silence to "make ruff happy" — fix the underlying code.
 
 ## Docstrings
 
 - Every public class, function, method (including `@property`) and `__init__`
   has a docstring. Ruff enforces this via `D102`/`D107`.
-- Keep them short — a single sentence is usually enough. Describe **why** or
-  the contract, not the obvious implementation.
+- A single sentence is usually enough. Describe the *contract* or the *why*,
+  not the obvious implementation.
+- Module-level docstring at the top of every `.py` file.
 - Avoid restating the type — the signature already does that.
 
 ## Comments
 
 - Default to **no comments**. Add one only when the *why* is not obvious from
-  the code (a hidden constraint, a workaround, a subtle invariant).
+  the code: a hidden constraint, a workaround, a subtle invariant.
 - Never describe *what* the code does — well-named identifiers handle that.
 - **No section dividers** like `# --- Client sensors ---` to group related
   declarations. If a file has so many sections that you feel the need for
   visual separators, split it into multiple files instead.
 
-## Coordinator and snapshot
+## Logging
+
+- Each module uses the package-level `LOGGER` from `const.py`
+  (`LOGGER: Logger = getLogger(__package__)`); never call `logging.getLogger(...)`
+  ad-hoc.
+- Use **lazy `%`-formatting**, never f-strings — they force string interpolation
+  even when the level is filtered:
+
+  ```python
+  LOGGER.warning("Authentication failed: %s", exception)   # ✓
+  LOGGER.warning(f"Authentication failed: {exception}")    # ✗
+  ```
+
+- Levels:
+  - `debug` — successful fetch summaries, every-poll diagnostics.
+  - `info` — one-shot lifecycle (setup complete, reauth flow started).
+  - `warning` — recoverable failures (transient API error, falling back).
+  - `error` / `exception` — unrecoverable in current cycle.
+- Never log secrets (`password`, full session cookies). Wrap the upstream
+  exception in the API-client boundary so its string form doesn't leak.
+
+## Error messages
+
+- Format: `"Failed to <verb> <object>: <cause>"`. Keep them short and grep-able.
+- Custom exceptions get the same hierarchy:
+  `TpLinkDecoApiClientError` (base) → `…CommunicationError` (timeout,
+  connection, DNS) and `…AuthenticationError` (401/403). Wrap raw upstream
+  errors at the API client boundary; everything above only catches the
+  custom hierarchy.
+
+## Coordinator, snapshot, and grace period
 
 - All API data flows through `TpLinkDecoSnapshot` (defined in
-  `api/snapshot.py`). The coordinator's `_async_update_data` returns the
-  snapshot as-is from `client.get_snapshot()`.
+  `api/snapshot.py`). The coordinator's `_async_update_data` calls
+  `client.get_snapshot()` then runs `_apply_grace()` to re-inject clients and
+  nodes that disappeared from the latest fetch but are still within
+  `UNAVAILABLE_GRACE_PERIOD_SECONDS` (single source of truth for the grace
+  cache; per-entity properties just read the augmented snapshot).
 - Performing multiple API calls **must** happen inside a single
   `DecoClient` session (see `api/client.py::get_snapshot`) to avoid concurrent
   authentication conflicts.
-
-## Entities and offline devices
-
 - A device disappearing from the API response means it is offline, not gone.
-  Entities must remain registered: override `available` on the base device
-  class to compare against the current snapshot. Listener-driven entity
-  registration handles devices that come back online or appear for the first
-  time.
+  Entities stay registered (listener-driven registration handles devices that
+  return) and just report `available=False` once the grace window expires.
 
-## Linting
+## Config / repairs / diagnostics
+
+- `config_flow.py` carries `user`, `reauth`, `reauth_confirm` and `reconfigure`
+  steps, all sharing one `_validate` helper and one `_credentials_schema`
+  builder.
+- `diagnostics.py` redacts `password` via `async_redact_data` (driven by
+  `TO_REDACT: frozenset[str]`).
+
+## Translations
+
+- Two locales: `en.json` and `pt-BR.json`. The translation file's nested key
+  sets must stay in sync between locales.
+- Issue strings live under `issues.<issue_id>`; flow strings under
+  `config.step.<step_id>`; entity names under `entity.<platform>.<key>.name`.
+
+## Pre-commit hooks
+
+`pre-commit` is recommended. Add `.pre-commit-config.yaml` mirroring
+`scripts/lint` (ruff format, ruff check, mypy) and install once per clone:
+
+```bash
+pre-commit install
+```
+
+The hook runs the same gates as CI on every commit. Skip it only on
+emergency `git commit --no-verify` and immediately re-run `scripts/lint`.
+
+## Conventional commits
+
+All commits follow [Conventional Commits](https://www.conventionalcommits.org/),
+which `release-please` parses to bump the version and generate `CHANGELOG.md`:
+
+| Type | Meaning | Bump |
+|---|---|---|
+| `feat` | New feature | minor |
+| `fix` | Bug fix | patch |
+| `perf` | Performance improvement | patch |
+| `deps` | Dependency bump | patch |
+| `docs` | Documentation only | none |
+| `refactor` | Refactor without behavior change | none |
+| `test` | Test-only change | none |
+| `ci` | CI / tooling change | none |
+| `chore` | Anything else (rarely) | none |
+
+- Subject line: imperative mood, lowercase, no trailing period.
+- Use scopes when useful: `fix(sensor): map non-enum interface values to None`.
+- A `BREAKING CHANGE:` footer (or `!` after type) bumps the major version.
+
+## Linting and verification
 
 - Ruff configuration lives in `.ruff.toml` with `select = ["ALL"]`.
-- Do not silence rules with `# noqa` unless the violation is unavoidable and
-  has a clear justification — fix the underlying code instead.
-- `bash scripts/lint` runs both formatter and linter and is the single source
-  of truth for style.
+- Mypy configuration lives in `mypy.ini`. Both run from `scripts/lint`.
+- After every change run `scripts/lint && pytest`. Both gates mirror CI
+  (`.github/workflows/lint.yml` + `tests.yml`).
+- Tests live in `tests/`, mirroring the production layout. The 95 % coverage
+  gate (`pytest.ini`) prevents untested code from sneaking in. When a test
+  exercises a state that is impossible under the new types, update or remove
+  it — never weaken the type to satisfy the test.
