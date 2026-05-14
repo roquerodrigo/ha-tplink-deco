@@ -61,7 +61,22 @@
                 "data": {
                     "host": "Router IP Address",
                     "username": "Username",
-                    "password": "Password"
+                    "password": "Password",
+                    "link_devices_by_mac": "Link devices by MAC address"
+                },
+                "data_description": {
+                    "link_devices_by_mac": "When enabled, Home Assistant groups devices that share a MAC address into a single device entry. Disable to keep this integration's devices separate from those reported by other integrations."
+                }
+            },
+            "reconfigure": {
+                "data": {
+                    "host": "Router IP Address",
+                    "username": "Username",
+                    "password": "Password",
+                    "link_devices_by_mac": "Link devices by MAC address"
+                },
+                "data_description": {
+                    "link_devices_by_mac": "When enabled, Home Assistant groups devices that share a MAC address into a single device entry. Disable to keep this integration's devices separate from those reported by other integrations."
                 }
             }
         },
@@ -71,7 +86,8 @@
             "unknown": "Unknown error occurred."
         },
         "abort": {
-            "already_configured": "This router is already configured."
+            "already_configured": "This router is already configured.",
+            "reconfigure_successful": "Reconfiguration completed successfully."
         }
     }
 }
