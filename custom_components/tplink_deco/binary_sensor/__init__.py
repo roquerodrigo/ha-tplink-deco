@@ -17,7 +17,7 @@ if TYPE_CHECKING:
 
 
 async def async_setup_entry(
-    hass: HomeAssistant,  # noqa: ARG001
+    hass: HomeAssistant,  # noqa: ARG001 -- HA platform setup contract requires this parameter
     entry: TpLinkDecoConfigEntry,
     async_add_entities: AddEntitiesCallback,
 ) -> None:
