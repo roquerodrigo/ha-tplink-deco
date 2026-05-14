@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.3.0](https://github.com/roquerodrigo/ha-tplink-deco/compare/v1.2.0...v1.3.0) (2026-05-14)
+
+
+### Features
+
+* add option to disable MAC-based device linking ([3324f92](https://github.com/roquerodrigo/ha-tplink-deco/commit/3324f92614f66950d29d7d4724b4e6f2eaab99d0))
+* **diagnostics:** add diagnostics platform with password redaction ([dc68ce2](https://github.com/roquerodrigo/ha-tplink-deco/commit/dc68ce230180e8689231ae26128a656a12cbf5f3))
+
 ## [1.2.0](https://github.com/roquerodrigo/ha-tplink-deco/compare/v1.1.2...v1.2.0) (2026-05-11)
 
 
