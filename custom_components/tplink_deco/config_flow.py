@@ -24,7 +24,8 @@ from .const import (
 
 
 class TpLinkDecoUserInput(TypedDict):
-    """Shape of the user-submitted config flow payload.
+    """
+    Shape of the user-submitted config flow payload.
 
     ``link_devices_by_mac`` is ``NotRequired`` to keep older config entries
     (created before the option existed) loadable via the reconfigure step.
@@ -45,7 +46,8 @@ class TpLinkDecoFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
         self,
         user_input: TpLinkDecoUserInput | None = None,
     ) -> config_entries.ConfigFlowResult:
-        """Handle the initial configuration step.
+        """
+        Handle the initial configuration step.
 
         Narrows HA's ``dict[str, Any] | None`` signature to a TypedDict; the
         override is safe because the form schema only accepts these keys.
