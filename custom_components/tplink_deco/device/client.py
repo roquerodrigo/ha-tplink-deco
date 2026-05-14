@@ -7,7 +7,12 @@ from typing import TYPE_CHECKING
 from homeassistant.helpers.device_registry import CONNECTION_NETWORK_MAC, DeviceInfo
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
-from custom_components.tplink_deco.const import ATTRIBUTION, DOMAIN
+from custom_components.tplink_deco.const import (
+    ATTRIBUTION,
+    CONF_LINK_DEVICES_BY_MAC,
+    DEFAULT_LINK_DEVICES_BY_MAC,
+    DOMAIN,
+)
 from custom_components.tplink_deco.coordinator import TpLinkDecoDataUpdateCoordinator
 
 if TYPE_CHECKING:
@@ -43,12 +48,19 @@ class TpLinkDecoClientDevice(CoordinatorEntity[TpLinkDecoDataUpdateCoordinator])
         )
         info = DeviceInfo(
             identifiers={(DOMAIN, self._client_mac)},
-            connections={(CONNECTION_NETWORK_MAC, self._client_mac)},
             name=self.client.name if self.client else None,
         )
+        if self._link_devices_by_mac:
+            info["connections"] = {(CONNECTION_NETWORK_MAC, self._client_mac)}
         if master:
             info["via_device"] = (DOMAIN, master.mac)
         return info
+
+    @property
+    def _link_devices_by_mac(self) -> bool:
+        """Return whether device entries should advertise their MAC connection."""
+        entry = self.coordinator.config_entry
+        return entry.data.get(CONF_LINK_DEVICES_BY_MAC, DEFAULT_LINK_DEVICES_BY_MAC)
 
     @property
     def available(self) -> bool:

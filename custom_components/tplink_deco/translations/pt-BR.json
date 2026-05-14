@@ -61,7 +61,22 @@
                 "data": {
                     "host": "Endereço IP do roteador",
                     "username": "Usuário",
-                    "password": "Senha"
+                    "password": "Senha",
+                    "link_devices_by_mac": "Associar dispositivos pelo endereço MAC"
+                },
+                "data_description": {
+                    "link_devices_by_mac": "Quando ativado, o Home Assistant agrupa dispositivos que compartilham um endereço MAC em uma única entrada. Desative para manter os dispositivos desta integração separados dos que outras integrações expõem."
+                }
+            },
+            "reconfigure": {
+                "data": {
+                    "host": "Endereço IP do roteador",
+                    "username": "Usuário",
+                    "password": "Senha",
+                    "link_devices_by_mac": "Associar dispositivos pelo endereço MAC"
+                },
+                "data_description": {
+                    "link_devices_by_mac": "Quando ativado, o Home Assistant agrupa dispositivos que compartilham um endereço MAC em uma única entrada. Desative para manter os dispositivos desta integração separados dos que outras integrações expõem."
                 }
             }
         },
@@ -71,7 +86,8 @@
             "unknown": "Erro desconhecido."
         },
         "abort": {
-            "already_configured": "Este roteador já está configurado."
+            "already_configured": "Este roteador já está configurado.",
+            "reconfigure_successful": "Reconfiguração concluída com sucesso."
         }
     }
 }
