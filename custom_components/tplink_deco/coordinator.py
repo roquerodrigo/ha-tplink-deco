@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import dataclasses
 import time
 from typing import TYPE_CHECKING
 
@@ -13,7 +14,7 @@ from .api.errors import (
     TpLinkDecoApiClientAuthenticationError,
     TpLinkDecoApiClientError,
 )
-from .const import LOGGER, UNAVAILABLE_GRACE_PERIOD_SECONDS
+from .const import LOGGER, SPEED_EMA_ALPHA, UNAVAILABLE_GRACE_PERIOD_SECONDS
 
 if TYPE_CHECKING:
     from tplink_deco_api import ClientDevice, Device
@@ -85,7 +86,38 @@ class TpLinkDecoDataUpdateCoordinator(DataUpdateCoordinator[TpLinkDecoSnapshot])
                 graced_nodes.append(cached)
 
         return TpLinkDecoSnapshot(
-            clients=graced_clients,
+            clients=self._smooth_speeds(graced_clients),
             nodes=graced_nodes,
             performance=snapshot.performance,
         )
+
+    def _smooth_speeds(
+        self, clients: list[ClientDevice]
+    ) -> list[ClientDevice]:
+        """Apply exponential moving average to client speed values."""
+        ema: dict[str, tuple[float, float]] = self.__dict__.setdefault(
+            "_speed_ema", {}
+        )
+        alpha = SPEED_EMA_ALPHA
+        result: list[ClientDevice] = []
+        for client in clients:
+            prev = ema.get(client.mac)
+            if prev is None:
+                smoothed_down = float(client.down_speed)
+                smoothed_up = float(client.up_speed)
+            else:
+                smoothed_down = (
+                    alpha * client.down_speed + (1 - alpha) * prev[0]
+                )
+                smoothed_up = (
+                    alpha * client.up_speed + (1 - alpha) * prev[1]
+                )
+            ema[client.mac] = (smoothed_down, smoothed_up)
+            result.append(
+                dataclasses.replace(
+                    client,
+                    down_speed=round(smoothed_down),
+                    up_speed=round(smoothed_up),
+                )
+            )
+        return result
