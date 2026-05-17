@@ -58,4 +58,5 @@ class TpLinkDecoClientTracker(TpLinkDecoClientDevice, ScannerEntity):
         sensor/binary_sensor entities, instead of ScannerEntity's default
         MAC-based device matching.
         """
-        return TpLinkDecoClientDevice.device_info.fget(self)  # type: ignore[union-attr]
+        prop = TpLinkDecoClientDevice.__dict__["device_info"]
+        return prop.fget(self)  # type: ignore[union-attr]

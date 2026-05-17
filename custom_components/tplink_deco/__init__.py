@@ -69,7 +69,9 @@ def _unmerge_devices(
         has_other = any(ce for ce in device.config_entries if ce != entry.entry_id)
         if not has_other:
             # Device belongs only to tplink_deco — just strip MAC connections.
-            mac_conns = {c for c in device.connections if c[0] == CONNECTION_NETWORK_MAC}
+            mac_conns = {
+                c for c in device.connections if c[0] == CONNECTION_NETWORK_MAC
+            }
             if mac_conns:
                 registry.async_update_device(
                     device.id, new_connections=device.connections - mac_conns
