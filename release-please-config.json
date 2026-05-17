@@ -8,7 +8,6 @@
   "packages": {
     ".": {
       "package-name": "ha-tplink-deco",
-      "component": "",
       "extra-files": [
         {
           "type": "json",
