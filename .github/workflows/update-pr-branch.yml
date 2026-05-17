@@ -23,7 +23,7 @@ jobs:
               owner: context.repo.owner,
               repo: context.repo.repo,
               state: 'open',
-              head: `${context.repo.owner}:release`,
+              head: `${context.repo.owner}:release-please--branches--main`,
             });
             for (const pr of pulls) {
               core.info(`Updating PR #${pr.number} branch`);
