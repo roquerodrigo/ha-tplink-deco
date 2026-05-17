@@ -51,10 +51,11 @@ class TpLinkDecoClientTracker(TpLinkDecoClientDevice, ScannerEntity):
     @property  # type: ignore[misc]
     def device_info(self) -> DeviceInfo | None:
         """
-        Return the cached device info attribute.
+        Return the parent's identifier-based device info.
 
         Override of ScannerEntity's @final device_info — intentional to keep
         the tracker entity attached to the same client device created by the
-        sensor/binary_sensor entities.
+        sensor/binary_sensor entities, instead of ScannerEntity's default
+        MAC-based device matching.
         """
-        return self._attr_device_info
+        return TpLinkDecoClientDevice.device_info.fget(self)  # type: ignore[union-attr]

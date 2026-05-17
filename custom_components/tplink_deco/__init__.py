@@ -6,10 +6,12 @@ from datetime import timedelta
 from typing import TYPE_CHECKING
 
 from homeassistant.const import CONF_HOST, CONF_PASSWORD, CONF_USERNAME, Platform
+from homeassistant.helpers import device_registry as dr
+from homeassistant.helpers.device_registry import CONNECTION_NETWORK_MAC
 from homeassistant.loader import async_get_loaded_integration
 
 from .api import TpLinkDecoApiClient
-from .const import DOMAIN, LOGGER
+from .const import CONF_LINK_DEVICES_BY_MAC, DEFAULT_LINK_DEVICES_BY_MAC, DOMAIN, LOGGER
 from .coordinator import TpLinkDecoDataUpdateCoordinator
 from .data import TpLinkDecoData
 
@@ -47,10 +49,44 @@ async def async_setup_entry(
     )
 
     await coordinator.async_config_entry_first_refresh()
+
+    if not entry.data.get(CONF_LINK_DEVICES_BY_MAC, DEFAULT_LINK_DEVICES_BY_MAC):
+        _unmerge_devices(hass, entry)
+
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
     entry.async_on_unload(entry.add_update_listener(async_reload_entry))
 
     return True
+
+
+def _unmerge_devices(
+    hass: HomeAssistant,
+    entry: TpLinkDecoConfigEntry,
+) -> None:
+    """Detach tplink_deco from merged devices so platforms create fresh ones."""
+    registry = dr.async_get(hass)
+    for device in list(dr.async_entries_for_config_entry(registry, entry.entry_id)):
+        has_other = any(ce for ce in device.config_entries if ce != entry.entry_id)
+        if not has_other:
+            # Device belongs only to tplink_deco — just strip MAC connections.
+            mac_conns = {c for c in device.connections if c[0] == CONNECTION_NETWORK_MAC}
+            if mac_conns:
+                registry.async_update_device(
+                    device.id, new_connections=device.connections - mac_conns
+                )
+            continue
+        # Device is shared with other integrations — detach tplink_deco from it
+        # so the platform setup creates a new, separate device.
+        registry.async_update_device(
+            device.id,
+            remove_config_entry_id=entry.entry_id,
+        )
+        # Also strip the tplink_deco identifier from the old merged device.
+        deco_ids = {i for i in device.identifiers if i[0] == DOMAIN}
+        if deco_ids:
+            registry.async_update_device(
+                device.id, new_identifiers=device.identifiers - deco_ids
+            )
 
 
 async def async_unload_entry(
