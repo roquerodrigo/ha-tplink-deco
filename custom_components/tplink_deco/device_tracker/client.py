@@ -59,4 +59,4 @@ class TpLinkDecoClientTracker(TpLinkDecoClientDevice, ScannerEntity):
         MAC-based device matching.
         """
         prop = TpLinkDecoClientDevice.__dict__["device_info"]
-        return prop.fget(self)  # type: ignore[union-attr]
+        return prop.fget(self)
