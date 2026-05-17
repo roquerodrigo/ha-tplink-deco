@@ -91,13 +91,9 @@ class TpLinkDecoDataUpdateCoordinator(DataUpdateCoordinator[TpLinkDecoSnapshot])
             performance=snapshot.performance,
         )
 
-    def _smooth_speeds(
-        self, clients: list[ClientDevice]
-    ) -> list[ClientDevice]:
+    def _smooth_speeds(self, clients: list[ClientDevice]) -> list[ClientDevice]:
         """Apply exponential moving average to client speed values."""
-        ema: dict[str, tuple[float, float]] = self.__dict__.setdefault(
-            "_speed_ema", {}
-        )
+        ema: dict[str, tuple[float, float]] = self.__dict__.setdefault("_speed_ema", {})
         alpha = SPEED_EMA_ALPHA
         result: list[ClientDevice] = []
         for client in clients:
@@ -106,12 +102,8 @@ class TpLinkDecoDataUpdateCoordinator(DataUpdateCoordinator[TpLinkDecoSnapshot])
                 smoothed_down = float(client.down_speed)
                 smoothed_up = float(client.up_speed)
             else:
-                smoothed_down = (
-                    alpha * client.down_speed + (1 - alpha) * prev[0]
-                )
-                smoothed_up = (
-                    alpha * client.up_speed + (1 - alpha) * prev[1]
-                )
+                smoothed_down = alpha * client.down_speed + (1 - alpha) * prev[0]
+                smoothed_up = alpha * client.up_speed + (1 - alpha) * prev[1]
             ema[client.mac] = (smoothed_down, smoothed_up)
             result.append(
                 dataclasses.replace(
