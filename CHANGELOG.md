@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.4.0](https://github.com/roquerodrigo/ha-tplink-deco/compare/v1.3.1...v1.4.0) (2026-05-17)
+
+
+### Features
+
+* smooth download/upload speeds with exponential moving average ([7d69139](https://github.com/roquerodrigo/ha-tplink-deco/commit/7d69139753cf1ca7f340317ce2335143891fc555))
+
+
+### Reverts
+
+* undo branch rename attempts ([649dbe9](https://github.com/roquerodrigo/ha-tplink-deco/commit/649dbe9ccf36f7b1a5b836b59afd9874a2e10f4f))
+
 ## [1.3.1](https://github.com/roquerodrigo/ha-tplink-deco/compare/v1.3.0...v1.3.1) (2026-05-17)
 
 
