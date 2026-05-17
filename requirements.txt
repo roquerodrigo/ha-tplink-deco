@@ -1,5 +1,5 @@
 homeassistant==2026.2.3
 mypy==2.1.0
 pre-commit==4.6.0
-ruff==0.15.12
-tplink-deco-api==1.1.0
+ruff==0.15.13
+tplink-deco-api==1.1.1
