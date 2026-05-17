@@ -1,5 +1,14 @@
 # Changelog
 
+## [1.3.1](https://github.com/roquerodrigo/ha-tplink-deco/compare/v1.3.0...v1.3.1) (2026-05-17)
+
+
+### Bug Fixes
+
+* remove unused type-ignore comment flagged by mypy ([11806b4](https://github.com/roquerodrigo/ha-tplink-deco/commit/11806b4bc7316954a7468c632894ceab7be8249f))
+* resolve mypy and ruff lint errors ([6f5b2bc](https://github.com/roquerodrigo/ha-tplink-deco/commit/6f5b2bc8bfd28f1dd9c57828d9185112117f02f8))
+* unmerge devices when link_devices_by_mac is disabled ([93183ee](https://github.com/roquerodrigo/ha-tplink-deco/commit/93183eec5caa14aefb9139deddcee4d797dff491))
+
 ## [1.3.0](https://github.com/roquerodrigo/ha-tplink-deco/compare/v1.2.0...v1.3.0) (2026-05-14)
 
 
