@@ -1033,7 +1033,7 @@ dev = [
     { name = "pytest-asyncio", specifier = "==1.3.0" },
     { name = "pytest-cov", specifier = "==7.1.0" },
     { name = "pytest-homeassistant-custom-component", specifier = "==0.13.332" },
-    { name = "tplink-deco-api", specifier = "==1.1.0" },
+    { name = "tplink-deco-api", specifier = "==1.1.1" },
 ]
 lint = [
     { name = "mypy", specifier = "==2.1.0" },
@@ -2549,14 +2549,14 @@ wheels = [
 
 [[package]]
 name = "tplink-deco-api"
-version = "1.1.0"
+version = "1.1.1"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "cryptography" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/11/87/f17de207eca51eaf45e86c3f9b35d541e493025ae5df23ca62e75fd71ab0/tplink_deco_api-1.1.0.tar.gz", hash = "sha256:37d0726b95196352bfba87e2a3cda98c3ad5ab11fc22e3dc7681631ea57525ad", size = 34263, upload-time = "2026-05-11T02:36:03.428Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/50/07/d1a0115865f7b8dbefd8270ad3dd438ab409538ff6f2f3c13fec10ad937e/tplink_deco_api-1.1.1.tar.gz", hash = "sha256:d65631c1a20e474d386e3c4df70c6190aa3686eea9520679a7cfdcf6b84d6f2e", size = 55420, upload-time = "2026-05-14T13:27:19.723Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/4f/43/5e6a4d4f487d9ba8a2d9dc250669b72f30790929f76f282578328da4f1d9/tplink_deco_api-1.1.0-py3-none-any.whl", hash = "sha256:a7e6cd2a27286ec199053701aa30258f3e595e0466e0687829d536491e146319", size = 15816, upload-time = "2026-05-11T02:36:01.861Z" },
+    { url = "https://files.pythonhosted.org/packages/95/4b/a3a5db9caf9454a948416ec013ec2fe2bd27210bc289f191aa878093811a/tplink_deco_api-1.1.1-py3-none-any.whl", hash = "sha256:79513de7a8886b7ba29910c411b160c7dc7b2087642d9b2821ed09e6585fc90a", size = 20922, upload-time = "2026-05-14T13:27:18.14Z" },
 ]
 
 [[package]]
