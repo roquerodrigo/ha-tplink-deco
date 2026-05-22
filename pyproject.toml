@@ -1,0 +1,75 @@
+[project]
+name = "ha-tplink-deco"
+version = "0.0.0"
+description = "Home Assistant integration for TP-Link Deco mesh routers"
+requires-python = ">=3.14.2"
+
+[tool.uv]
+package = false
+
+[dependency-groups]
+dev = [
+    "homeassistant==2026.5.3",
+    "pre-commit==4.6.0",
+    "pytest==9.0.3",
+    "pytest-asyncio==1.3.0",
+    "pytest-cov==7.1.0",
+    "pytest-homeassistant-custom-component==0.13.332",
+    "tplink-deco-api==1.1.0",
+]
+lint = [
+    "ruff==0.15.14",
+    "mypy==2.1.0",
+]
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests"]
+pythonpath = ["."]
+addopts = [
+    "--cov=custom_components/tplink_deco",
+    "--cov-report=term-missing",
+    "--cov-fail-under=80",
+]
+
+[tool.mypy]
+python_version = "3.14"
+files = ["custom_components/tplink_deco"]
+explicit_package_bases = true
+ignore_missing_imports = true
+follow_imports = "silent"
+strict_optional = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+warn_unreachable = true
+no_implicit_optional = true
+check_untyped_defs = true
+disallow_untyped_defs = true
+disallow_any_generics = true
+
+[[tool.mypy.overrides]]
+module = "tests.*"
+disallow_untyped_defs = false
+check_untyped_defs = false
+
+[tool.ruff]
+target-version = "py314"
+
+[tool.ruff.lint]
+select = ["ALL"]
+ignore = ["ANN401", "D203", "D212", "COM812", "ISC001"]
+
+[tool.ruff.lint.flake8-pytest-style]
+fixture-parentheses = false
+
+[tool.ruff.lint.pyupgrade]
+keep-runtime-typing = true
+
+[tool.ruff.lint.mccabe]
+max-complexity = 25
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**" = [
+    "S101", "SLF001", "ARG001", "PLR2004",
+    "D100", "D103", "ANN401",
+]
