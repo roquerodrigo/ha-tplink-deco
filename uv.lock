@@ -1005,7 +1005,7 @@ wheels = [
 
 [[package]]
 name = "ha-tplink-deco"
-version = "0.0.0"
+version = "1.4.0"
 source = { virtual = "." }
 
 [package.dev-dependencies]
