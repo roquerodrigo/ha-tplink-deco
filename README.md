@@ -1,7 +1,7 @@
 # TP-Link Deco for Home Assistant
 
-[![hacs](https://img.shields.io/badge/HACS-Custom-orange.svg)](https://hacs.xyz/)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![CI](https://github.com/roquerodrigo/ha-tplink-deco/actions/workflows/ci.yml/badge.svg)](https://github.com/roquerodrigo/ha-tplink-deco/actions/workflows/ci.yml)
+[![hacs_badge](https://img.shields.io/badge/HACS-Custom-orange.svg)](https://github.com/hacs/integration)
 
 Custom integration that connects Home Assistant to a TP-Link Deco mesh network
 through the router's local web API. No cloud account required.
