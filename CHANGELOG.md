@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.4.1](https://github.com/roquerodrigo/ha-tplink-deco/compare/v1.4.0...v1.4.1) (2026-05-25)
+
+
+### Documentation
+
+* fix and standardize README badges ([3e86082](https://github.com/roquerodrigo/ha-tplink-deco/commit/3e8608220db0614dd7009fb5faa73bf70f7acc4d))
+* fix and standardize README badges ([c685377](https://github.com/roquerodrigo/ha-tplink-deco/commit/c68537739a69829304e1c538a85a65842cfd5db7))
+
 ## [1.4.0](https://github.com/roquerodrigo/ha-tplink-deco/compare/v1.3.1...v1.4.0) (2026-05-17)
 
 
