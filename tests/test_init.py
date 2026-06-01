@@ -1,0 +1,117 @@
+"""Tests for the integration package entry points (``__init__``)."""
+
+from __future__ import annotations
+
+from dataclasses import dataclass, field
+from typing import TYPE_CHECKING
+from unittest.mock import MagicMock
+
+from homeassistant.helpers.device_registry import CONNECTION_NETWORK_MAC
+
+from custom_components.tplink_deco import _unmerge_devices
+from custom_components.tplink_deco.const import DOMAIN
+
+if TYPE_CHECKING:
+    import pytest
+
+ENTRY_ID = "tplink_deco_entry"
+OTHER_ENTRY_ID = "other_integration_entry"
+
+
+@dataclass
+class _FakeDevice:
+    """Minimal stand-in for a Home Assistant ``DeviceEntry``."""
+
+    id: str
+    config_entries: set[str]
+    connections: set[tuple[str, str]] = field(default_factory=set)
+    identifiers: set[tuple[str, str]] = field(default_factory=set)
+
+
+def _run(
+    monkeypatch: pytest.MonkeyPatch,
+    devices: list[_FakeDevice],
+) -> MagicMock:
+    """Run ``_unmerge_devices`` against the given devices and return the registry."""
+    registry = MagicMock()
+    registry.async_update_device = MagicMock()
+    monkeypatch.setattr(
+        "custom_components.tplink_deco.dr.async_get",
+        lambda _hass: registry,
+    )
+    monkeypatch.setattr(
+        "custom_components.tplink_deco.dr.async_entries_for_config_entry",
+        lambda _registry, _entry_id: list(devices),
+    )
+    entry = MagicMock()
+    entry.entry_id = ENTRY_ID
+    _unmerge_devices(MagicMock(), entry)
+    return registry
+
+
+def test_unmerge_strips_mac_connections_from_owned_device(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """A device owned only by tplink_deco loses its MAC connections."""
+    mac_conn = (CONNECTION_NETWORK_MAC, "aa:bb:cc:dd:ee:ff")
+    other_conn = ("zigbee", "1234")
+    device = _FakeDevice(
+        id="dev1",
+        config_entries={ENTRY_ID},
+        connections={mac_conn, other_conn},
+    )
+    registry = _run(monkeypatch, [device])
+
+    registry.async_update_device.assert_called_once_with(
+        "dev1", new_connections={other_conn}
+    )
+
+
+def test_unmerge_skips_owned_device_without_mac_connections(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """An owned device with no MAC connections is left untouched."""
+    device = _FakeDevice(
+        id="dev1",
+        config_entries={ENTRY_ID},
+        connections={("zigbee", "1234")},
+    )
+    registry = _run(monkeypatch, [device])
+
+    registry.async_update_device.assert_not_called()
+
+
+def test_unmerge_detaches_shared_device_and_strips_identifier(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """A shared device is detached and loses its tplink_deco identifier."""
+    deco_id = (DOMAIN, "deco-mac")
+    other_id = ("other", "node-1")
+    device = _FakeDevice(
+        id="dev1",
+        config_entries={ENTRY_ID, OTHER_ENTRY_ID},
+        identifiers={deco_id, other_id},
+    )
+    registry = _run(monkeypatch, [device])
+
+    registry.async_update_device.assert_any_call(
+        "dev1", remove_config_entry_id=ENTRY_ID
+    )
+    registry.async_update_device.assert_any_call("dev1", new_identifiers={other_id})
+    assert registry.async_update_device.call_count == 2
+
+
+def test_unmerge_detaches_shared_device_without_deco_identifier(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """A shared device without a tplink_deco identifier is only detached."""
+    device = _FakeDevice(
+        id="dev1",
+        config_entries={ENTRY_ID, OTHER_ENTRY_ID},
+        identifiers={("other", "node-1")},
+    )
+    registry = _run(monkeypatch, [device])
+
+    registry.async_update_device.assert_called_once_with(
+        "dev1", remove_config_entry_id=ENTRY_ID
+    )
