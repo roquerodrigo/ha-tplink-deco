@@ -52,7 +52,9 @@ tests/                       # pytest suite, ~99% coverage
 ```bash
 source .venv/bin/activate
 bash scripts/develop                          # starts HA at http://localhost:8123
-bash scripts/lint                             # ruff format + check
+uv run ruff format .                          # format
+uv run ruff check . --fix                     # lint
+uv run mypy custom_components/tplink_deco     # type-check
 pytest tests/ --cov=custom_components.tplink_deco
 ```
 

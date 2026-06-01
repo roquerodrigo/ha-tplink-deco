@@ -76,8 +76,10 @@ See [CODE_STYLE.md](CODE_STYLE.md) for project conventions and
 
 ```bash
 source .venv/bin/activate
-bash scripts/develop   # starts HA at http://localhost:8123
-bash scripts/lint      # run formatter and linter
+bash scripts/develop                     # starts HA at http://localhost:8123
+uv run ruff format .                     # format
+uv run ruff check . --fix                # lint
+uv run mypy custom_components/tplink_deco # type-check
 ```
 
 ## License
