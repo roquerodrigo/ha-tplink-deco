@@ -5,9 +5,9 @@
     "@roquerodrigo"
   ],
   "config_flow": true,
-  "documentation": "https://github.com/roquerodrigo/tplink-deco-api",
+  "documentation": "https://github.com/roquerodrigo/ha-tplink-deco",
   "iot_class": "local_polling",
-  "issue_tracker": "https://github.com/roquerodrigo/tplink-deco-api/issues",
+  "issue_tracker": "https://github.com/roquerodrigo/ha-tplink-deco/issues",
   "requirements": [
     "tplink-deco-api==1.1.0"
   ],
