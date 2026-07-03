@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.4.2](https://github.com/roquerodrigo/ha-tplink-deco/compare/v1.4.1...v1.4.2) (2026-07-03)
+
+
+### Bug Fixes
+
+* point manifest documentation and issue_tracker to integration repo ([9f26bac](https://github.com/roquerodrigo/ha-tplink-deco/commit/9f26bac0a404f3dcf9723593097c910fe989f4e6))
+
 ## [1.4.1](https://github.com/roquerodrigo/ha-tplink-deco/compare/v1.4.0...v1.4.1) (2026-05-25)
 
 
