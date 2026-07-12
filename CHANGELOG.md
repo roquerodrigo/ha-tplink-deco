@@ -1,5 +1,20 @@
 # Changelog
 
+## [1.5.0](https://github.com/roquerodrigo/ha-tplink-deco/compare/v1.4.2...v1.5.0) (2026-07-12)
+
+
+### Features
+
+* add bundled Lovelace card for Deco clients ([2695b38](https://github.com/roquerodrigo/ha-tplink-deco/commit/2695b38d41f3a3baf74d8f07555351030f3b0403))
+* add bundled Lovelace card for Deco clients ([a60f301](https://github.com/roquerodrigo/ha-tplink-deco/commit/a60f301fae9ac01cde7c173e38bcdc9badf12dee))
+* allow removing offline devices from the UI ([027e74b](https://github.com/roquerodrigo/ha-tplink-deco/commit/027e74bd1c551058d728fd6a58dc247faecfcd13))
+* allow removing offline devices from the UI ([a216439](https://github.com/roquerodrigo/ha-tplink-deco/commit/a2164391a3e379f65036c616d0f7e7350f28ecf6))
+
+
+### Dependencies
+
+* **deps:** bump pip from 26.1.1 to 26.1.2 ([4ddcc1c](https://github.com/roquerodrigo/ha-tplink-deco/commit/4ddcc1ca7ef07f9fca413e08503438618e73331d))
+
 ## [1.4.2](https://github.com/roquerodrigo/ha-tplink-deco/compare/v1.4.1...v1.4.2) (2026-07-03)
 
 
