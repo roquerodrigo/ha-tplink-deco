@@ -26,6 +26,7 @@ from .data import TpLinkDecoData
 
 if TYPE_CHECKING:
     from homeassistant.core import HomeAssistant
+    from homeassistant.helpers.device_registry import DeviceEntry
 
     from .data import TpLinkDecoConfigEntry
 
@@ -131,3 +132,31 @@ async def async_reload_entry(
 ) -> None:
     """Reload config entry."""
     await hass.config_entries.async_reload(entry.entry_id)
+
+
+async def async_remove_config_entry_device(
+    hass: HomeAssistant,  # noqa: ARG001 -- HA device-removal contract requires this parameter
+    entry: TpLinkDecoConfigEntry,
+    device_entry: DeviceEntry,
+) -> bool:
+    """
+    Allow removing a device that is not currently connected.
+
+    Clients the router still reports as online and mesh nodes are refused,
+    since the next update would immediately re-create them. Any other device —
+    an offline client, including one the router still remembers but that is no
+    longer connected — can be removed. A device that reconnects later is simply
+    registered again.
+    """
+    snapshot = entry.runtime_data.coordinator.data
+    device_macs = {
+        identifier[1]
+        for identifier in device_entry.identifiers
+        if identifier[0] == DOMAIN
+    }
+    if snapshot is None or not device_macs:
+        return True
+    active_macs = {client.mac for client in snapshot.clients if client.online} | {
+        node.mac for node in snapshot.nodes
+    }
+    return device_macs.isdisjoint(active_macs)

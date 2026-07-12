@@ -8,8 +8,14 @@ from unittest.mock import MagicMock
 
 from homeassistant.helpers.device_registry import CONNECTION_NETWORK_MAC
 
-from custom_components.tplink_deco import _unmerge_devices
+from custom_components.tplink_deco import (
+    _unmerge_devices,
+    async_remove_config_entry_device,
+)
+from custom_components.tplink_deco.api import TpLinkDecoSnapshot
 from custom_components.tplink_deco.const import DOMAIN
+
+from .factories import make_client, make_node
 
 if TYPE_CHECKING:
     import pytest
@@ -115,3 +121,61 @@ def test_unmerge_detaches_shared_device_without_deco_identifier(
     registry.async_update_device.assert_called_once_with(
         "dev1", remove_config_entry_id=ENTRY_ID
     )
+
+
+async def _can_remove(
+    snapshot: TpLinkDecoSnapshot | None,
+    identifiers: set[tuple[str, str]],
+) -> bool:
+    """Run ``async_remove_config_entry_device`` for a device with ``identifiers``."""
+    entry = MagicMock()
+    entry.runtime_data.coordinator.data = snapshot
+    device = _FakeDevice(id="dev", config_entries={ENTRY_ID}, identifiers=identifiers)
+    return await async_remove_config_entry_device(MagicMock(), entry, device)
+
+
+async def test_remove_rejected_for_online_client() -> None:
+    """A currently connected client cannot be removed."""
+    client = make_client(online=True)
+    snapshot = TpLinkDecoSnapshot(clients=[client], nodes=[], performance=None)
+
+    assert await _can_remove(snapshot, {(DOMAIN, client.mac)}) is False
+
+
+async def test_remove_allowed_for_offline_client() -> None:
+    """A client the router still remembers but is offline can be removed."""
+    client = make_client(online=False)
+    snapshot = TpLinkDecoSnapshot(clients=[client], nodes=[], performance=None)
+
+    assert await _can_remove(snapshot, {(DOMAIN, client.mac)}) is True
+
+
+async def test_remove_rejected_for_mesh_node() -> None:
+    """A mesh node reported by the router cannot be removed."""
+    node = make_node()
+    snapshot = TpLinkDecoSnapshot(clients=[], nodes=[node], performance=None)
+
+    assert await _can_remove(snapshot, {(DOMAIN, node.mac)}) is False
+
+
+async def test_remove_allowed_for_absent_device() -> None:
+    """A device no longer present in the snapshot can be removed."""
+    snapshot = TpLinkDecoSnapshot(
+        clients=[make_client(online=True)], nodes=[], performance=None
+    )
+
+    assert await _can_remove(snapshot, {(DOMAIN, "FF:FF:FF:FF:FF:FF")}) is True
+
+
+async def test_remove_allowed_without_snapshot() -> None:
+    """With no coordinator data yet, removal is permitted."""
+    assert await _can_remove(None, {(DOMAIN, "AA:BB:CC:DD:EE:01")}) is True
+
+
+async def test_remove_allowed_for_device_without_deco_identifier() -> None:
+    """A device carrying no tplink_deco identifier can always be removed."""
+    snapshot = TpLinkDecoSnapshot(
+        clients=[make_client(online=True)], nodes=[], performance=None
+    )
+
+    assert await _can_remove(snapshot, {("other", "node-1")}) is True
