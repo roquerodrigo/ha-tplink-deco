@@ -548,17 +548,24 @@ class TpLinkDecoCardEditor extends HTMLElement {
   }
 }
 
-customElements.define("tplink-deco-card", TpLinkDecoCard);
-customElements.define("tplink-deco-card-editor", TpLinkDecoCardEditor);
+// The module runs once per URL it is served from, and the card URL carries the
+// integration version. Upgrading the integration without restarting Home
+// Assistant leaves the previous version's URL registered alongside the new one,
+// so the module is evaluated twice. Without this guard the second run throws on
+// the already-taken tag name and registers a duplicate card picker entry.
+if (!customElements.get("tplink-deco-card")) {
+  customElements.define("tplink-deco-card", TpLinkDecoCard);
+  customElements.define("tplink-deco-card-editor", TpLinkDecoCardEditor);
 
-window.customCards = window.customCards || [];
-window.customCards.push({
-  type: "tplink-deco-card",
-  name: "TP-Link Deco Card",
-  description: "Lists the clients connected to the TP-Link Deco mesh with their address and throughput.",
-  preview: true,
-  documentationURL: "https://github.com/roquerodrigo/ha-tplink-deco",
-});
+  window.customCards = window.customCards || [];
+  window.customCards.push({
+    type: "tplink-deco-card",
+    name: "TP-Link Deco Card",
+    description: "Lists the clients connected to the TP-Link Deco mesh with their address and throughput.",
+    preview: true,
+    documentationURL: "https://github.com/roquerodrigo/ha-tplink-deco",
+  });
 
-// eslint-disable-next-line no-console
-console.info("%c tplink-deco-card ", "background:#4ABC96;color:#fff;border-radius:3px", "loaded");
+  // eslint-disable-next-line no-console
+  console.info("%c tplink-deco-card ", "background:#4ABC96;color:#fff;border-radius:3px", "loaded");
+}
