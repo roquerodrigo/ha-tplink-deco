@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.5.1](https://github.com/roquerodrigo/ha-tplink-deco/compare/v1.5.0...v1.5.1) (2026-07-15)
+
+
+### Bug Fixes
+
+* guard against duplicate custom element registration ([2ea8004](https://github.com/roquerodrigo/ha-tplink-deco/commit/2ea800488de6cca1a7d83b83ad5f82dab79524c1))
+
 ## [1.5.0](https://github.com/roquerodrigo/ha-tplink-deco/compare/v1.4.2...v1.5.0) (2026-07-12)
 
 
