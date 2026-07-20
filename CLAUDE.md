@@ -3,33 +3,6 @@
 Home Assistant custom integration for TP-Link Deco mesh routers. Talks to the
 router's local web API via the `tplink_deco_api` SDK.
 
-## Structure
-
-```
-custom_components/tplink_deco/
-├── __init__.py              # Integration setup, update_interval=10s
-├── const.py                 # DOMAIN, LOGGER, ATTRIBUTION, MANUFACTURER
-├── manifest.json
-├── config_flow.py           # TpLinkDecoFlowHandler
-├── coordinator.py           # TpLinkDecoDataUpdateCoordinator (returns TpLinkDecoSnapshot)
-├── data.py                  # TpLinkDecoData + TpLinkDecoConfigEntry type
-├── api/
-│   ├── __init__.py          # re-exports TpLinkDecoApiClient, TpLinkDecoSnapshot
-│   ├── client.py            # TpLinkDecoApiClient.get_snapshot()
-│   ├── snapshot.py          # TpLinkDecoSnapshot dataclass
-│   └── errors/              # base / authentication / communication exceptions
-├── device/
-│   ├── __init__.py          # re-exports base device classes
-│   ├── client.py            # TpLinkDecoClientDevice
-│   └── deco.py              # TpLinkDecoDecoDevice
-├── sensor/                  # client_*.py for clients, deco_*.py for nodes
-├── binary_sensor/           # client_connected.py, deco_internet.py
-├── device_tracker/          # client.py (TpLinkDecoClientTracker)
-└── translations/            # en.json, pt-BR.json
-
-tests/                       # pytest suite, ~99% coverage
-```
-
 ## Key conventions (full list in CODE_STYLE.md)
 
 - **One class per file**, English identifiers, `client_*` / `deco_*` prefixes.
@@ -46,6 +19,15 @@ tests/                       # pytest suite, ~99% coverage
 - Devices that disappear from the API are **offline, not removed** — entities
   stay registered, `available` returns False. Entity registration is
   listener-driven so devices that come back are picked up automatically.
+  Users *can* manually delete an offline device from the UI:
+  `async_remove_config_entry_device` in `__init__.py` only refuses removal for
+  clients/nodes the router still reports as active; a removed device that
+  reconnects later is simply re-registered.
+- The bundled Lovelace card (`www/tplink-deco-card.js`) is served from
+  `custom_components/tplink_deco/www` via a registered static path and
+  auto-added as a frontend module (`add_extra_js_url`) in `async_setup_entry`
+  — users don't need to add a dashboard resource by hand. Its URL is
+  cache-busted with `?v=<integration.version>` on every release.
 
 ## Dev environment
 
@@ -60,6 +42,13 @@ pytest tests/ --cov=custom_components.tplink_deco
 
 The SDK installs as `tplink_deco_api` in the venv (renamed from `tplink_deco`
 to avoid colliding with this component's namespace).
+
+The SDK version is pinned in **two places that don't auto-sync**:
+`manifest.json`'s `requirements` (what HA actually installs at runtime) and
+the `tplink-deco-api` entry in `pyproject.toml`'s dev group (what tests run
+against). Dependabot only bumps the `pyproject.toml`/`uv.lock` pin — bumping
+the SDK requires manually updating `manifest.json` too, or tests will pass
+against a newer SDK than what ships.
 
 ## Update interval
 
