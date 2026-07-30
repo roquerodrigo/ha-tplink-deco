@@ -18,7 +18,7 @@ dev = [
     "tplink-deco-api==1.2.1",
 ]
 lint = [
-    "ruff==0.15.22",
+    "ruff==0.16.0",
     "mypy==2.3.0",
 ]
 
@@ -55,9 +55,12 @@ check_untyped_defs = false
 [tool.ruff]
 target-version = "py314"
 
+[tool.ruff.format]
+exclude = ["*.md"]  # ruff 0.16 formats Python blocks in Markdown; docs keep their own layout
+
 [tool.ruff.lint]
 select = ["ALL"]
-ignore = ["ANN401", "D203", "D212", "COM812", "ISC001"]
+ignore = ["ANN401", "D203", "D212", "COM812", "ISC001", "CPY001"]
 
 [tool.ruff.lint.flake8-pytest-style]
 fixture-parentheses = false
