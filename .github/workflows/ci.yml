@@ -15,7 +15,7 @@ jobs:
 
   tests:
     needs: lint
-    uses: roquerodrigo/.github/.github/workflows/ha-tests.yml@v2
+    uses: roquerodrigo/.github/.github/workflows/ha-tests.yml@v3
 
   validate:
     needs: lint
