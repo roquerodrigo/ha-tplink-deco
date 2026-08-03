@@ -11,7 +11,7 @@ permissions:
 
 jobs:
   lint:
-    uses: roquerodrigo/.github/.github/workflows/ha-lint.yml@v2
+    uses: roquerodrigo/.github/.github/workflows/ha-lint.yml@v3
 
   tests:
     needs: lint
