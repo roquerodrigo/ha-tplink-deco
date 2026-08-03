@@ -27,4 +27,4 @@ jobs:
     permissions:
       contents: write
       pull-requests: write
-    uses: roquerodrigo/.github/.github/workflows/ha-update-pr-branch.yml@v2
+    uses: roquerodrigo/.github/.github/workflows/ha-update-pr-branch.yml@v3
