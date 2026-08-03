@@ -19,7 +19,7 @@ jobs:
 
   validate:
     needs: lint
-    uses: roquerodrigo/.github/.github/workflows/ha-validate.yml@v2
+    uses: roquerodrigo/.github/.github/workflows/ha-validate.yml@v3
 
   update-pr-branch:
     if: github.event_name == 'pull_request'
