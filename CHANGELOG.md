@@ -1,5 +1,40 @@
 # Changelog
 
+## [1.5.2](https://github.com/roquerodrigo/ha-tplink-deco/compare/v1.5.1...v1.5.2) (2026-08-05)
+
+
+### Bug Fixes
+
+* register the bundled card as a Lovelace dashboard resource ([963e122](https://github.com/roquerodrigo/ha-tplink-deco/commit/963e1221ec68429ac13042a2fab965765259e17b))
+
+
+### Development Dependencies
+
+* **deps-dev:** bump pre-commit ([2ff6f08](https://github.com/roquerodrigo/ha-tplink-deco/commit/2ff6f08d4024e4652698e0ea87d44d70f26fa2ee))
+* **deps-dev:** bump ruff ([2675d8d](https://github.com/roquerodrigo/ha-tplink-deco/commit/2675d8d37956f513b606b8caf26d796cb4d6adc2))
+* **deps-dev:** bump ruff in the python-development group ([695b6e3](https://github.com/roquerodrigo/ha-tplink-deco/commit/695b6e38ce8fe5e393211d0f461b8b8797518b5e))
+
+
+### Documentation
+
+* update CLAUDE.md ([d31624a](https://github.com/roquerodrigo/ha-tplink-deco/commit/d31624ac875ec481199997423a63f68b164598bb))
+
+
+### Continuous Integration
+
+* assign open issues and pull requests to the repository owner ([4c73801](https://github.com/roquerodrigo/ha-tplink-deco/commit/4c738017b569bfa89fd84ace58b293a3e66920b2))
+* call the shared auto-assign workflow instead of duplicating it ([724e8bc](https://github.com/roquerodrigo/ha-tplink-deco/commit/724e8bccd927633424f467aaf9d39d1a11c4ecef))
+* drop the auto-assign job now handled by its own workflow ([1525190](https://github.com/roquerodrigo/ha-tplink-deco/commit/152519086367aba352437b1bcd08bc60bcbc0bab))
+* drop the blank line left by the removed job ([1f5dad5](https://github.com/roquerodrigo/ha-tplink-deco/commit/1f5dad591772b8c2924921e5697edc5bdb015c6c))
+* split the CI workflow into one file per concern ([d14944d](https://github.com/roquerodrigo/ha-tplink-deco/commit/d14944db5d8eb8dae44fbd256f3d6496c6403685))
+
+
+### Miscellaneous Chores
+
+* **deps-dev:** bump ruff to 0.16.0 ([58b218b](https://github.com/roquerodrigo/ha-tplink-deco/commit/58b218b402085297f968f467092f05338acf6cfa))
+* move CI to the shared workflows repository ([5790a90](https://github.com/roquerodrigo/ha-tplink-deco/commit/5790a906e1f2a2533766280fa657c7684d00d50f))
+* release on every conventional commit type ([630aa26](https://github.com/roquerodrigo/ha-tplink-deco/commit/630aa261b11291d35b60f33b6251c8f3a45b0500))
+
 ## [1.5.1](https://github.com/roquerodrigo/ha-tplink-deco/compare/v1.5.0...v1.5.1) (2026-07-15)
 
 
