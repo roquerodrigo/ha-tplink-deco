@@ -9,7 +9,8 @@
   ],
   "config_flow": true,
   "dependencies": [
-    "http"
+    "http",
+    "lovelace"
   ],
   "documentation": "https://github.com/roquerodrigo/ha-tplink-deco",
   "iot_class": "local_polling",

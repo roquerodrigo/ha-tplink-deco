@@ -3,23 +3,20 @@
 from __future__ import annotations
 
 from datetime import timedelta
-from pathlib import Path
 from typing import TYPE_CHECKING
 
-from homeassistant.components.frontend import add_extra_js_url
-from homeassistant.components.http import StaticPathConfig
 from homeassistant.const import CONF_HOST, CONF_PASSWORD, CONF_USERNAME, Platform
 from homeassistant.helpers import device_registry as dr
 from homeassistant.helpers.device_registry import CONNECTION_NETWORK_MAC
 from homeassistant.loader import async_get_loaded_integration
 
 from .api import TpLinkDecoApiClient
+from .card_registration import TpLinkDecoCardRegistration
 from .const import (
     CONF_LINK_DEVICES_BY_MAC,
     DEFAULT_LINK_DEVICES_BY_MAC,
     DOMAIN,
     LOGGER,
-    STATIC_URL_PREFIX,
 )
 from .coordinator import TpLinkDecoDataUpdateCoordinator
 from .data import TpLinkDecoData
@@ -36,10 +33,6 @@ PLATFORMS: list[Platform] = [
     Platform.SENSOR,
 ]
 
-_STATIC_REGISTERED_KEY = f"{DOMAIN}_static_registered"
-_WWW_DIR = Path(__file__).parent / "www"
-_CARD_URL = f"{STATIC_URL_PREFIX}/tplink-deco-card.js"
-
 
 async def async_setup_entry(
     hass: HomeAssistant,
@@ -48,16 +41,7 @@ async def async_setup_entry(
     """Set up TP-Link Deco from a config entry."""
     integration = async_get_loaded_integration(hass, entry.domain)
 
-    if not hass.data.get(_STATIC_REGISTERED_KEY):
-        await hass.http.async_register_static_paths(
-            [StaticPathConfig(STATIC_URL_PREFIX, str(_WWW_DIR), cache_headers=True)]
-        )
-        # Ship the Lovelace card with the integration: serve it from the same
-        # static dir and auto-register it as a frontend module so users don't
-        # have to add a dashboard resource by hand. The version query busts the
-        # browser cache on every release.
-        add_extra_js_url(hass, f"{_CARD_URL}?v={integration.version}")
-        hass.data[_STATIC_REGISTERED_KEY] = True
+    await TpLinkDecoCardRegistration(hass, str(integration.version)).async_register()
 
     coordinator = TpLinkDecoDataUpdateCoordinator(
         hass=hass,
@@ -124,6 +108,17 @@ async def async_unload_entry(
 ) -> bool:
     """Handle removal of an entry."""
     return await hass.config_entries.async_unload_platforms(entry, PLATFORMS)
+
+
+async def async_remove_entry(
+    hass: HomeAssistant,
+    entry: TpLinkDecoConfigEntry,
+) -> None:
+    """Clean up the card registration when the last entry is removed."""
+    if hass.config_entries.async_entries(DOMAIN):
+        return
+    integration = async_get_loaded_integration(hass, entry.domain)
+    await TpLinkDecoCardRegistration(hass, str(integration.version)).async_remove()
 
 
 async def async_reload_entry(
