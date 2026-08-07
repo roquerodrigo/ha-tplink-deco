@@ -69,6 +69,38 @@ class TpLinkDecoFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
             errors=_errors,
         )
 
+    async def async_step_reauth(
+        self,
+        entry_data: TpLinkDecoUserInput,  # noqa: ARG002 -- HA reauth contract requires this parameter
+    ) -> config_entries.ConfigFlowResult:
+        """Start reauthentication after the router rejected the credentials."""
+        return await self.async_step_reauth_confirm()
+
+    async def async_step_reauth_confirm(
+        self,
+        user_input: TpLinkDecoUserInput | None = None,
+    ) -> config_entries.ConfigFlowResult:
+        """Revalidate the credentials and update the existing entry."""
+        entry = self._get_reauth_entry()
+        _errors: dict[str, str] = {}
+        if user_input is not None:
+            _errors = await self._validate(user_input)
+            if not _errors:
+                await self.async_set_unique_id(user_input[CONF_HOST])
+                self._abort_if_unique_id_mismatch()
+                return self.async_update_reload_and_abort(
+                    entry,
+                    data=dict(user_input),
+                )
+
+        return self.async_show_form(
+            step_id="reauth_confirm",
+            data_schema=self._build_schema(
+                user_input or cast("TpLinkDecoUserInput", dict(entry.data)),
+            ),
+            errors=_errors,
+        )
+
     async def async_step_reconfigure(
         self,
         user_input: TpLinkDecoUserInput | None = None,
@@ -102,13 +134,13 @@ class TpLinkDecoFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
                 user_input[CONF_PASSWORD],
             )
         except TpLinkDecoApiClientAuthenticationError as exception:
-            LOGGER.warning(exception)
+            LOGGER.warning("Failed to authenticate with the router: %s", exception)
             return {"base": "auth"}
         except TpLinkDecoApiClientCommunicationError as exception:
-            LOGGER.error(exception)
+            LOGGER.error("Failed to connect to the router: %s", exception)
             return {"base": "connection"}
-        except TpLinkDecoApiClientError as exception:
-            LOGGER.exception(exception)
+        except TpLinkDecoApiClientError:
+            LOGGER.exception("Failed to validate the router credentials")
             return {"base": "unknown"}
         return {}
 

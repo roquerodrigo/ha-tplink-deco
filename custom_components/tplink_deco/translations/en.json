@@ -68,6 +68,19 @@
                     "link_devices_by_mac": "When enabled, Home Assistant groups devices that share a MAC address into a single device entry. Disable to keep this integration's devices separate from those reported by other integrations."
                 }
             },
+            "reauth_confirm": {
+                "title": "Reauthenticate with the router",
+                "description": "The router rejected the stored credentials. Enter the current ones to keep the integration running.",
+                "data": {
+                    "host": "Router IP Address",
+                    "username": "Username",
+                    "password": "Password",
+                    "link_devices_by_mac": "Link devices by MAC address"
+                },
+                "data_description": {
+                    "link_devices_by_mac": "When enabled, Home Assistant groups devices that share a MAC address into a single device entry. Disable to keep this integration's devices separate from those reported by other integrations."
+                }
+            },
             "reconfigure": {
                 "data": {
                     "host": "Router IP Address",
@@ -87,7 +100,9 @@
         },
         "abort": {
             "already_configured": "This router is already configured.",
-            "reconfigure_successful": "Reconfiguration completed successfully."
+            "reauth_successful": "Reauthentication completed successfully.",
+            "reconfigure_successful": "Reconfiguration completed successfully.",
+            "unique_id_mismatch": "The entered address belongs to a different router than the one being reauthenticated."
         }
     }
 }

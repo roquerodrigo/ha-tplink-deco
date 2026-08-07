@@ -156,3 +156,65 @@ async def test_reconfigure_surfaces_credential_errors(hass: HomeAssistant) -> No
         )
     assert result["type"] == data_entry_flow.FlowResultType.FORM
     assert result["errors"] == {"base": "auth"}
+
+
+async def test_reauth_shows_confirm_form(hass: HomeAssistant) -> None:
+    """A reauth trigger opens the reauth_confirm form."""
+    entry = _existing_entry(hass)
+    result = await entry.start_reauth_flow(hass)
+    assert result["type"] == data_entry_flow.FlowResultType.FORM
+    assert result["step_id"] == "reauth_confirm"
+
+
+async def test_reauth_updates_entry_on_valid_credentials(hass: HomeAssistant) -> None:
+    """Valid credentials update the entry data and finish the reauth flow."""
+    entry = _existing_entry(hass)
+    result = await entry.start_reauth_flow(hass)
+
+    updated = {**USER_INPUT, CONF_PASSWORD: "new-secret"}
+    with patch(
+        "custom_components.tplink_deco.config_flow.TpLinkDecoApiClient.get_snapshot",
+        return_value=None,
+    ):
+        result = await hass.config_entries.flow.async_configure(
+            result["flow_id"], updated
+        )
+    assert result["type"] == data_entry_flow.FlowResultType.ABORT
+    assert result["reason"] == "reauth_successful"
+    assert entry.data[CONF_PASSWORD] == "new-secret"
+
+
+async def test_reauth_keeps_form_on_invalid_credentials(hass: HomeAssistant) -> None:
+    """Invalid credentials keep the reauth form open with an auth error."""
+    entry = _existing_entry(hass)
+    result = await entry.start_reauth_flow(hass)
+
+    with patch(
+        "custom_components.tplink_deco.config_flow.TpLinkDecoApiClient.get_snapshot",
+        side_effect=TpLinkDecoApiClientAuthenticationError("bad creds"),
+    ):
+        result = await hass.config_entries.flow.async_configure(
+            result["flow_id"], USER_INPUT
+        )
+    assert result["type"] == data_entry_flow.FlowResultType.FORM
+    assert result["step_id"] == "reauth_confirm"
+    assert result["errors"] == {"base": "auth"}
+    assert entry.data[CONF_PASSWORD] == USER_INPUT[CONF_PASSWORD]
+
+
+async def test_reauth_rejects_a_different_router(hass: HomeAssistant) -> None:
+    """Entering another router's address aborts instead of hijacking the entry."""
+    entry = _existing_entry(hass)
+    result = await entry.start_reauth_flow(hass)
+
+    other_router = {**USER_INPUT, CONF_HOST: "192.168.0.2"}
+    with patch(
+        "custom_components.tplink_deco.config_flow.TpLinkDecoApiClient.get_snapshot",
+        return_value=None,
+    ):
+        result = await hass.config_entries.flow.async_configure(
+            result["flow_id"], other_router
+        )
+    assert result["type"] == data_entry_flow.FlowResultType.ABORT
+    assert result["reason"] == "unique_id_mismatch"
+    assert entry.data[CONF_HOST] == USER_INPUT[CONF_HOST]
