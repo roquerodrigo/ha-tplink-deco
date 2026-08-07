@@ -53,7 +53,6 @@ const TRANSLATIONS = {
   en: {
     "card.empty": "No TP-Link Deco clients found",
     "card.offline": "Offline",
-    "card.title": "Devices",
     "conn.wired": "Wired",
     "conn.band2_4": "2.4 GHz",
     "conn.band5": "5 GHz",
@@ -75,7 +74,6 @@ const TRANSLATIONS = {
   "pt-BR": {
     "card.empty": "Nenhum cliente TP-Link Deco encontrado",
     "card.offline": "Offline",
-    "card.title": "Dispositivos",
     "conn.wired": "Cabo",
     "conn.band2_4": "2,4 GHz",
     "conn.band5": "5 GHz",
