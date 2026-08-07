@@ -4,6 +4,8 @@ from __future__ import annotations
 
 from unittest.mock import MagicMock
 
+from homeassistant.const import EntityCategory
+
 from custom_components.tplink_deco.api import TpLinkDecoSnapshot
 from custom_components.tplink_deco.sensor.client_connection_type import (
     TpLinkDecoClientConnectionTypeSensor,
@@ -216,3 +218,19 @@ def test_deco_total_download_returns_zero_for_no_clients() -> None:
     snapshot = TpLinkDecoSnapshot(clients=[], nodes=[node], performance=None)
     sensor = TpLinkDecoDecoDownloadSensor(_coord(snapshot), node)
     assert sensor.native_value == 0
+
+
+def test_address_sensors_are_diagnostic() -> None:
+    """MAC and IP sensors are categorized as diagnostic entities."""
+    assert TpLinkDecoClientMacSensor.entity_description.entity_category == (
+        EntityCategory.DIAGNOSTIC
+    )
+    assert TpLinkDecoClientIpSensor.entity_description.entity_category == (
+        EntityCategory.DIAGNOSTIC
+    )
+    assert TpLinkDecoDecoMacSensor.entity_description.entity_category == (
+        EntityCategory.DIAGNOSTIC
+    )
+    assert TpLinkDecoDecoIpSensor.entity_description.entity_category == (
+        EntityCategory.DIAGNOSTIC
+    )
