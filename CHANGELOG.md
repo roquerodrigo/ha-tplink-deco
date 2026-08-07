@@ -1,5 +1,52 @@
 # Changelog
 
+## [1.6.0](https://github.com/roquerodrigo/ha-tplink-deco/compare/v1.5.2...v1.6.0) (2026-08-07)
+
+
+### Features
+
+* **sensor:** mark the MAC and IP address sensors as diagnostic ([b6b3c98](https://github.com/roquerodrigo/ha-tplink-deco/commit/b6b3c987f57e29b5eee2b2d9bb615b8a5e89e91c))
+
+
+### Bug Fixes
+
+* **config_flow:** add a reauth flow for rejected credentials ([09788b5](https://github.com/roquerodrigo/ha-tplink-deco/commit/09788b5ad9deb856aacceb65a8a70414147f20da))
+* **device:** guard the client and node lookups before the first refresh ([46bb1db](https://github.com/roquerodrigo/ha-tplink-deco/commit/46bb1dbf5da6127cf9bfac72ab255835d60932c9))
+* report client presence from the router's online flag ([66efa9a](https://github.com/roquerodrigo/ha-tplink-deco/commit/66efa9ac8371c08823aef11062fb848019c61a93))
+
+
+### Code Refactoring
+
+* **const:** enable postponed annotation evaluation ([0d0ddc8](https://github.com/roquerodrigo/ha-tplink-deco/commit/0d0ddc82e468208cf110f92df473cc62f634f9da))
+* **coordinator:** declare the grace and smoothing caches in a typed constructor ([bcf2c11](https://github.com/roquerodrigo/ha-tplink-deco/commit/bcf2c1154594574f6ff380182dc7fed567e6c425))
+
+
+### Dependencies
+
+* align the manifest SDK pin and HACS floor with the tested versions ([cc44bad](https://github.com/roquerodrigo/ha-tplink-deco/commit/cc44bad04e310bcd67793db064d393a545d0482f))
+
+
+### Documentation
+
+* align the project docs with the current implementation ([2ebe713](https://github.com/roquerodrigo/ha-tplink-deco/commit/2ebe71363e36e5787ed21b160a022230bdffca0d))
+
+
+### Continuous Integration
+
+* run checks on pull requests targeting any branch ([d7e9399](https://github.com/roquerodrigo/ha-tplink-deco/commit/d7e9399e65c7776338e0de293b8b373a5e7bc85c))
+* run code scanning on pull requests targeting any branch ([157c159](https://github.com/roquerodrigo/ha-tplink-deco/commit/157c15980f2fe51202e359b03e47788c77e43851))
+
+
+### Tests
+
+* keep translation locales and entity translation keys in sync ([04daa47](https://github.com/roquerodrigo/ha-tplink-deco/commit/04daa479406dc94df34deb81bbf569c27136ba42))
+
+
+### Miscellaneous Chores
+
+* **card:** drop the unused card.title translation key ([a1acbbd](https://github.com/roquerodrigo/ha-tplink-deco/commit/a1acbbd0708621f94a372258b7a4b760f83f9c3d))
+* run the setup script and pre-commit hooks through uv ([d77791c](https://github.com/roquerodrigo/ha-tplink-deco/commit/d77791cf3169995cb67c8fed594313a401675187))
+
 ## [1.5.2](https://github.com/roquerodrigo/ha-tplink-deco/compare/v1.5.1...v1.5.2) (2026-08-05)
 
 
