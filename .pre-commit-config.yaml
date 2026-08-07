@@ -1,15 +1,23 @@
 repos:
-  - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.15.12
-    hooks:
-      - id: ruff-format
-      - id: ruff-check
-        args: [--fix]
   - repo: local
     hooks:
+      - id: ruff-format
+        name: ruff format
+        entry: uv run ruff format
+        language: system
+        types_or: [python, pyi]
+        require_serial: true
+
+      - id: ruff-check
+        name: ruff check
+        entry: uv run ruff check --fix
+        language: system
+        types_or: [python, pyi]
+        require_serial: true
+
       - id: mypy
         name: mypy
-        entry: python -m mypy custom_components/tplink_deco
+        entry: uv run mypy custom_components/tplink_deco
         language: system
-        types: [python]
         pass_filenames: false
+        types: [python]
