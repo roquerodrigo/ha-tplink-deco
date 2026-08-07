@@ -32,5 +32,6 @@ class TpLinkDecoClientConnectedBinarySensor(TpLinkDecoClientDevice, BinarySensor
 
     @property
     def is_on(self) -> bool:
-        """Return whether the client is connected."""
-        return self.client is not None
+        """Return whether the router currently reports the client as online."""
+        client = self.client
+        return client is not None and client.online

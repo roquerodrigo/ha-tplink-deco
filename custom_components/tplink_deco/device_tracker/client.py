@@ -34,8 +34,9 @@ class TpLinkDecoClientTracker(TpLinkDecoClientDevice, ScannerEntity):
 
     @property
     def is_connected(self) -> bool:
-        """Return whether the client is connected to the network."""
-        return self.client is not None
+        """Return whether the router currently reports the client as online."""
+        client = self.client
+        return client is not None and client.online
 
     @property
     def ip_address(self) -> str | None:
