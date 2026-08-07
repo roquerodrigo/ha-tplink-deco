@@ -30,9 +30,27 @@ device hierarchy in Home Assistant reflects the mesh topology. All Deco
 BSSIDs (main, AP and backhaul STA) are registered as `CONNECTION_NETWORK_MAC`
 so other discovery flows (DHCP, etc.) can correlate the same physical device.
 
+## Bundled Lovelace card
+
+The integration ships a custom dashboard card that lists the clients
+connected to the mesh with their connection state, address and live
+throughput. The card is served by the integration itself and registered as a
+Lovelace dashboard resource automatically — no manual resource setup is
+required. Add it to any dashboard with:
+
+```yaml
+type: custom:tplink-deco-card
+```
+
+Optional settings: `devices` (device ids to show), `secondary_info`
+(`ip` | `mac` | `connection` | `none`), `sort`
+(`name` | `download` | `upload` | `connection`), `columns` (1–6) and
+`show_offline`. The card also provides a visual editor in the dashboard UI
+and is translated into English and Portuguese (Brazil).
+
 ## Requirements
 
-- Home Assistant 2026.3.2 or newer
+- Home Assistant 2026.5.3 or newer
 - A TP-Link Deco mesh network with the local web admin enabled
 - Router credentials (username and password used in the Deco app)
 
@@ -61,7 +79,9 @@ After installing and restarting:
 3. Enter the router IP, username and password.
 
 The integration uses Home Assistant's UI config flow — there is no YAML
-configuration. Updates are polled every 10 seconds.
+configuration. Updates are polled every 20 seconds. If the router password
+changes, Home Assistant prompts for reauthentication instead of silently
+failing.
 
 ## Translations
 
