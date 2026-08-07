@@ -46,3 +46,21 @@ def test_tracker_source_type_is_router() -> None:
     snapshot = TpLinkDecoSnapshot(clients=[client], nodes=[], performance=None)
     tracker = TpLinkDecoClientTracker(_coord(snapshot), client)
     assert tracker.source_type == SourceType.ROUTER
+
+
+def test_tracker_disconnected_when_client_reported_offline() -> None:
+    """A client the router lists with online=False is not connected."""
+    client = make_client(mac="AA:BB:CC:DD:EE:98", online=False)
+    snapshot = TpLinkDecoSnapshot(clients=[client], nodes=[], performance=None)
+    tracker = TpLinkDecoClientTracker(_coord(snapshot), client)
+    assert tracker.is_connected is False
+    assert tracker.available is True
+    assert tracker.ip_address == client.ip
+
+
+def test_tracker_handles_missing_coordinator_data() -> None:
+    """The tracker degrades gracefully before the first refresh lands."""
+    client = make_client()
+    tracker = TpLinkDecoClientTracker(_coord(None), client)
+    assert tracker.is_connected is False
+    assert tracker.ip_address is None

@@ -64,3 +64,12 @@ def test_deco_internet_none_when_node_missing() -> None:
     snapshot = TpLinkDecoSnapshot(clients=[], nodes=[], performance=None)
     sensor = TpLinkDecoDecoInternetBinarySensor(_coord(snapshot), node)
     assert sensor.is_on is None
+
+
+def test_client_disconnected_when_reported_offline() -> None:
+    """A client the router lists with online=False reports off."""
+    client = make_client(online=False)
+    snapshot = TpLinkDecoSnapshot(clients=[client], nodes=[], performance=None)
+    sensor = TpLinkDecoClientConnectedBinarySensor(_coord(snapshot), client)
+    assert sensor.is_on is False
+    assert sensor.available is True
