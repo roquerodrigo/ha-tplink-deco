@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import time
+from datetime import timedelta
 from typing import TYPE_CHECKING
 from unittest.mock import AsyncMock, MagicMock
 
@@ -15,13 +16,19 @@ from custom_components.tplink_deco.api.errors import (
     TpLinkDecoApiClientAuthenticationError,
     TpLinkDecoApiClientCommunicationError,
 )
-from custom_components.tplink_deco.const import UNAVAILABLE_GRACE_PERIOD_SECONDS
+from custom_components.tplink_deco.const import (
+    DOMAIN,
+    LOGGER,
+    UNAVAILABLE_GRACE_PERIOD_SECONDS,
+)
 from custom_components.tplink_deco.coordinator import TpLinkDecoDataUpdateCoordinator
 
 from .factories import make_client, make_node, make_performance
 
 if TYPE_CHECKING:
     from collections.abc import Iterator
+
+    from homeassistant.core import HomeAssistant
 
 
 def _build_coordinator(
@@ -49,6 +56,9 @@ def _build_coordinator(
     runtime_data = MagicMock(client=api_client)
     config_entry = MagicMock(runtime_data=runtime_data)
     coordinator.config_entry = config_entry
+    coordinator._client_grace = {}
+    coordinator._node_grace = {}
+    coordinator._speed_ema = {}
     return coordinator
 
 
@@ -71,6 +81,9 @@ def _build_coordinator_with_executor(
     runtime_data = MagicMock(client=api_client)
     config_entry = MagicMock(runtime_data=runtime_data)
     coordinator.config_entry = config_entry
+    coordinator._client_grace = {}
+    coordinator._node_grace = {}
+    coordinator._speed_ema = {}
     return coordinator
 
 
@@ -260,3 +273,16 @@ async def test_grace_count_includes_held_clients(
     fake_time = 30.0
     second = await coordinator._async_update_data()
     assert len(second.clients) == 3
+
+
+async def test_init_starts_with_empty_caches(hass: HomeAssistant) -> None:
+    """The constructor initializes the grace and smoothing caches."""
+    coordinator = TpLinkDecoDataUpdateCoordinator(
+        hass=hass,
+        logger=LOGGER,
+        name=DOMAIN,
+        update_interval=timedelta(seconds=20),
+    )
+    assert coordinator._client_grace == {}
+    assert coordinator._node_grace == {}
+    assert coordinator._speed_ema == {}
