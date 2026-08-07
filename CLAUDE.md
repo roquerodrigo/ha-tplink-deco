@@ -25,9 +25,13 @@ router's local web API via the `tplink_deco_api` SDK.
   reconnects later is simply re-registered.
 - The bundled Lovelace card (`www/tplink-deco-card.js`) is served from
   `custom_components/tplink_deco/www` via a registered static path and
-  auto-added as a frontend module (`add_extra_js_url`) in `async_setup_entry`
-  — users don't need to add a dashboard resource by hand. Its URL is
-  cache-busted with `?v=<integration.version>` on every release.
+  registered as a **Lovelace dashboard resource** by `card_registration.py`
+  during `async_setup_entry` — users don't need to add a dashboard resource
+  by hand. Dashboard resources are fetched on every dashboard load, so the
+  card also works for pages opened while Home Assistant is still starting;
+  `add_extra_js_url` remains only as the fallback for YAML-mode resources,
+  which cannot be managed programmatically. The resource URL is cache-busted
+  with `?v=<integration.version>` on every release.
 
 ## Dev environment
 
@@ -37,7 +41,7 @@ bash scripts/develop                          # starts HA at http://localhost:81
 uv run ruff format .                          # format
 uv run ruff check . --fix                     # lint
 uv run mypy custom_components/tplink_deco     # type-check
-pytest tests/ --cov=custom_components.tplink_deco
+uv run pytest                                 # coverage flags come from pyproject.toml
 ```
 
 The SDK installs as `tplink_deco_api` in the venv (renamed from `tplink_deco`
@@ -47,8 +51,9 @@ The SDK version is pinned in **two places that don't auto-sync**:
 `manifest.json`'s `requirements` (what HA actually installs at runtime) and
 the `tplink-deco-api` entry in `pyproject.toml`'s dev group (what tests run
 against). Dependabot only bumps the `pyproject.toml`/`uv.lock` pin — bumping
-the SDK requires manually updating `manifest.json` too, or tests will pass
-against a newer SDK than what ships.
+the SDK requires manually updating `manifest.json` too.
+`tests/test_manifest.py` enforces the parity (and the `hacs.json` floor), so
+CI fails whenever the two pins drift.
 
 ## Update interval
 

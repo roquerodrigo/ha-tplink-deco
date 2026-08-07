@@ -1,4 +1,4 @@
 # TODO List for the project
 
-Faça APENAS uma tarefa por vez, seguindo e ordem e remova-a da lista quando concluída.
-
+Work on ONE task at a time, following the order, and remove each task from
+the list once it is done.

@@ -3,7 +3,7 @@
 Style conventions for the `ha-tplink-deco` project. Before committing run
 `uv run ruff format .`, `uv run ruff check . --fix` and
 `uv run mypy custom_components/tplink_deco`, all of which must exit cleanly.
-`pytest` (with the 80 % coverage gate) follows.
+`uv run pytest` (with the 90 % coverage gate) follows.
 
 **Always read this file before adding or restructuring code.**
 
@@ -180,23 +180,29 @@ explaining the deliberate narrowing.
 
 ## Config / repairs / diagnostics
 
-- `config_flow.py` carries `user`, `reauth`, `reauth_confirm` and `reconfigure`
-  steps, all sharing one `_validate` helper and one `_credentials_schema`
-  builder.
+- `config_flow.py` carries `user`, `reauth`/`reauth_confirm` and `reconfigure`
+  steps, all sharing one `_validate` helper and one `_build_schema` builder.
+  `reauth_confirm` guards against pointing the entry at a different router via
+  `async_set_unique_id` + `_abort_if_unique_id_mismatch`.
 - `diagnostics.py` redacts `password` via `async_redact_data` (driven by
   `TO_REDACT: frozenset[str]`).
 
 ## Translations
 
 - Two locales: `en.json` and `pt-BR.json`. The translation file's nested key
-  sets must stay in sync between locales.
-- Issue strings live under `issues.<issue_id>`; flow strings under
-  `config.step.<step_id>`; entity names under `entity.<platform>.<key>.name`.
+  sets must stay in sync between locales — `tests/test_translations.py`
+  enforces this and cross-checks every entity `translation_key` against the
+  authored entity section.
+- Flow strings live under `config.step.<step_id>` (with `config.error` and
+  `config.abort` for flow errors and aborts); entity names under
+  `entity.<platform>.<key>.name`.
 
 ## Pre-commit hooks
 
-`pre-commit` is recommended. `.pre-commit-config.yaml` mirrors the lint
-gates (ruff format, ruff check, mypy); install it once per clone:
+`pre-commit` is recommended. `.pre-commit-config.yaml` defines local hooks
+that run the pinned tools through `uv run` (ruff format, ruff check, mypy),
+so every commit is checked by the exact versions from `pyproject.toml`;
+install it once per clone:
 
 ```bash
 pre-commit install
@@ -236,7 +242,7 @@ which `release-please` parses to bump the version and generate `CHANGELOG.md`:
 - After every change run `uv run ruff format .`, `uv run ruff check . --fix`,
   `uv run mypy custom_components/tplink_deco` and `pytest`. All gates mirror CI
   (`.github/workflows/ci.yml`).
-- Tests live in `tests/`, mirroring the production layout. The 80 % coverage
+- Tests live in `tests/`, mirroring the production layout. The 90 % coverage
   gate (`pyproject.toml`, `[tool.pytest.ini_options]`) prevents untested code
   from sneaking in. When a test
   exercises a state that is impossible under the new types, update or remove
