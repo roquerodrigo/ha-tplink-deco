@@ -68,6 +68,19 @@
                     "link_devices_by_mac": "Quando ativado, o Home Assistant agrupa dispositivos que compartilham um endereço MAC em uma única entrada. Desative para manter os dispositivos desta integração separados dos que outras integrações expõem."
                 }
             },
+            "reauth_confirm": {
+                "title": "Reautenticar com o roteador",
+                "description": "O roteador rejeitou as credenciais salvas. Informe as credenciais atuais para a integração voltar a funcionar.",
+                "data": {
+                    "host": "Endereço IP do roteador",
+                    "username": "Usuário",
+                    "password": "Senha",
+                    "link_devices_by_mac": "Associar dispositivos pelo endereço MAC"
+                },
+                "data_description": {
+                    "link_devices_by_mac": "Quando ativado, o Home Assistant agrupa dispositivos que compartilham um endereço MAC em uma única entrada. Desative para manter os dispositivos desta integração separados dos que outras integrações expõem."
+                }
+            },
             "reconfigure": {
                 "data": {
                     "host": "Endereço IP do roteador",
@@ -87,7 +100,9 @@
         },
         "abort": {
             "already_configured": "Este roteador já está configurado.",
-            "reconfigure_successful": "Reconfiguração concluída com sucesso."
+            "reauth_successful": "Reautenticação concluída com sucesso.",
+            "reconfigure_successful": "Reconfiguração concluída com sucesso.",
+            "unique_id_mismatch": "O endereço informado pertence a um roteador diferente do que está sendo reautenticado."
         }
     }
 }
