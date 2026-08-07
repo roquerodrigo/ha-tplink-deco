@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from homeassistant.components.sensor import SensorEntity, SensorEntityDescription
+from homeassistant.const import EntityCategory
 
 from custom_components.tplink_deco.device import TpLinkDecoDecoDevice
 
@@ -14,6 +15,7 @@ class TpLinkDecoDecoIpSensor(TpLinkDecoDecoDevice, SensorEntity):
         key="ip",
         translation_key="ip",
         icon="mdi:ip-network",
+        entity_category=EntityCategory.DIAGNOSTIC,
     )
 
     @property
