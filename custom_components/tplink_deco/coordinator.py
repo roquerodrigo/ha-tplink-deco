@@ -17,6 +17,10 @@ from .api.errors import (
 from .const import LOGGER, SPEED_EMA_ALPHA, UNAVAILABLE_GRACE_PERIOD_SECONDS
 
 if TYPE_CHECKING:
+    from datetime import timedelta
+    from logging import Logger
+
+    from homeassistant.core import HomeAssistant
     from tplink_deco_api import ClientDevice, Device
 
     from .data import TpLinkDecoConfigEntry
@@ -26,6 +30,24 @@ class TpLinkDecoDataUpdateCoordinator(DataUpdateCoordinator[TpLinkDecoSnapshot])
     """Fetches data in a single session to avoid concurrent auth conflicts."""
 
     config_entry: TpLinkDecoConfigEntry
+
+    def __init__(
+        self,
+        hass: HomeAssistant,
+        logger: Logger,
+        name: str,
+        update_interval: timedelta,
+    ) -> None:
+        """Initialize the coordinator and its grace and smoothing caches."""
+        super().__init__(
+            hass=hass,
+            logger=logger,
+            name=name,
+            update_interval=update_interval,
+        )
+        self._client_grace: dict[str, tuple[ClientDevice, float]] = {}
+        self._node_grace: dict[str, tuple[Device, float]] = {}
+        self._speed_ema: dict[str, tuple[float, float]] = {}
 
     async def _async_update_data(self) -> TpLinkDecoSnapshot:
         try:
@@ -56,8 +78,8 @@ class TpLinkDecoDataUpdateCoordinator(DataUpdateCoordinator[TpLinkDecoSnapshot])
         so transient drops (e.g., mobile WiFi sleep) don't propagate as
         immediate state changes to dependent sensors.
         """
-        client_grace = self.__dict__.setdefault("_client_grace", {})
-        node_grace = self.__dict__.setdefault("_node_grace", {})
+        client_grace = self._client_grace
+        node_grace = self._node_grace
 
         now = time.monotonic()
         cutoff = now - UNAVAILABLE_GRACE_PERIOD_SECONDS
@@ -79,11 +101,11 @@ class TpLinkDecoDataUpdateCoordinator(DataUpdateCoordinator[TpLinkDecoSnapshot])
         seen_nodes = {n.mac for n in snapshot.nodes}
         graced_nodes: list[Device] = list(snapshot.nodes)
         for mac in list(node_grace):
-            cached, ts = node_grace[mac]
-            if ts < cutoff:
+            cached_node, node_ts = node_grace[mac]
+            if node_ts < cutoff:
                 del node_grace[mac]
             elif mac not in seen_nodes:
-                graced_nodes.append(cached)
+                graced_nodes.append(cached_node)
 
         return TpLinkDecoSnapshot(
             clients=self._smooth_speeds(graced_clients),
@@ -93,7 +115,7 @@ class TpLinkDecoDataUpdateCoordinator(DataUpdateCoordinator[TpLinkDecoSnapshot])
 
     def _smooth_speeds(self, clients: list[ClientDevice]) -> list[ClientDevice]:
         """Apply exponential moving average to client speed values."""
-        ema: dict[str, tuple[float, float]] = self.__dict__.setdefault("_speed_ema", {})
+        ema = self._speed_ema
         alpha = SPEED_EMA_ALPHA
         result: list[ClientDevice] = []
         for client in clients:
