@@ -18,6 +18,8 @@ from custom_components.tplink_deco.coordinator import TpLinkDecoDataUpdateCoordi
 if TYPE_CHECKING:
     from tplink_deco_api import ClientDevice
 
+    from custom_components.tplink_deco.api import TpLinkDecoSnapshot
+
 
 class TpLinkDecoClientDevice(CoordinatorEntity[TpLinkDecoDataUpdateCoordinator]):
     """Device representing a client connected to the TP-Link Deco network."""
@@ -70,5 +72,7 @@ class TpLinkDecoClientDevice(CoordinatorEntity[TpLinkDecoDataUpdateCoordinator])
     @property
     def client(self) -> ClientDevice | None:
         """Return the current client from the (grace-augmented) snapshot."""
-        snapshot = self.coordinator.data
+        snapshot: TpLinkDecoSnapshot | None = self.coordinator.data
+        if snapshot is None:
+            return None
         return next((c for c in snapshot.clients if c.mac == self._client_mac), None)

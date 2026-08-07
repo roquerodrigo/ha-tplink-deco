@@ -19,6 +19,8 @@ from custom_components.tplink_deco.coordinator import TpLinkDecoDataUpdateCoordi
 if TYPE_CHECKING:
     from tplink_deco_api import Device
 
+    from custom_components.tplink_deco.api import TpLinkDecoSnapshot
+
 
 class TpLinkDecoDecoDevice(CoordinatorEntity[TpLinkDecoDataUpdateCoordinator]):
     """Device representing a TP-Link Deco mesh node."""
@@ -75,5 +77,7 @@ class TpLinkDecoDecoDevice(CoordinatorEntity[TpLinkDecoDataUpdateCoordinator]):
     @property
     def node(self) -> Device | None:
         """Return the current node from the (grace-augmented) snapshot."""
-        snapshot = self.coordinator.data
+        snapshot: TpLinkDecoSnapshot | None = self.coordinator.data
+        if snapshot is None:
+            return None
         return next((d for d in snapshot.nodes if d.mac == self._node_mac), None)

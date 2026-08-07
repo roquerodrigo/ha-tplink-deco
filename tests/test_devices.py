@@ -136,3 +136,27 @@ def test_deco_device_info_omits_mac_connections_when_disabled() -> None:
         node,
     )
     assert "connections" not in device.device_info
+
+
+def test_client_property_none_before_first_refresh() -> None:
+    """The client property returns None while the coordinator has no data."""
+    client = make_client()
+    coordinator = _coordinator(
+        TpLinkDecoSnapshot(clients=[], nodes=[], performance=None)
+    )
+    coordinator.data = None
+    device = TpLinkDecoClientDevice(coordinator, client)
+    assert device.client is None
+    assert device.available is False
+
+
+def test_node_property_none_before_first_refresh() -> None:
+    """The node property returns None while the coordinator has no data."""
+    node = make_node()
+    coordinator = _coordinator(
+        TpLinkDecoSnapshot(clients=[], nodes=[], performance=None)
+    )
+    coordinator.data = None
+    device = TpLinkDecoDecoDevice(coordinator, node)
+    assert device.node is None
+    assert device.available is False
