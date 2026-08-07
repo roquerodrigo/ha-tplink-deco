@@ -1,5 +1,7 @@
 """Constants for the TP-Link Deco integration."""
 
+from __future__ import annotations
+
 from logging import Logger, getLogger
 
 LOGGER: Logger = getLogger(__package__)
