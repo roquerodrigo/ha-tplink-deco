@@ -185,6 +185,26 @@ def test_deco_clients_counter_returns_count() -> None:
     assert sensor.unique_id == "DE:CO:00:00:00:05_clients_online"
 
 
+def test_deco_clients_counter_skips_offline_clients() -> None:
+    """Clients the router reports as offline are not counted."""
+    node = make_node(mac="DE:CO:00:00:00:05")
+    clients = [
+        make_client(mac="AA:00:00:00:00:01"),
+        make_client(mac="AA:00:00:00:00:02", online=False),
+        make_client(mac="AA:00:00:00:00:03", online=False),
+    ]
+    snapshot = TpLinkDecoSnapshot(clients=clients, nodes=[node], performance=None)
+    sensor = TpLinkDecoDecoClientsSensor(_coord(snapshot), node)
+    assert sensor.native_value == 1
+
+
+def test_deco_clients_counter_without_snapshot() -> None:
+    """The clients counter is unknown before the first refresh."""
+    node = make_node(mac="DE:CO:00:00:00:05")
+    sensor = TpLinkDecoDecoClientsSensor(_coord(None), node)
+    assert sensor.native_value is None
+
+
 def test_deco_total_download_sensor_sums_clients() -> None:
     """Total download sensor sums down_speed across all clients."""
     node = make_node(mac="DE:CO:00:00:00:06")

@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 from homeassistant.components.sensor import (
     SensorEntity,
     SensorEntityDescription,
@@ -10,6 +12,9 @@ from homeassistant.components.sensor import (
 
 from custom_components.tplink_deco.device import TpLinkDecoDecoDevice
 
+if TYPE_CHECKING:
+    from custom_components.tplink_deco.api import TpLinkDecoSnapshot
+
 
 class TpLinkDecoDecoClientsSensor(TpLinkDecoDecoDevice, SensorEntity):
     """Sensor counting online clients on the TP-Link Deco network."""
@@ -17,7 +22,7 @@ class TpLinkDecoDecoClientsSensor(TpLinkDecoDecoDevice, SensorEntity):
     entity_description = SensorEntityDescription(
         key="clients_online",
         translation_key="clients_online",
-        state_class=SensorStateClass.TOTAL,
+        state_class=SensorStateClass.MEASUREMENT,
         icon="mdi:account-multiple",
     )
 
@@ -29,5 +34,7 @@ class TpLinkDecoDecoClientsSensor(TpLinkDecoDecoDevice, SensorEntity):
     @property
     def native_value(self) -> int | None:
         """Return the number of online clients."""
-        snapshot = self.coordinator.data
-        return len(snapshot.clients) if snapshot else None
+        snapshot: TpLinkDecoSnapshot | None = self.coordinator.data
+        if snapshot is None:
+            return None
+        return sum(1 for client in snapshot.clients if client.online)
