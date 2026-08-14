@@ -1,5 +1,18 @@
 # Changelog
 
+## [1.6.1](https://github.com/roquerodrigo/ha-tplink-deco/compare/v1.6.0...v1.6.1) (2026-08-14)
+
+
+### Bug Fixes
+
+* **sensor:** count only the clients reported as online ([87be053](https://github.com/roquerodrigo/ha-tplink-deco/commit/87be0533a6e4482ec86e1abe69a8fce657266f39))
+
+
+### Documentation
+
+* drop the empty TODO list from the repository ([23d6a1d](https://github.com/roquerodrigo/ha-tplink-deco/commit/23d6a1d9951f0ee612c7b16c84cb2c20bbd105dd))
+* normalize README header layout ([0340199](https://github.com/roquerodrigo/ha-tplink-deco/commit/0340199fe32b0e27127a52aa62786891db242fa0))
+
 ## [1.6.0](https://github.com/roquerodrigo/ha-tplink-deco/compare/v1.5.2...v1.6.0) (2026-08-07)
 
 
