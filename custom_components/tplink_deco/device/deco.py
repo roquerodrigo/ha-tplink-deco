@@ -40,28 +40,11 @@ class TpLinkDecoDecoDevice(CoordinatorEntity[TpLinkDecoDataUpdateCoordinator]):
     @property
     def device_info(self) -> DeviceInfo | None:
         """Return device info for this Deco mesh node."""
-        node = self.node
-        info = DeviceInfo(
-            identifiers={(DOMAIN, self._node_mac)},
-            name=node.custom_nickname or node.nickname if node else None,
-            model=node.device_model if node else None,
-            sw_version=node.software_ver if node else None,
-            hw_version=node.hardware_ver if node else None,
-            manufacturer=MANUFACTURER,
+        return build_deco_device_info(
+            self.node,
+            self._node_mac,
+            link_devices_by_mac=self._link_devices_by_mac,
         )
-        if self._link_devices_by_mac:
-            connections = {(CONNECTION_NETWORK_MAC, self._node_mac)}
-            if node:
-                for bssid in (
-                    node.bssid_2g,
-                    node.bssid_5g,
-                    node.bssid_sta_2g,
-                    node.bssid_sta_5g,
-                ):
-                    if bssid:
-                        connections.add((CONNECTION_NETWORK_MAC, bssid))
-            info["connections"] = connections
-        return info
 
     @property
     def _link_devices_by_mac(self) -> bool:
@@ -81,3 +64,33 @@ class TpLinkDecoDecoDevice(CoordinatorEntity[TpLinkDecoDataUpdateCoordinator]):
         if snapshot is None:
             return None
         return next((d for d in snapshot.nodes if d.mac == self._node_mac), None)
+
+
+def build_deco_device_info(
+    node: Device | None,
+    node_mac: str,
+    *,
+    link_devices_by_mac: bool,
+) -> DeviceInfo:
+    """Describe a Deco mesh node for the device registry."""
+    info = DeviceInfo(
+        identifiers={(DOMAIN, node_mac)},
+        name=node.custom_nickname or node.nickname if node else None,
+        model=node.device_model if node else None,
+        sw_version=node.software_ver if node else None,
+        hw_version=node.hardware_ver if node else None,
+        manufacturer=MANUFACTURER,
+    )
+    if link_devices_by_mac:
+        connections = {(CONNECTION_NETWORK_MAC, node_mac)}
+        if node:
+            for bssid in (
+                node.bssid_2g,
+                node.bssid_5g,
+                node.bssid_sta_2g,
+                node.bssid_sta_5g,
+            ):
+                if bssid:
+                    connections.add((CONNECTION_NETWORK_MAC, bssid))
+        info["connections"] = connections
+    return info

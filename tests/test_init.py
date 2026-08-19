@@ -14,6 +14,7 @@ from homeassistant.const import (
     CONF_TIMEOUT,
     CONF_USERNAME,
 )
+from homeassistant.helpers import device_registry as dr
 from homeassistant.helpers.device_registry import CONNECTION_NETWORK_MAC
 from pytest_homeassistant_custom_component.common import MockConfigEntry
 
@@ -216,6 +217,42 @@ async def test_setup_applies_the_configured_polling_fields(
 
         assert client_class.call_args.kwargs[CONF_TIMEOUT] == 45
         assert entry.runtime_data.coordinator.update_interval == timedelta(seconds=90)
+
+        assert await hass.config_entries.async_unload(entry.entry_id)
+        await hass.async_block_till_done()
+
+
+async def test_setup_registers_nodes_before_client_devices(
+    hass: HomeAssistant,
+    snapshot: TpLinkDecoSnapshot,
+    caplog: pytest.LogCaptureFixture,
+) -> None:
+    """A client never references a node device that does not exist yet."""
+    entry = MockConfigEntry(
+        domain=DOMAIN,
+        data={
+            CONF_HOST: "192.168.0.1",
+            CONF_USERNAME: "admin",
+            CONF_PASSWORD: "secret",
+        },
+        unique_id="192.168.0.1",
+    )
+    entry.add_to_hass(hass)
+
+    with patch("custom_components.tplink_deco.TpLinkDecoApiClient") as client_class:
+        client_class.return_value.get_snapshot.return_value = snapshot
+        assert await hass.config_entries.async_setup(entry.entry_id)
+        await hass.async_block_till_done()
+
+        registry = dr.async_get(hass)
+        node = registry.async_get_device(identifiers={(DOMAIN, snapshot.nodes[0].mac)})
+        client = registry.async_get_device(
+            identifiers={(DOMAIN, snapshot.clients[0].mac)}
+        )
+        assert node is not None
+        assert client is not None
+        assert client.via_device_id == node.id
+        assert "via_device" not in caplog.text
 
         assert await hass.config_entries.async_unload(entry.entry_id)
         await hass.async_block_till_done()
