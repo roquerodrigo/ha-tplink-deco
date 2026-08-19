@@ -29,6 +29,7 @@ from .const import (
 )
 from .coordinator import TpLinkDecoDataUpdateCoordinator
 from .data import TpLinkDecoData
+from .node_registration import TpLinkDecoNodeRegistration
 
 if TYPE_CHECKING:
     from homeassistant.core import HomeAssistant
@@ -76,6 +77,8 @@ async def async_setup_entry(
 
     if not entry.data.get(CONF_LINK_DEVICES_BY_MAC, DEFAULT_LINK_DEVICES_BY_MAC):
         _unmerge_devices(hass, entry)
+
+    TpLinkDecoNodeRegistration(hass, entry).register(coordinator.data.nodes)
 
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
     entry.async_on_unload(entry.add_update_listener(async_reload_entry))
