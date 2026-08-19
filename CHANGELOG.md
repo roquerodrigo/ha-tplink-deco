@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.6.2](https://github.com/roquerodrigo/ha-tplink-deco/compare/v1.6.1...v1.6.2) (2026-08-19)
+
+
+### Bug Fixes
+
+* **sensor:** restore the total state class on the online clients sensor ([eac3021](https://github.com/roquerodrigo/ha-tplink-deco/commit/eac302104505edb89b3eb8a2722d0041a0812231))
+
 ## [1.6.1](https://github.com/roquerodrigo/ha-tplink-deco/compare/v1.6.0...v1.6.1) (2026-08-14)
 
 
