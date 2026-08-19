@@ -22,7 +22,7 @@ class TpLinkDecoDecoClientsSensor(TpLinkDecoDecoDevice, SensorEntity):
     entity_description = SensorEntityDescription(
         key="clients_online",
         translation_key="clients_online",
-        state_class=SensorStateClass.MEASUREMENT,
+        state_class=SensorStateClass.TOTAL,
         icon="mdi:account-multiple",
     )
 
