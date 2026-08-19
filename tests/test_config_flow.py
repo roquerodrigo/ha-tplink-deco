@@ -6,7 +6,13 @@ from typing import TYPE_CHECKING
 from unittest.mock import patch
 
 from homeassistant import config_entries, data_entry_flow
-from homeassistant.const import CONF_HOST, CONF_PASSWORD, CONF_USERNAME
+from homeassistant.const import (
+    CONF_HOST,
+    CONF_PASSWORD,
+    CONF_SCAN_INTERVAL,
+    CONF_TIMEOUT,
+    CONF_USERNAME,
+)
 from pytest_homeassistant_custom_component.common import MockConfigEntry
 
 from custom_components.tplink_deco.api.errors import (
@@ -14,16 +20,25 @@ from custom_components.tplink_deco.api.errors import (
     TpLinkDecoApiClientCommunicationError,
     TpLinkDecoApiClientError,
 )
-from custom_components.tplink_deco.const import CONF_LINK_DEVICES_BY_MAC, DOMAIN
+from custom_components.tplink_deco.const import (
+    CONF_LINK_DEVICES_BY_MAC,
+    DEFAULT_SCAN_INTERVAL_SECONDS,
+    DEFAULT_TIMEOUT_SECONDS,
+    DOMAIN,
+)
 
 if TYPE_CHECKING:
     from homeassistant.core import HomeAssistant
+
+    from custom_components.tplink_deco.api import TpLinkDecoSnapshot
 
 USER_INPUT = {
     CONF_HOST: "192.168.0.1",
     CONF_USERNAME: "admin",
     CONF_PASSWORD: "secret",
     CONF_LINK_DEVICES_BY_MAC: True,
+    CONF_SCAN_INTERVAL: DEFAULT_SCAN_INTERVAL_SECONDS,
+    CONF_TIMEOUT: DEFAULT_TIMEOUT_SECONDS,
 }
 
 
@@ -69,6 +84,26 @@ async def test_create_entry_with_link_devices_disabled(hass: HomeAssistant) -> N
         )
     assert result["type"] == data_entry_flow.FlowResultType.CREATE_ENTRY
     assert result["data"][CONF_LINK_DEVICES_BY_MAC] is False
+
+
+async def test_create_entry_defaults_polling_fields(hass: HomeAssistant) -> None:
+    """Omitting the polling fields falls back to the documented defaults."""
+    result = await _start_flow(hass)
+    credentials_only = {
+        CONF_HOST: USER_INPUT[CONF_HOST],
+        CONF_USERNAME: USER_INPUT[CONF_USERNAME],
+        CONF_PASSWORD: USER_INPUT[CONF_PASSWORD],
+        CONF_LINK_DEVICES_BY_MAC: True,
+    }
+    with patch(
+        "custom_components.tplink_deco.config_flow.TpLinkDecoApiClient.get_snapshot",
+        return_value=None,
+    ):
+        result = await hass.config_entries.flow.async_configure(
+            result["flow_id"], credentials_only
+        )
+    assert result["data"][CONF_SCAN_INTERVAL] == DEFAULT_SCAN_INTERVAL_SECONDS
+    assert result["data"][CONF_TIMEOUT] == DEFAULT_TIMEOUT_SECONDS
 
 
 async def test_auth_error_shows_form_with_error(hass: HomeAssistant) -> None:
@@ -122,7 +157,10 @@ def _existing_entry(hass: HomeAssistant) -> MockConfigEntry:
     return entry
 
 
-async def test_reconfigure_updates_link_devices_by_mac(hass: HomeAssistant) -> None:
+async def test_reconfigure_updates_link_devices_by_mac(
+    hass: HomeAssistant,
+    snapshot: TpLinkDecoSnapshot,
+) -> None:
     """Reconfigure flow persists the toggle change without recreating the entry."""
     entry = _existing_entry(hass)
     result = await entry.start_reconfigure_flow(hass)
@@ -132,14 +170,37 @@ async def test_reconfigure_updates_link_devices_by_mac(hass: HomeAssistant) -> N
     updated = {**USER_INPUT, CONF_LINK_DEVICES_BY_MAC: False}
     with patch(
         "custom_components.tplink_deco.config_flow.TpLinkDecoApiClient.get_snapshot",
-        return_value=None,
+        return_value=snapshot,
     ):
         result = await hass.config_entries.flow.async_configure(
             result["flow_id"], updated
         )
+        await hass.async_block_till_done()
     assert result["type"] == data_entry_flow.FlowResultType.ABORT
     assert result["reason"] == "reconfigure_successful"
     assert entry.data[CONF_LINK_DEVICES_BY_MAC] is False
+
+
+async def test_reconfigure_updates_polling_fields(
+    hass: HomeAssistant,
+    snapshot: TpLinkDecoSnapshot,
+) -> None:
+    """Reconfigure flow persists a new update interval and request timeout."""
+    entry = _existing_entry(hass)
+    result = await entry.start_reconfigure_flow(hass)
+
+    updated = {**USER_INPUT, CONF_SCAN_INTERVAL: 60, CONF_TIMEOUT: 45}
+    with patch(
+        "custom_components.tplink_deco.config_flow.TpLinkDecoApiClient.get_snapshot",
+        return_value=snapshot,
+    ):
+        result = await hass.config_entries.flow.async_configure(
+            result["flow_id"], updated
+        )
+        await hass.async_block_till_done()
+    assert result["type"] == data_entry_flow.FlowResultType.ABORT
+    assert entry.data[CONF_SCAN_INTERVAL] == 60
+    assert entry.data[CONF_TIMEOUT] == 45
 
 
 async def test_reconfigure_surfaces_credential_errors(hass: HomeAssistant) -> None:
@@ -166,7 +227,10 @@ async def test_reauth_shows_confirm_form(hass: HomeAssistant) -> None:
     assert result["step_id"] == "reauth_confirm"
 
 
-async def test_reauth_updates_entry_on_valid_credentials(hass: HomeAssistant) -> None:
+async def test_reauth_updates_entry_on_valid_credentials(
+    hass: HomeAssistant,
+    snapshot: TpLinkDecoSnapshot,
+) -> None:
     """Valid credentials update the entry data and finish the reauth flow."""
     entry = _existing_entry(hass)
     result = await entry.start_reauth_flow(hass)
@@ -174,11 +238,12 @@ async def test_reauth_updates_entry_on_valid_credentials(hass: HomeAssistant) ->
     updated = {**USER_INPUT, CONF_PASSWORD: "new-secret"}
     with patch(
         "custom_components.tplink_deco.config_flow.TpLinkDecoApiClient.get_snapshot",
-        return_value=None,
+        return_value=snapshot,
     ):
         result = await hass.config_entries.flow.async_configure(
             result["flow_id"], updated
         )
+        await hass.async_block_till_done()
     assert result["type"] == data_entry_flow.FlowResultType.ABORT
     assert result["reason"] == "reauth_successful"
     assert entry.data[CONF_PASSWORD] == "new-secret"

@@ -62,10 +62,14 @@
                     "host": "Endereço IP do roteador",
                     "username": "Usuário",
                     "password": "Senha",
-                    "link_devices_by_mac": "Associar dispositivos pelo endereço MAC"
+                    "link_devices_by_mac": "Associar dispositivos pelo endereço MAC",
+                    "scan_interval": "Intervalo de atualização",
+                    "timeout": "Tempo limite da requisição"
                 },
                 "data_description": {
-                    "link_devices_by_mac": "Quando ativado, o Home Assistant agrupa dispositivos que compartilham um endereço MAC em uma única entrada. Desative para manter os dispositivos desta integração separados dos que outras integrações expõem."
+                    "link_devices_by_mac": "Quando ativado, o Home Assistant agrupa dispositivos que compartilham um endereço MAC em uma única entrada. Desative para manter os dispositivos desta integração separados dos que outras integrações expõem.",
+                    "scan_interval": "Com que frequência o Home Assistant consulta o roteador, em segundos. Redes maiores demoram mais para responder, portanto aumente este valor se as atualizações se sobrepuserem.",
+                    "timeout": "Quanto tempo, em segundos, aguardar cada resposta do roteador antes de desistir. Aumente em redes com muitos clientes conectados."
                 }
             },
             "reauth_confirm": {
@@ -75,10 +79,14 @@
                     "host": "Endereço IP do roteador",
                     "username": "Usuário",
                     "password": "Senha",
-                    "link_devices_by_mac": "Associar dispositivos pelo endereço MAC"
+                    "link_devices_by_mac": "Associar dispositivos pelo endereço MAC",
+                    "scan_interval": "Intervalo de atualização",
+                    "timeout": "Tempo limite da requisição"
                 },
                 "data_description": {
-                    "link_devices_by_mac": "Quando ativado, o Home Assistant agrupa dispositivos que compartilham um endereço MAC em uma única entrada. Desative para manter os dispositivos desta integração separados dos que outras integrações expõem."
+                    "link_devices_by_mac": "Quando ativado, o Home Assistant agrupa dispositivos que compartilham um endereço MAC em uma única entrada. Desative para manter os dispositivos desta integração separados dos que outras integrações expõem.",
+                    "scan_interval": "Com que frequência o Home Assistant consulta o roteador, em segundos. Redes maiores demoram mais para responder, portanto aumente este valor se as atualizações se sobrepuserem.",
+                    "timeout": "Quanto tempo, em segundos, aguardar cada resposta do roteador antes de desistir. Aumente em redes com muitos clientes conectados."
                 }
             },
             "reconfigure": {
@@ -86,10 +94,14 @@
                     "host": "Endereço IP do roteador",
                     "username": "Usuário",
                     "password": "Senha",
-                    "link_devices_by_mac": "Associar dispositivos pelo endereço MAC"
+                    "link_devices_by_mac": "Associar dispositivos pelo endereço MAC",
+                    "scan_interval": "Intervalo de atualização",
+                    "timeout": "Tempo limite da requisição"
                 },
                 "data_description": {
-                    "link_devices_by_mac": "Quando ativado, o Home Assistant agrupa dispositivos que compartilham um endereço MAC em uma única entrada. Desative para manter os dispositivos desta integração separados dos que outras integrações expõem."
+                    "link_devices_by_mac": "Quando ativado, o Home Assistant agrupa dispositivos que compartilham um endereço MAC em uma única entrada. Desative para manter os dispositivos desta integração separados dos que outras integrações expõem.",
+                    "scan_interval": "Com que frequência o Home Assistant consulta o roteador, em segundos. Redes maiores demoram mais para responder, portanto aumente este valor se as atualizações se sobrepuserem.",
+                    "timeout": "Quanto tempo, em segundos, aguardar cada resposta do roteador antes de desistir. Aumente em redes com muitos clientes conectados."
                 }
             }
         },

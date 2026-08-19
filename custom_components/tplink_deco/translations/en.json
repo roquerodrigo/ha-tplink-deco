@@ -62,10 +62,14 @@
                     "host": "Router IP Address",
                     "username": "Username",
                     "password": "Password",
-                    "link_devices_by_mac": "Link devices by MAC address"
+                    "link_devices_by_mac": "Link devices by MAC address",
+                    "scan_interval": "Update interval",
+                    "timeout": "Request timeout"
                 },
                 "data_description": {
-                    "link_devices_by_mac": "When enabled, Home Assistant groups devices that share a MAC address into a single device entry. Disable to keep this integration's devices separate from those reported by other integrations."
+                    "link_devices_by_mac": "When enabled, Home Assistant groups devices that share a MAC address into a single device entry. Disable to keep this integration's devices separate from those reported by other integrations.",
+                    "scan_interval": "How often Home Assistant polls the router, in seconds. Larger networks take longer to answer, so raise this value if updates overlap with each other.",
+                    "timeout": "How long, in seconds, to wait for each router response before giving up. Raise it on networks with many connected clients."
                 }
             },
             "reauth_confirm": {
@@ -75,10 +79,14 @@
                     "host": "Router IP Address",
                     "username": "Username",
                     "password": "Password",
-                    "link_devices_by_mac": "Link devices by MAC address"
+                    "link_devices_by_mac": "Link devices by MAC address",
+                    "scan_interval": "Update interval",
+                    "timeout": "Request timeout"
                 },
                 "data_description": {
-                    "link_devices_by_mac": "When enabled, Home Assistant groups devices that share a MAC address into a single device entry. Disable to keep this integration's devices separate from those reported by other integrations."
+                    "link_devices_by_mac": "When enabled, Home Assistant groups devices that share a MAC address into a single device entry. Disable to keep this integration's devices separate from those reported by other integrations.",
+                    "scan_interval": "How often Home Assistant polls the router, in seconds. Larger networks take longer to answer, so raise this value if updates overlap with each other.",
+                    "timeout": "How long, in seconds, to wait for each router response before giving up. Raise it on networks with many connected clients."
                 }
             },
             "reconfigure": {
@@ -86,10 +94,14 @@
                     "host": "Router IP Address",
                     "username": "Username",
                     "password": "Password",
-                    "link_devices_by_mac": "Link devices by MAC address"
+                    "link_devices_by_mac": "Link devices by MAC address",
+                    "scan_interval": "Update interval",
+                    "timeout": "Request timeout"
                 },
                 "data_description": {
-                    "link_devices_by_mac": "When enabled, Home Assistant groups devices that share a MAC address into a single device entry. Disable to keep this integration's devices separate from those reported by other integrations."
+                    "link_devices_by_mac": "When enabled, Home Assistant groups devices that share a MAC address into a single device entry. Disable to keep this integration's devices separate from those reported by other integrations.",
+                    "scan_interval": "How often Home Assistant polls the router, in seconds. Larger networks take longer to answer, so raise this value if updates overlap with each other.",
+                    "timeout": "How long, in seconds, to wait for each router response before giving up. Raise it on networks with many connected clients."
                 }
             }
         },

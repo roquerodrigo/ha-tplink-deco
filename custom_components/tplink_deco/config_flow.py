@@ -6,7 +6,14 @@ from typing import NotRequired, TypedDict, cast
 
 import voluptuous as vol
 from homeassistant import config_entries
-from homeassistant.const import CONF_HOST, CONF_PASSWORD, CONF_USERNAME
+from homeassistant.const import (
+    CONF_HOST,
+    CONF_PASSWORD,
+    CONF_SCAN_INTERVAL,
+    CONF_TIMEOUT,
+    CONF_USERNAME,
+    UnitOfTime,
+)
 from homeassistant.helpers import selector
 
 from .api import TpLinkDecoApiClient
@@ -18,8 +25,14 @@ from .api.errors import (
 from .const import (
     CONF_LINK_DEVICES_BY_MAC,
     DEFAULT_LINK_DEVICES_BY_MAC,
+    DEFAULT_SCAN_INTERVAL_SECONDS,
+    DEFAULT_TIMEOUT_SECONDS,
     DOMAIN,
     LOGGER,
+    MAX_SCAN_INTERVAL_SECONDS,
+    MAX_TIMEOUT_SECONDS,
+    MIN_SCAN_INTERVAL_SECONDS,
+    MIN_TIMEOUT_SECONDS,
 )
 
 
@@ -27,14 +40,17 @@ class TpLinkDecoUserInput(TypedDict):
     """
     Shape of the user-submitted config flow payload.
 
-    ``link_devices_by_mac`` is ``NotRequired`` to keep older config entries
-    (created before the option existed) loadable via the reconfigure step.
+    Every field beyond the credentials is ``NotRequired`` to keep older config
+    entries (created before the field existed) loadable via the reconfigure
+    step.
     """
 
     host: str
     username: str
     password: str
     link_devices_by_mac: NotRequired[bool]
+    scan_interval: NotRequired[int]
+    timeout: NotRequired[int]
 
 
 class TpLinkDecoFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
@@ -132,6 +148,7 @@ class TpLinkDecoFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
                 user_input[CONF_HOST],
                 user_input[CONF_USERNAME],
                 user_input[CONF_PASSWORD],
+                float(user_input.get(CONF_TIMEOUT, DEFAULT_TIMEOUT_SECONDS)),
             )
         except TpLinkDecoApiClientAuthenticationError as exception:
             LOGGER.warning("Failed to authenticate with the router: %s", exception)
@@ -182,10 +199,48 @@ class TpLinkDecoFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
                         DEFAULT_LINK_DEVICES_BY_MAC,
                     ),
                 ): selector.BooleanSelector(),
+                vol.Required(
+                    CONF_SCAN_INTERVAL,
+                    default=prefill.get(
+                        CONF_SCAN_INTERVAL,
+                        DEFAULT_SCAN_INTERVAL_SECONDS,
+                    ),
+                ): selector.NumberSelector(
+                    selector.NumberSelectorConfig(
+                        min=MIN_SCAN_INTERVAL_SECONDS,
+                        max=MAX_SCAN_INTERVAL_SECONDS,
+                        step=1,
+                        unit_of_measurement=UnitOfTime.SECONDS,
+                        mode=selector.NumberSelectorMode.BOX,
+                    ),
+                ),
+                vol.Required(
+                    CONF_TIMEOUT,
+                    default=prefill.get(CONF_TIMEOUT, DEFAULT_TIMEOUT_SECONDS),
+                ): selector.NumberSelector(
+                    selector.NumberSelectorConfig(
+                        min=MIN_TIMEOUT_SECONDS,
+                        max=MAX_TIMEOUT_SECONDS,
+                        step=1,
+                        unit_of_measurement=UnitOfTime.SECONDS,
+                        mode=selector.NumberSelectorMode.BOX,
+                    ),
+                ),
             }
         )
 
-    def _test_credentials(self, host: str, username: str, password: str) -> None:
+    def _test_credentials(
+        self,
+        host: str,
+        username: str,
+        password: str,
+        timeout: float,
+    ) -> None:
         """Validate credentials by connecting to the router (runs in executor)."""
-        client = TpLinkDecoApiClient(host=host, username=username, password=password)
+        client = TpLinkDecoApiClient(
+            host=host,
+            username=username,
+            password=password,
+            timeout=timeout,
+        )
         client.get_snapshot()

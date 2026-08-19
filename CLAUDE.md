@@ -55,6 +55,14 @@ the SDK requires manually updating `manifest.json` too.
 `tests/test_manifest.py` enforces the parity (and the `hacs.json` floor), so
 CI fails whenever the two pins drift.
 
-## Update interval
+## Update interval and session
 
-Configured in `__init__.py` via `update_interval=timedelta(seconds=20)`.
+The poll interval (default 20 s) and the per-request timeout (default 30 s)
+come from the config entry (`scan_interval` / `timeout`, editable through the
+config flow) and are read in `__init__.py`.
+
+The router only accepts **one session per account**, so `api/client.py` keeps a
+single `DecoClient` logged in across polls: re-authenticating every cycle costs
+a full handshake and kicks the user out of the Deco app. The session is renewed
+only when the router rejects it (auth error, API error, or HTTP 401/403), and
+dropped whenever a poll fails so the next one starts clean.

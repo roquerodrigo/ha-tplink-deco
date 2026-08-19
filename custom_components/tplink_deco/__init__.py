@@ -5,7 +5,14 @@ from __future__ import annotations
 from datetime import timedelta
 from typing import TYPE_CHECKING
 
-from homeassistant.const import CONF_HOST, CONF_PASSWORD, CONF_USERNAME, Platform
+from homeassistant.const import (
+    CONF_HOST,
+    CONF_PASSWORD,
+    CONF_SCAN_INTERVAL,
+    CONF_TIMEOUT,
+    CONF_USERNAME,
+    Platform,
+)
 from homeassistant.helpers import device_registry as dr
 from homeassistant.helpers.device_registry import CONNECTION_NETWORK_MAC
 from homeassistant.loader import async_get_loaded_integration
@@ -15,6 +22,8 @@ from .card_registration import TpLinkDecoCardRegistration
 from .const import (
     CONF_LINK_DEVICES_BY_MAC,
     DEFAULT_LINK_DEVICES_BY_MAC,
+    DEFAULT_SCAN_INTERVAL_SECONDS,
+    DEFAULT_TIMEOUT_SECONDS,
     DOMAIN,
     LOGGER,
 )
@@ -43,17 +52,21 @@ async def async_setup_entry(
 
     await TpLinkDecoCardRegistration(hass, str(integration.version)).async_register()
 
+    scan_interval = int(
+        entry.data.get(CONF_SCAN_INTERVAL, DEFAULT_SCAN_INTERVAL_SECONDS)
+    )
     coordinator = TpLinkDecoDataUpdateCoordinator(
         hass=hass,
         logger=LOGGER,
         name=DOMAIN,
-        update_interval=timedelta(seconds=20),
+        update_interval=timedelta(seconds=scan_interval),
     )
     entry.runtime_data = TpLinkDecoData(
         client=TpLinkDecoApiClient(
             host=entry.data[CONF_HOST],
             username=entry.data[CONF_USERNAME],
             password=entry.data[CONF_PASSWORD],
+            timeout=float(entry.data.get(CONF_TIMEOUT, DEFAULT_TIMEOUT_SECONDS)),
         ),
         integration=integration,
         coordinator=coordinator,

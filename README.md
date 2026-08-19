@@ -83,9 +83,20 @@ After installing and restarting:
 3. Enter the router IP, username and password.
 
 The integration uses Home Assistant's UI config flow — there is no YAML
-configuration. Updates are polled every 20 seconds. If the router password
-changes, Home Assistant prompts for reauthentication instead of silently
-failing.
+configuration. If the router password changes, Home Assistant prompts for
+reauthentication instead of silently failing.
+
+The same form exposes two polling settings, also editable later through
+**Reconfigure**:
+
+| Setting | Default | Range |
+|---|---|---|
+| Update interval | 20 s | 10–600 s |
+| Request timeout | 30 s | 5–120 s |
+
+Large networks take longer to answer: on a mesh with dozens of connected
+clients, raise both values until the polls comfortably fit inside the
+interval.
 
 ## Translations
 
