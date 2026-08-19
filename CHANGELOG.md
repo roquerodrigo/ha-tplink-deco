@@ -1,5 +1,33 @@
 # Changelog
 
+## [1.7.0](https://github.com/roquerodrigo/ha-tplink-deco/compare/v1.6.2...v1.7.0) (2026-08-19)
+
+
+### Features
+
+* **config:** make the update interval and request timeout configurable ([25acbe7](https://github.com/roquerodrigo/ha-tplink-deco/commit/25acbe759b484f7355212fea93bfcf4c537821a6))
+
+
+### Bug Fixes
+
+* **api:** keep a single router session across polls ([bf475c2](https://github.com/roquerodrigo/ha-tplink-deco/commit/bf475c2982fbacb160f52d2edac73877d897fd04))
+* **device:** register the mesh nodes before any client device ([061daa9](https://github.com/roquerodrigo/ha-tplink-deco/commit/061daa9fb7f51fe92572fa1227bb2e4be0072770))
+
+
+### Dependencies
+
+* update every pinned dependency ([bc534cd](https://github.com/roquerodrigo/ha-tplink-deco/commit/bc534cd826365226449aefdfc3e5108a862e9bdc))
+
+
+### Tests
+
+* **init:** cover the configured update interval and request timeout ([a30f3e8](https://github.com/roquerodrigo/ha-tplink-deco/commit/a30f3e8b3e5f674b86948d92746e84a5730c1ee3))
+
+
+### Miscellaneous Chores
+
+* sync the lockfile with the released version ([ca5e79f](https://github.com/roquerodrigo/ha-tplink-deco/commit/ca5e79f3158f147a627ed94b355740c86a951917))
+
 ## [1.6.2](https://github.com/roquerodrigo/ha-tplink-deco/compare/v1.6.1...v1.6.2) (2026-08-19)
 
 
