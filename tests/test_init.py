@@ -3,10 +3,19 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
+from datetime import timedelta
 from typing import TYPE_CHECKING
-from unittest.mock import MagicMock
+from unittest.mock import MagicMock, patch
 
+from homeassistant.const import (
+    CONF_HOST,
+    CONF_PASSWORD,
+    CONF_SCAN_INTERVAL,
+    CONF_TIMEOUT,
+    CONF_USERNAME,
+)
 from homeassistant.helpers.device_registry import CONNECTION_NETWORK_MAC
+from pytest_homeassistant_custom_component.common import MockConfigEntry
 
 from custom_components.tplink_deco import (
     _unmerge_devices,
@@ -19,6 +28,7 @@ from .factories import make_client, make_node
 
 if TYPE_CHECKING:
     import pytest
+    from homeassistant.core import HomeAssistant
 
 ENTRY_ID = "tplink_deco_entry"
 OTHER_ENTRY_ID = "other_integration_entry"
@@ -179,3 +189,33 @@ async def test_remove_allowed_for_device_without_deco_identifier() -> None:
     )
 
     assert await _can_remove(snapshot, {("other", "node-1")}) is True
+
+
+async def test_setup_applies_the_configured_polling_fields(
+    hass: HomeAssistant,
+    snapshot: TpLinkDecoSnapshot,
+) -> None:
+    """The stored update interval and request timeout reach coordinator and client."""
+    entry = MockConfigEntry(
+        domain=DOMAIN,
+        data={
+            CONF_HOST: "192.168.0.1",
+            CONF_USERNAME: "admin",
+            CONF_PASSWORD: "secret",
+            CONF_SCAN_INTERVAL: 90,
+            CONF_TIMEOUT: 45,
+        },
+        unique_id="192.168.0.1",
+    )
+    entry.add_to_hass(hass)
+
+    with patch("custom_components.tplink_deco.TpLinkDecoApiClient") as client_class:
+        client_class.return_value.get_snapshot.return_value = snapshot
+        assert await hass.config_entries.async_setup(entry.entry_id)
+        await hass.async_block_till_done()
+
+        assert client_class.call_args.kwargs[CONF_TIMEOUT] == 45
+        assert entry.runtime_data.coordinator.update_interval == timedelta(seconds=90)
+
+        assert await hass.config_entries.async_unload(entry.entry_id)
+        await hass.async_block_till_done()
