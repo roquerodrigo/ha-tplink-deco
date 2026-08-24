@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.8.0](https://github.com/roquerodrigo/ha-tplink-deco/compare/v1.7.0...v1.8.0) (2026-08-24)
+
+
+### Features
+
+* **hacs:** ship the install zip with every release ([448210a](https://github.com/roquerodrigo/ha-tplink-deco/commit/448210a7bfcd2a4206b3e1184f08959463d19592))
+
+
+### Development Dependencies
+
+* **deps-dev:** bump ruff in the python-development group ([5e206f5](https://github.com/roquerodrigo/ha-tplink-deco/commit/5e206f53680a6c45dae2fa7a4e710a7f363c653d))
+
 ## [1.7.0](https://github.com/roquerodrigo/ha-tplink-deco/compare/v1.6.2...v1.7.0) (2026-08-19)
 
 
