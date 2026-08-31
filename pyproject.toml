@@ -18,7 +18,7 @@ dev = [
     "tplink-deco-api==1.2.2",
 ]
 lint = [
-    "ruff==0.16.4",
+    "ruff==0.16.5",
     "mypy==2.3.1",
 ]
 
