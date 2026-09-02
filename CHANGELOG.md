@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.8.1](https://github.com/roquerodrigo/ha-tplink-deco/compare/v1.8.0...v1.8.1) (2026-09-02)
+
+
+### Documentation
+
+* add GitHub Sponsors button and support section ([aa59bd9](https://github.com/roquerodrigo/ha-tplink-deco/commit/aa59bd92ab3f1f436596bb8d693ec654d26cab67))
+
 ## [1.8.0](https://github.com/roquerodrigo/ha-tplink-deco/compare/v1.7.0...v1.8.0) (2026-08-24)
 
 
