@@ -2,9 +2,12 @@
 
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
 from unittest.mock import MagicMock
 
+from homeassistant.helpers import device_registry as dr
 from homeassistant.helpers.device_registry import CONNECTION_NETWORK_MAC
+from pytest_homeassistant_custom_component.common import MockConfigEntry
 
 from custom_components.tplink_deco.api import TpLinkDecoSnapshot
 from custom_components.tplink_deco.const import (
@@ -19,39 +22,88 @@ from custom_components.tplink_deco.device import (
 
 from .factories import make_client, make_node, make_performance
 
+if TYPE_CHECKING:
+    from homeassistant.core import HomeAssistant
+    from tplink_deco_api import ClientDevice
+
 
 def _coordinator(
-    snapshot: TpLinkDecoSnapshot,
+    snapshot: TpLinkDecoSnapshot | None,
     *,
     link_devices_by_mac: bool = True,
+    entry_id: str = "entry",
 ) -> MagicMock:
     mock = MagicMock()
     mock.data = snapshot
     mock.last_update_success = True
     mock.config_entry.data = {CONF_LINK_DEVICES_BY_MAC: link_devices_by_mac}
+    mock.config_entry.entry_id = entry_id
     return mock
 
 
-def test_client_device_info_links_to_master() -> None:
-    """The client device_info points to the master node via via_device."""
+def _client_device_in_hass(
+    hass: HomeAssistant,
+    snapshot: TpLinkDecoSnapshot,
+    client: ClientDevice,
+    entry: MockConfigEntry,
+) -> TpLinkDecoClientDevice:
+    device = TpLinkDecoClientDevice(
+        _coordinator(snapshot, entry_id=entry.entry_id),
+        client,
+    )
+    device.hass = hass
+    return device
+
+
+async def test_client_device_info_links_to_master(hass: HomeAssistant) -> None:
+    """The client device_info points to the registered master node device."""
+    entry = MockConfigEntry(domain=DOMAIN)
+    entry.add_to_hass(hass)
     client = make_client(mac="AA:11:22:33:44:55", name="Phone")
     master = make_node(mac="DD:EE:FF:00:11:22", role="master")
+    master_device = dr.async_get(hass).async_get_or_create(
+        config_entry_id=entry.entry_id,
+        identifiers={(DOMAIN, master.mac)},
+    )
     snapshot = TpLinkDecoSnapshot(clients=[client], nodes=[master], performance=None)
-    device = TpLinkDecoClientDevice(_coordinator(snapshot), client)
+    device = _client_device_in_hass(hass, snapshot, client, entry)
 
     info = device.device_info
     assert info["identifiers"] == {(DOMAIN, client.mac)}
     assert (CONNECTION_NETWORK_MAC, client.mac) in info["connections"]
-    assert info["via_device"] == (DOMAIN, master.mac)
+    assert info["via_device_id"] == master_device.id
+    assert "via_device" not in info
     assert info["name"] == "Phone"
 
 
-def test_client_device_info_without_master_node() -> None:
-    """device_info returns no via_device when no master is present."""
+async def test_client_device_info_without_master_node(hass: HomeAssistant) -> None:
+    """device_info returns no via_device_id when no master is present."""
+    entry = MockConfigEntry(domain=DOMAIN)
+    entry.add_to_hass(hass)
     client = make_client()
     snapshot = TpLinkDecoSnapshot(clients=[client], nodes=[], performance=None)
-    device = TpLinkDecoClientDevice(_coordinator(snapshot), client)
-    assert "via_device" not in device.device_info
+    device = _client_device_in_hass(hass, snapshot, client, entry)
+    assert "via_device_id" not in device.device_info
+
+
+async def test_client_device_info_without_registered_master(
+    hass: HomeAssistant,
+) -> None:
+    """device_info drops the link when the master node has no registry entry."""
+    entry = MockConfigEntry(domain=DOMAIN)
+    entry.add_to_hass(hass)
+    client = make_client()
+    master = make_node(role="master")
+    snapshot = TpLinkDecoSnapshot(clients=[client], nodes=[master], performance=None)
+    device = _client_device_in_hass(hass, snapshot, client, entry)
+    assert "via_device_id" not in device.device_info
+
+
+def test_client_device_info_without_snapshot() -> None:
+    """device_info has no link before the first successful refresh."""
+    client = make_client()
+    device = TpLinkDecoClientDevice(_coordinator(None), client)
+    assert "via_device_id" not in device.device_info
 
 
 def test_client_available_when_present() -> None:
@@ -113,7 +165,9 @@ def test_deco_unavailable_when_node_missing() -> None:
     assert device.node is None
 
 
-def test_client_device_info_omits_mac_connection_when_disabled() -> None:
+async def test_client_device_info_omits_mac_connection_when_disabled(
+    hass: HomeAssistant,
+) -> None:
     """device_info drops MAC connection when link_devices_by_mac is False."""
     client = make_client()
     snapshot = TpLinkDecoSnapshot(clients=[client], nodes=[], performance=None)
@@ -121,6 +175,7 @@ def test_client_device_info_omits_mac_connection_when_disabled() -> None:
         _coordinator(snapshot, link_devices_by_mac=False),
         client,
     )
+    device.hass = hass
     assert "connections" not in device.device_info
 
 
