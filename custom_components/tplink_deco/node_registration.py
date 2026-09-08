@@ -20,11 +20,11 @@ class TpLinkDecoNodeRegistration:
     """
     Create the device entry of every mesh node up front.
 
-    Client devices name their node through ``via_device``, and Home Assistant
-    drops that link when the referenced device does not exist yet. Platforms
-    add their entities concurrently, so no ordering between them guarantees
-    the nodes come first; registering them before the platforms are forwarded
-    does.
+    Client devices link to their node through ``via_device_id``, which needs
+    the node's registry entry to exist before the client is registered.
+    Platforms add their entities concurrently, so no ordering between them
+    guarantees the nodes come first; registering them before the platforms
+    are forwarded does.
     """
 
     def __init__(self, hass: HomeAssistant, entry: TpLinkDecoConfigEntry) -> None:

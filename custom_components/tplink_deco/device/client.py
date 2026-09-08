@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+from homeassistant.helpers import device_registry as dr
 from homeassistant.helpers.device_registry import CONNECTION_NETWORK_MAC, DeviceInfo
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
@@ -39,24 +40,31 @@ class TpLinkDecoClientDevice(CoordinatorEntity[TpLinkDecoDataUpdateCoordinator])
     @property
     def device_info(self) -> DeviceInfo | None:
         """Return device info linking this client to the master Deco node."""
-        snapshot = self.coordinator.data
-        master = (
-            next(
-                (n for n in snapshot.nodes if n.role == "master"),
-                None,
-            )
-            if snapshot
-            else None
-        )
         info = DeviceInfo(
             identifiers={(DOMAIN, self._client_mac)},
             name=self.client.name if self.client else None,
         )
         if self._link_devices_by_mac:
             info["connections"] = {(CONNECTION_NETWORK_MAC, self._client_mac)}
-        if master:
-            info["via_device"] = (DOMAIN, master.mac)
+        master_device_id = self._master_node_device_id
+        if master_device_id:
+            info["via_device_id"] = master_device_id
         return info
+
+    @property
+    def _master_node_device_id(self) -> str | None:
+        """Return the registry id of the master node device, if registered."""
+        snapshot: TpLinkDecoSnapshot | None = self.coordinator.data
+        if snapshot is None:
+            return None
+        master = next((n for n in snapshot.nodes if n.role == "master"), None)
+        if master is None:
+            return None
+        device = dr.async_get(self.hass).async_get_device_by_identifier(
+            (DOMAIN, master.mac),
+            self.coordinator.config_entry.entry_id,
+        )
+        return device.id if device else None
 
     @property
     def _link_devices_by_mac(self) -> bool:
