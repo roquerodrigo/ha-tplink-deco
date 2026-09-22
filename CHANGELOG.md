@@ -1,5 +1,24 @@
 # Changelog
 
+## [1.8.1](https://github.com/roquerodrigo/ha-tplink-deco/compare/v1.8.0...v1.8.1) (2026-09-22)
+
+
+### Bug Fixes
+
+* link client devices through via_device_id ([1b22831](https://github.com/roquerodrigo/ha-tplink-deco/commit/1b22831c22f75438cb6b808f1a33cbb172fcdaaf))
+
+
+### Development Dependencies
+
+* **deps-dev:** bump ruff ([1484e49](https://github.com/roquerodrigo/ha-tplink-deco/commit/1484e49d1c49fa420da895bcb53f709ed1f986cc))
+* **deps-dev:** bump ruff in the python-development group ([ce32f89](https://github.com/roquerodrigo/ha-tplink-deco/commit/ce32f8937e65e67ccaa1f165e9a8d064bf2c2113))
+* **deps-dev:** bump ruff in the python-development group ([9a0b005](https://github.com/roquerodrigo/ha-tplink-deco/commit/9a0b005d21f3fadf40d10701908895214ca21aaf))
+
+
+### Documentation
+
+* add GitHub Sponsors button and support section ([aa59bd9](https://github.com/roquerodrigo/ha-tplink-deco/commit/aa59bd92ab3f1f436596bb8d693ec654d26cab67))
+
 ## [1.8.0](https://github.com/roquerodrigo/ha-tplink-deco/compare/v1.7.0...v1.8.0) (2026-08-24)
 
 
