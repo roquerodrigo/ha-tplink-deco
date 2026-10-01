@@ -4,6 +4,9 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+from custom_components.tplink_deco.client_registration_policy import (
+    TpLinkDecoClientRegistrationPolicy,
+)
 from custom_components.tplink_deco.const import LOGGER
 
 from .client_connected import TpLinkDecoClientConnectedBinarySensor
@@ -17,23 +20,23 @@ if TYPE_CHECKING:
 
 
 async def async_setup_entry(
-    hass: HomeAssistant,  # noqa: ARG001 -- HA platform setup contract requires this parameter
+    hass: HomeAssistant,
     entry: TpLinkDecoConfigEntry,
     async_add_entities: AddEntitiesCallback,
 ) -> None:
     """Set up binary sensors for clients and nodes, including new ones."""
     coordinator = entry.runtime_data.coordinator
+    client_registration_policy = TpLinkDecoClientRegistrationPolicy(hass, entry)
     known_client_macs: set[str] = set()
     known_node_macs: set[str] = set()
 
     def _add_new_entities() -> None:
         snapshot = coordinator.data
 
-        new_clients = [
-            c
-            for c in (snapshot.clients if snapshot else [])
-            if c.mac not in known_client_macs
-        ]
+        new_clients = client_registration_policy.select_new(
+            snapshot.clients if snapshot else [],
+            known_client_macs,
+        )
         if new_clients:
             known_client_macs.update(c.mac for c in new_clients)
             LOGGER.debug(
