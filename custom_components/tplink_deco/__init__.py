@@ -29,6 +29,7 @@ from .const import (
 )
 from .coordinator import TpLinkDecoDataUpdateCoordinator
 from .data import TpLinkDecoData
+from .device_registry_sync import TpLinkDecoDeviceRegistrySync
 from .node_registration import TpLinkDecoNodeRegistration
 
 if TYPE_CHECKING:
@@ -79,6 +80,12 @@ async def async_setup_entry(
         _unmerge_devices(hass, entry)
 
     TpLinkDecoNodeRegistration(hass, entry).register(coordinator.data.nodes)
+    device_registry_sync = TpLinkDecoDeviceRegistrySync(hass, entry)
+    entry.async_on_unload(
+        coordinator.async_add_listener(
+            lambda: device_registry_sync.sync(coordinator.data)
+        )
+    )
 
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
     entry.async_on_unload(entry.add_update_listener(async_reload_entry))
