@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
 from unittest.mock import MagicMock
 
 import pytest
@@ -19,6 +20,9 @@ from custom_components.tplink_deco.sensor import (
 
 from .factories import make_client, make_node
 
+if TYPE_CHECKING:
+    from homeassistant.core import HomeAssistant
+
 
 def _entry_with_snapshot(snapshot: TpLinkDecoSnapshot) -> MagicMock:
     """Build a config entry whose runtime_data exposes a coordinator."""
@@ -33,13 +37,13 @@ def _entry_with_snapshot(snapshot: TpLinkDecoSnapshot) -> MagicMock:
 @pytest.mark.parametrize(
     ("setup", "expected_count"),
     [
-        (async_setup_sensor, 6 + 7),  # 6 client sensors + 7 deco sensors (master)
-        (async_setup_binary_sensor, 1 + 1),  # 1 client + 1 deco binary sensor
-        (async_setup_tracker, 1),  # 1 tracker per client
+        (async_setup_sensor, 6 + 7),
+        (async_setup_binary_sensor, 1 + 1),
+        (async_setup_tracker, 1),
     ],
 )
 async def test_platform_registers_entities_for_initial_snapshot(
-    setup: object, expected_count: int
+    hass: HomeAssistant, setup: object, expected_count: int
 ) -> None:
     """Each platform registers entities for clients and nodes already present."""
     snapshot = TpLinkDecoSnapshot(
@@ -53,11 +57,13 @@ async def test_platform_registers_entities_for_initial_snapshot(
     def add_entities(items: object) -> None:
         added.extend(list(items))
 
-    await setup(MagicMock(), entry, add_entities)
+    await setup(hass, entry, add_entities)
     assert len(added) == expected_count
 
 
-async def test_sensor_platform_skips_master_only_sensors_for_satellites() -> None:
+async def test_sensor_platform_skips_master_only_sensors_for_satellites(
+    hass: HomeAssistant,
+) -> None:
     """Satellite Deco nodes get only base sensors (no CPU/memory/clients)."""
     snapshot = TpLinkDecoSnapshot(
         clients=[],
@@ -66,11 +72,13 @@ async def test_sensor_platform_skips_master_only_sensors_for_satellites() -> Non
     )
     entry = _entry_with_snapshot(snapshot)
     added: list[object] = []
-    await async_setup_sensor(MagicMock(), entry, added.extend)
-    assert len(added) == 2  # only deco_mac and deco_ip
+    await async_setup_sensor(hass, entry, added.extend)
+    assert len(added) == 2
 
 
-async def test_platform_listener_registers_new_clients_on_update() -> None:
+async def test_platform_listener_registers_new_clients_on_update(
+    hass: HomeAssistant,
+) -> None:
     """The registered listener picks up clients that appear later."""
     snapshot = TpLinkDecoSnapshot(clients=[], nodes=[], performance=None)
     entry = _entry_with_snapshot(snapshot)
@@ -84,10 +92,9 @@ async def test_platform_listener_registers_new_clients_on_update() -> None:
 
     coordinator.async_add_listener = capture_listener
     added: list[object] = []
-    await async_setup_tracker(MagicMock(), entry, added.extend)
-    assert added == []  # no clients initially
+    await async_setup_tracker(hass, entry, added.extend)
+    assert added == []
 
-    # New client appears
     coordinator.data = TpLinkDecoSnapshot(
         clients=[make_client(mac="AA:00:00:00:00:99")],
         nodes=[],

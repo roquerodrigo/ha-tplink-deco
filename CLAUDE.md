@@ -22,7 +22,10 @@ router's local web API via the `tplink_deco_api` SDK.
   Users *can* manually delete an offline device from the UI:
   `async_remove_config_entry_device` in `__init__.py` only refuses removal for
   clients/nodes the router still reports as active; a removed device that
-  reconnects later is simply re-registered.
+  reconnects later is simply re-registered. The router keeps listing clients
+  long after they disconnect, so `client_registration_policy.py` only creates
+  entities for a client that is online or still has a device — otherwise a
+  removed offline device would come back on every restart.
 - The bundled Lovelace card (`www/tplink-deco-card.js`) is served from
   `custom_components/tplink_deco/www` via a registered static path and
   registered as a **Lovelace dashboard resource** by `card_registration.py`

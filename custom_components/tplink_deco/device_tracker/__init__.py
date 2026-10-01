@@ -4,6 +4,9 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+from custom_components.tplink_deco.client_registration_policy import (
+    TpLinkDecoClientRegistrationPolicy,
+)
 from custom_components.tplink_deco.const import LOGGER
 
 from .client import TpLinkDecoClientTracker
@@ -16,20 +19,20 @@ if TYPE_CHECKING:
 
 
 async def async_setup_entry(
-    hass: HomeAssistant,  # noqa: ARG001 -- HA platform setup contract requires this parameter
+    hass: HomeAssistant,
     entry: TpLinkDecoConfigEntry,
     async_add_entities: AddEntitiesCallback,
 ) -> None:
     """Set up device trackers for all clients, including devices that connect later."""
     coordinator = entry.runtime_data.coordinator
+    client_registration_policy = TpLinkDecoClientRegistrationPolicy(hass, entry)
     known_macs: set[str] = set()
 
     def _add_new_entities() -> None:
-        new_clients = [
-            c
-            for c in (coordinator.data.clients if coordinator.data else [])
-            if c.mac not in known_macs
-        ]
+        new_clients = client_registration_policy.select_new(
+            coordinator.data.clients if coordinator.data else [],
+            known_macs,
+        )
         if not new_clients:
             return
         known_macs.update(c.mac for c in new_clients)
