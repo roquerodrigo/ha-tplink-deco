@@ -1,5 +1,36 @@
 # Changelog
 
+## [1.9.0](https://github.com/roquerodrigo/ha-tplink-deco/compare/v1.8.0...v1.9.0) (2026-10-01)
+
+
+### Features
+
+* sync device registry metadata with the router ([6f6c442](https://github.com/roquerodrigo/ha-tplink-deco/commit/6f6c442dec56fa65e6222b536f3c3ad03bbd61df))
+
+
+### Bug Fixes
+
+* keep removed offline devices from coming back ([dc77d3a](https://github.com/roquerodrigo/ha-tplink-deco/commit/dc77d3a772e35ceb45dcc13b522cff9ef6e8700d))
+* link client devices through via_device_id ([1b22831](https://github.com/roquerodrigo/ha-tplink-deco/commit/1b22831c22f75438cb6b808f1a33cbb172fcdaaf))
+
+
+### Development Dependencies
+
+* **deps-dev:** bump ruff ([1484e49](https://github.com/roquerodrigo/ha-tplink-deco/commit/1484e49d1c49fa420da895bcb53f709ed1f986cc))
+* **deps-dev:** bump ruff in the python-development group ([7732d83](https://github.com/roquerodrigo/ha-tplink-deco/commit/7732d831706ce5a216c8826e8f1143fa1c9dccd5))
+* **deps-dev:** bump ruff in the python-development group ([ce32f89](https://github.com/roquerodrigo/ha-tplink-deco/commit/ce32f8937e65e67ccaa1f165e9a8d064bf2c2113))
+* **deps-dev:** bump ruff in the python-development group ([9a0b005](https://github.com/roquerodrigo/ha-tplink-deco/commit/9a0b005d21f3fadf40d10701908895214ca21aaf))
+
+
+### Documentation
+
+* add GitHub Sponsors button and support section ([aa59bd9](https://github.com/roquerodrigo/ha-tplink-deco/commit/aa59bd92ab3f1f436596bb8d693ec654d26cab67))
+
+
+### Build System
+
+* **release:** bump uv.lock through release-please ([13e6493](https://github.com/roquerodrigo/ha-tplink-deco/commit/13e64936e935fae1e49fcd175fd3da9073a8bc7f))
+
 ## [1.8.0](https://github.com/roquerodrigo/ha-tplink-deco/compare/v1.7.0...v1.8.0) (2026-08-24)
 
 
