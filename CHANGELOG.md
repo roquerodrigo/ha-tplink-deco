@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.9.1](https://github.com/roquerodrigo/ha-tplink-deco/compare/v1.9.0...v1.9.1) (2026-10-02)
+
+
+### Dependencies
+
+* **deps:** bump urllib3 from 2.7.0 to 2.8.0 ([b84ad6f](https://github.com/roquerodrigo/ha-tplink-deco/commit/b84ad6fdcf52e2e8052b5c1395130470cb847bbf))
+* **deps:** bump virtualenv from 21.7.4 to 21.7.13 ([c2d1167](https://github.com/roquerodrigo/ha-tplink-deco/commit/c2d1167ea7052bb48578af098eaa1714f41f58e1))
+
 ## [1.9.0](https://github.com/roquerodrigo/ha-tplink-deco/compare/v1.8.0...v1.9.0) (2026-10-01)
 
 
