@@ -15,7 +15,7 @@ dev = [
     "pytest-asyncio==1.4.0",
     "pytest-cov==7.1.0",
     "pytest-homeassistant-custom-component==0.13.356",
-    "tplink-deco-api==1.2.2",
+    "tplink-deco-api==2.0.0",
 ]
 lint = [
     "ruff==0.17.0",
