@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.9.1](https://github.com/roquerodrigo/ha-tplink-deco/compare/v1.9.0...v1.9.1) (2026-10-20)
+
+
+### Miscellaneous Chores
+
+* **release:** keep only user-facing changes in the changelog ([93b626f](https://github.com/roquerodrigo/ha-tplink-deco/commit/93b626fa3eba24b58235f0ce13691dd5923e6da3))
+
 ## [1.9.0](https://github.com/roquerodrigo/ha-tplink-deco/compare/v1.8.0...v1.9.0) (2026-10-01)
 
 
