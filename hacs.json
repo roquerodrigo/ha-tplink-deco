@@ -2,6 +2,6 @@
     "name": "TP-Link Deco",
     "zip_release": true,
     "filename": "tplink_deco.zip",
-    "homeassistant": "2026.8.2",
+    "homeassistant": "2026.10.4",
     "hacs": "2.0.5"
 }

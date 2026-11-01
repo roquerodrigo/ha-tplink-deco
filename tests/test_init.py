@@ -245,9 +245,11 @@ async def test_setup_registers_nodes_before_client_devices(
         await hass.async_block_till_done()
 
         registry = dr.async_get(hass)
-        node = registry.async_get_device(identifiers={(DOMAIN, snapshot.nodes[0].mac)})
-        client = registry.async_get_device(
-            identifiers={(DOMAIN, snapshot.clients[0].mac)}
+        node = registry.async_get_device_by_identifier(
+            (DOMAIN, snapshot.nodes[0].mac), entry.entry_id
+        )
+        client = registry.async_get_device_by_identifier(
+            (DOMAIN, snapshot.clients[0].mac), entry.entry_id
         )
         assert node is not None
         assert client is not None

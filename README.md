@@ -56,7 +56,7 @@ and is translated into English and Portuguese (Brazil).
 
 ## Requirements
 
-- Home Assistant 2026.5.3 or newer
+- Home Assistant 2026.10.4 or newer
 - A TP-Link Deco mesh network with the local web admin enabled
 - Router credentials (username and password used in the Deco app)
 
