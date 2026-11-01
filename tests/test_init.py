@@ -25,7 +25,6 @@ from pytest_homeassistant_custom_component.common import (
 )
 
 from custom_components.tplink_deco import (
-    _unmerge_devices,
     async_remove_config_entry_device,
 )
 from custom_components.tplink_deco.api import TpLinkDecoSnapshot
@@ -38,7 +37,6 @@ if TYPE_CHECKING:
     from homeassistant.core import HomeAssistant
 
 ENTRY_ID = "tplink_deco_entry"
-OTHER_ENTRY_ID = "other_integration_entry"
 
 
 @dataclass
@@ -49,95 +47,6 @@ class _FakeDevice:
     config_entries: set[str]
     connections: set[tuple[str, str]] = field(default_factory=set)
     identifiers: set[tuple[str, str]] = field(default_factory=set)
-
-
-def _run(
-    monkeypatch: pytest.MonkeyPatch,
-    devices: list[_FakeDevice],
-) -> MagicMock:
-    """Run ``_unmerge_devices`` against the given devices and return the registry."""
-    registry = MagicMock()
-    registry.async_update_device = MagicMock()
-    monkeypatch.setattr(
-        "custom_components.tplink_deco.dr.async_get",
-        lambda _hass: registry,
-    )
-    monkeypatch.setattr(
-        "custom_components.tplink_deco.dr.async_entries_for_config_entry",
-        lambda _registry, _entry_id: list(devices),
-    )
-    entry = MagicMock()
-    entry.entry_id = ENTRY_ID
-    _unmerge_devices(MagicMock(), entry)
-    return registry
-
-
-def test_unmerge_strips_mac_connections_from_owned_device(
-    monkeypatch: pytest.MonkeyPatch,
-) -> None:
-    """A device owned only by tplink_deco loses its MAC connections."""
-    mac_conn = (CONNECTION_NETWORK_MAC, "aa:bb:cc:dd:ee:ff")
-    other_conn = ("zigbee", "1234")
-    device = _FakeDevice(
-        id="dev1",
-        config_entries={ENTRY_ID},
-        connections={mac_conn, other_conn},
-    )
-    registry = _run(monkeypatch, [device])
-
-    registry.async_update_device.assert_called_once_with(
-        "dev1", new_connections={other_conn}
-    )
-
-
-def test_unmerge_skips_owned_device_without_mac_connections(
-    monkeypatch: pytest.MonkeyPatch,
-) -> None:
-    """An owned device with no MAC connections is left untouched."""
-    device = _FakeDevice(
-        id="dev1",
-        config_entries={ENTRY_ID},
-        connections={("zigbee", "1234")},
-    )
-    registry = _run(monkeypatch, [device])
-
-    registry.async_update_device.assert_not_called()
-
-
-def test_unmerge_detaches_shared_device_and_strips_identifier(
-    monkeypatch: pytest.MonkeyPatch,
-) -> None:
-    """A shared device is detached and loses its tplink_deco identifier."""
-    deco_id = (DOMAIN, "deco-mac")
-    other_id = ("other", "node-1")
-    device = _FakeDevice(
-        id="dev1",
-        config_entries={ENTRY_ID, OTHER_ENTRY_ID},
-        identifiers={deco_id, other_id},
-    )
-    registry = _run(monkeypatch, [device])
-
-    registry.async_update_device.assert_any_call(
-        "dev1", remove_config_entry_id=ENTRY_ID
-    )
-    registry.async_update_device.assert_any_call("dev1", new_identifiers={other_id})
-    assert registry.async_update_device.call_count == 2
-
-
-def test_unmerge_detaches_shared_device_without_deco_identifier(
-    monkeypatch: pytest.MonkeyPatch,
-) -> None:
-    """A shared device without a tplink_deco identifier is only detached."""
-    device = _FakeDevice(
-        id="dev1",
-        config_entries={ENTRY_ID, OTHER_ENTRY_ID},
-        identifiers={("other", "node-1")},
-    )
-    registry = _run(monkeypatch, [device])
-
-    registry.async_update_device.assert_called_once_with(
-        "dev1", remove_config_entry_id=ENTRY_ID
-    )
 
 
 async def _can_remove(
@@ -458,6 +367,39 @@ async def test_client_absent_at_startup_is_converted_when_it_returns(
         assert converted.id == client.id
         assert converted.parent_device_id == node.id
         assert "Not adding entity" not in caplog.text
+
+        assert await hass.config_entries.async_unload(entry.entry_id)
+        await hass.async_block_till_done()
+
+
+async def test_setup_drops_the_removed_link_devices_option(
+    hass: HomeAssistant,
+    snapshot: TpLinkDecoSnapshot,
+) -> None:
+    """An entry that disabled the removed option migrates and links its nodes."""
+    entry = MockConfigEntry(
+        domain=DOMAIN,
+        data={**_setup_entry().data, "link_devices_by_mac": False},
+        minor_version=1,
+        unique_id="192.168.0.1",
+        version=1,
+    )
+    entry.add_to_hass(hass)
+
+    with patch("custom_components.tplink_deco.TpLinkDecoApiClient") as client_class:
+        client_class.return_value.get_snapshot.return_value = snapshot
+        assert await hass.config_entries.async_setup(entry.entry_id)
+        await hass.async_block_till_done()
+
+        assert entry.state is ConfigEntryState.LOADED
+        assert entry.minor_version == 2
+        assert "link_devices_by_mac" not in entry.data
+        node_mac = snapshot.nodes[0].mac
+        node = dr.async_get(hass).async_get_device_by_identifier(
+            (DOMAIN, node_mac), entry.entry_id
+        )
+        assert node is not None
+        assert (CONNECTION_NETWORK_MAC, node_mac.lower()) in node.connections
 
         assert await hass.config_entries.async_unload(entry.entry_id)
         await hass.async_block_till_done()

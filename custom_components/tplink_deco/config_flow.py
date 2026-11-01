@@ -23,8 +23,6 @@ from .api.errors import (
     TpLinkDecoApiClientError,
 )
 from .const import (
-    CONF_LINK_DEVICES_BY_MAC,
-    DEFAULT_LINK_DEVICES_BY_MAC,
     DEFAULT_SCAN_INTERVAL_SECONDS,
     DEFAULT_TIMEOUT_SECONDS,
     DOMAIN,
@@ -48,7 +46,6 @@ class TpLinkDecoUserInput(TypedDict):
     host: str
     username: str
     password: str
-    link_devices_by_mac: NotRequired[bool]
     scan_interval: NotRequired[int]
     timeout: NotRequired[int]
 
@@ -57,6 +54,7 @@ class TpLinkDecoFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
     """Config flow for TP-Link Deco."""
 
     VERSION = 1
+    MINOR_VERSION = 2
 
     async def async_step_user(  # type: ignore[override]
         self,
@@ -192,13 +190,6 @@ class TpLinkDecoFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
                         type=selector.TextSelectorType.PASSWORD,
                     ),
                 ),
-                probatio.Required(
-                    CONF_LINK_DEVICES_BY_MAC,
-                    default=prefill.get(
-                        CONF_LINK_DEVICES_BY_MAC,
-                        DEFAULT_LINK_DEVICES_BY_MAC,
-                    ),
-                ): selector.BooleanSelector(),
                 probatio.Required(
                     CONF_SCAN_INTERVAL,
                     default=prefill.get(

@@ -62,12 +62,10 @@
                     "host": "Endereço IP do roteador",
                     "username": "Usuário",
                     "password": "Senha",
-                    "link_devices_by_mac": "Associar dispositivos pelo endereço MAC",
                     "scan_interval": "Intervalo de atualização",
                     "timeout": "Tempo limite da requisição"
                 },
                 "data_description": {
-                    "link_devices_by_mac": "Quando ativado, os endereços MAC de cada nó Deco são adicionados à entrada do dispositivo para que outras integrações e fluxos de descoberta possam reconhecê-lo. Os dispositivos clientes ficam aninhados sob o nó principal e não carregam endereços MAC.",
                     "scan_interval": "Com que frequência o Home Assistant consulta o roteador, em segundos. Redes maiores demoram mais para responder, portanto aumente este valor se as atualizações se sobrepuserem.",
                     "timeout": "Quanto tempo, em segundos, aguardar cada resposta do roteador antes de desistir. Aumente em redes com muitos clientes conectados."
                 }
@@ -79,12 +77,10 @@
                     "host": "Endereço IP do roteador",
                     "username": "Usuário",
                     "password": "Senha",
-                    "link_devices_by_mac": "Associar dispositivos pelo endereço MAC",
                     "scan_interval": "Intervalo de atualização",
                     "timeout": "Tempo limite da requisição"
                 },
                 "data_description": {
-                    "link_devices_by_mac": "Quando ativado, os endereços MAC de cada nó Deco são adicionados à entrada do dispositivo para que outras integrações e fluxos de descoberta possam reconhecê-lo. Os dispositivos clientes ficam aninhados sob o nó principal e não carregam endereços MAC.",
                     "scan_interval": "Com que frequência o Home Assistant consulta o roteador, em segundos. Redes maiores demoram mais para responder, portanto aumente este valor se as atualizações se sobrepuserem.",
                     "timeout": "Quanto tempo, em segundos, aguardar cada resposta do roteador antes de desistir. Aumente em redes com muitos clientes conectados."
                 }
@@ -94,12 +90,10 @@
                     "host": "Endereço IP do roteador",
                     "username": "Usuário",
                     "password": "Senha",
-                    "link_devices_by_mac": "Associar dispositivos pelo endereço MAC",
                     "scan_interval": "Intervalo de atualização",
                     "timeout": "Tempo limite da requisição"
                 },
                 "data_description": {
-                    "link_devices_by_mac": "Quando ativado, os endereços MAC de cada nó Deco são adicionados à entrada do dispositivo para que outras integrações e fluxos de descoberta possam reconhecê-lo. Os dispositivos clientes ficam aninhados sob o nó principal e não carregam endereços MAC.",
                     "scan_interval": "Com que frequência o Home Assistant consulta o roteador, em segundos. Redes maiores demoram mais para responder, portanto aumente este valor se as atualizações se sobrepuserem.",
                     "timeout": "Quanto tempo, em segundos, aguardar cada resposta do roteador antes de desistir. Aumente em redes com muitos clientes conectados."
                 }

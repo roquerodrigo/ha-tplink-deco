@@ -34,9 +34,9 @@ For the master Deco node, the integration also creates:
 Each client is a child device of the master Deco node, so the devices page
 shows the node as one row with its clients nested under it. A client stays
 under the node it was first nested under, even if the mesh later elects another
-master. All Deco
-BSSIDs (main, AP and backhaul STA) are registered as `CONNECTION_NETWORK_MAC`
-so other discovery flows (DHCP, etc.) can correlate the same physical device.
+master. All Deco BSSIDs (main, AP and backhaul STA) are registered as
+`CONNECTION_NETWORK_MAC` so other discovery flows (DHCP, etc.) can correlate the
+same physical device.
 
 ## Bundled Lovelace card
 

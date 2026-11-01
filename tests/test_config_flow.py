@@ -21,7 +21,6 @@ from custom_components.tplink_deco.api.errors import (
     TpLinkDecoApiClientError,
 )
 from custom_components.tplink_deco.const import (
-    CONF_LINK_DEVICES_BY_MAC,
     DEFAULT_SCAN_INTERVAL_SECONDS,
     DEFAULT_TIMEOUT_SECONDS,
     DOMAIN,
@@ -36,7 +35,6 @@ USER_INPUT = {
     CONF_HOST: "192.168.0.1",
     CONF_USERNAME: "admin",
     CONF_PASSWORD: "secret",
-    CONF_LINK_DEVICES_BY_MAC: True,
     CONF_SCAN_INTERVAL: DEFAULT_SCAN_INTERVAL_SECONDS,
     CONF_TIMEOUT: DEFAULT_TIMEOUT_SECONDS,
 }
@@ -71,21 +69,6 @@ async def test_create_entry_on_valid_credentials(hass: HomeAssistant) -> None:
     assert result["data"] == USER_INPUT
 
 
-async def test_create_entry_with_link_devices_disabled(hass: HomeAssistant) -> None:
-    """The link_devices_by_mac toggle is persisted when disabled at setup."""
-    result = await _start_flow(hass)
-    user_input = {**USER_INPUT, CONF_LINK_DEVICES_BY_MAC: False}
-    with patch(
-        "custom_components.tplink_deco.config_flow.TpLinkDecoApiClient.get_snapshot",
-        return_value=None,
-    ):
-        result = await hass.config_entries.flow.async_configure(
-            result["flow_id"], user_input
-        )
-    assert result["type"] == data_entry_flow.FlowResultType.CREATE_ENTRY
-    assert result["data"][CONF_LINK_DEVICES_BY_MAC] is False
-
-
 async def test_create_entry_defaults_polling_fields(hass: HomeAssistant) -> None:
     """Omitting the polling fields falls back to the documented defaults."""
     result = await _start_flow(hass)
@@ -93,7 +76,6 @@ async def test_create_entry_defaults_polling_fields(hass: HomeAssistant) -> None
         CONF_HOST: USER_INPUT[CONF_HOST],
         CONF_USERNAME: USER_INPUT[CONF_USERNAME],
         CONF_PASSWORD: USER_INPUT[CONF_PASSWORD],
-        CONF_LINK_DEVICES_BY_MAC: True,
     }
     with patch(
         "custom_components.tplink_deco.config_flow.TpLinkDecoApiClient.get_snapshot",
@@ -150,35 +132,11 @@ def _existing_entry(hass: HomeAssistant) -> MockConfigEntry:
     """Add a configured entry to hass and return it."""
     entry = MockConfigEntry(
         domain=DOMAIN,
-        data={**USER_INPUT, CONF_LINK_DEVICES_BY_MAC: True},
+        data=USER_INPUT,
         unique_id=USER_INPUT[CONF_HOST],
     )
     entry.add_to_hass(hass)
     return entry
-
-
-async def test_reconfigure_updates_link_devices_by_mac(
-    hass: HomeAssistant,
-    snapshot: TpLinkDecoSnapshot,
-) -> None:
-    """Reconfigure flow persists the toggle change without recreating the entry."""
-    entry = _existing_entry(hass)
-    result = await entry.start_reconfigure_flow(hass)
-    assert result["type"] == data_entry_flow.FlowResultType.FORM
-    assert result["step_id"] == "reconfigure"
-
-    updated = {**USER_INPUT, CONF_LINK_DEVICES_BY_MAC: False}
-    with patch(
-        "custom_components.tplink_deco.config_flow.TpLinkDecoApiClient.get_snapshot",
-        return_value=snapshot,
-    ):
-        result = await hass.config_entries.flow.async_configure(
-            result["flow_id"], updated
-        )
-        await hass.async_block_till_done()
-    assert result["type"] == data_entry_flow.FlowResultType.ABORT
-    assert result["reason"] == "reconfigure_successful"
-    assert entry.data[CONF_LINK_DEVICES_BY_MAC] is False
 
 
 async def test_reconfigure_updates_polling_fields(
