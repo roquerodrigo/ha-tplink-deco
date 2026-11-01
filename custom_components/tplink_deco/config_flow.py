@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import NotRequired, TypedDict, cast
 
-import voluptuous as vol
+import probatio
 from homeassistant import config_entries
 from homeassistant.const import (
     CONF_HOST,
@@ -162,16 +162,16 @@ class TpLinkDecoFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
         return {}
 
     @staticmethod
-    def _build_schema(defaults: TpLinkDecoUserInput | None) -> vol.Schema:
+    def _build_schema(defaults: TpLinkDecoUserInput | None) -> probatio.Schema:
         """Build the credentials + options schema, prefilled with defaults."""
         prefill: TpLinkDecoUserInput = defaults or TpLinkDecoUserInput(
             host="192.168.0.1",
             username="admin",
             password="",
         )
-        return vol.Schema(
+        return probatio.Schema(
             {
-                vol.Required(
+                probatio.Required(
                     CONF_HOST,
                     default=prefill.get(CONF_HOST, "192.168.0.1"),
                 ): selector.TextSelector(
@@ -179,7 +179,7 @@ class TpLinkDecoFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
                         type=selector.TextSelectorType.TEXT,
                     ),
                 ),
-                vol.Required(
+                probatio.Required(
                     CONF_USERNAME,
                     default=prefill.get(CONF_USERNAME, "admin"),
                 ): selector.TextSelector(
@@ -187,19 +187,19 @@ class TpLinkDecoFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
                         type=selector.TextSelectorType.TEXT,
                     ),
                 ),
-                vol.Required(CONF_PASSWORD): selector.TextSelector(
+                probatio.Required(CONF_PASSWORD): selector.TextSelector(
                     selector.TextSelectorConfig(
                         type=selector.TextSelectorType.PASSWORD,
                     ),
                 ),
-                vol.Required(
+                probatio.Required(
                     CONF_LINK_DEVICES_BY_MAC,
                     default=prefill.get(
                         CONF_LINK_DEVICES_BY_MAC,
                         DEFAULT_LINK_DEVICES_BY_MAC,
                     ),
                 ): selector.BooleanSelector(),
-                vol.Required(
+                probatio.Required(
                     CONF_SCAN_INTERVAL,
                     default=prefill.get(
                         CONF_SCAN_INTERVAL,
@@ -214,7 +214,7 @@ class TpLinkDecoFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
                         mode=selector.NumberSelectorMode.BOX,
                     ),
                 ),
-                vol.Required(
+                probatio.Required(
                     CONF_TIMEOUT,
                     default=prefill.get(CONF_TIMEOUT, DEFAULT_TIMEOUT_SECONDS),
                 ): selector.NumberSelector(
