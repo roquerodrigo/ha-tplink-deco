@@ -10,7 +10,6 @@ from .const import DOMAIN, LOGGER
 
 if TYPE_CHECKING:
     from homeassistant.core import HomeAssistant
-    from homeassistant.helpers.device_registry import DeviceEntry
     from tplink_deco_api import ClientDevice, Device
 
     from .api import TpLinkDecoSnapshot
@@ -48,16 +47,26 @@ class TpLinkDecoDeviceRegistrySync:
         registry: dr.DeviceRegistry,
         client: ClientDevice,
     ) -> None:
-        device = self._registered_device(registry, client.mac)
+        identifier = (DOMAIN, client.mac)
+        entry_id = self._entry.entry_id
+        device = registry.async_get_child_device_by_identifier(
+            identifier, entry_id
+        ) or registry.async_get_device_by_identifier(identifier, entry_id)
         if device is None or not client.name or device.name == client.name:
             return
         LOGGER.debug(
             "Renaming client %s from %s to %s", client.mac, device.name, client.name
         )
-        registry.async_update_device(device.id, name=client.name)
+        if isinstance(device, dr.ChildDeviceEntry):
+            registry.async_update_child_device(device.id, name=client.name)
+        else:
+            registry.async_update_device(device.id, name=client.name)
 
     def _sync_node(self, registry: dr.DeviceRegistry, node: Device) -> None:
-        device = self._registered_device(registry, node.mac)
+        device = registry.async_get_device_by_identifier(
+            (DOMAIN, node.mac),
+            self._entry.entry_id,
+        )
         if device is None:
             return
         name = node.custom_nickname or node.nickname or device.name
@@ -75,14 +84,4 @@ class TpLinkDecoDeviceRegistrySync:
             model=node.device_model,
             sw_version=node.software_ver,
             hw_version=node.hardware_ver,
-        )
-
-    def _registered_device(
-        self,
-        registry: dr.DeviceRegistry,
-        mac: str,
-    ) -> DeviceEntry | None:
-        return registry.async_get_device_by_identifier(
-            (DOMAIN, mac),
-            self._entry.entry_id,
         )

@@ -6,7 +6,7 @@ from typing import TYPE_CHECKING
 
 from homeassistant.helpers import device_registry as dr
 
-from .const import CONF_LINK_DEVICES_BY_MAC, DEFAULT_LINK_DEVICES_BY_MAC
+from .const import CONF_LINK_DEVICES_BY_MAC, DEFAULT_LINK_DEVICES_BY_MAC, DOMAIN
 from .device import build_deco_device_info
 
 if TYPE_CHECKING:
@@ -20,11 +20,14 @@ class TpLinkDecoNodeRegistration:
     """
     Create the device entry of every mesh node up front.
 
-    Client devices link to their node through ``via_device_id``, which needs
-    the node's registry entry to exist before the client is registered.
-    Platforms add their entities concurrently, so no ordering between them
-    guarantees the nodes come first; registering them before the platforms
-    are forwarded does.
+    Client devices are child devices of a node, which needs the node's registry
+    entry to exist before the client is registered. Platforms add their entities
+    concurrently, so no ordering between them guarantees the nodes come first;
+    registering them before the platforms are forwarded does.
+
+    A device that joined the mesh after being reported as a client still holds
+    the node's identifier as a child device, which the registry refuses to
+    share with a main device, so that child device is removed first.
     """
 
     def __init__(self, hass: HomeAssistant, entry: TpLinkDecoConfigEntry) -> None:
@@ -40,6 +43,12 @@ class TpLinkDecoNodeRegistration:
             DEFAULT_LINK_DEVICES_BY_MAC,
         )
         for node in nodes:
+            client_device = registry.async_get_child_device_by_identifier(
+                (DOMAIN, node.mac),
+                self._entry.entry_id,
+            )
+            if client_device is not None:
+                registry.async_remove_device(client_device.id)
             registry.async_get_or_create(
                 config_entry_id=self._entry.entry_id,
                 **build_deco_device_info(

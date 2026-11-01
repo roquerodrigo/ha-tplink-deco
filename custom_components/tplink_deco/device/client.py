@@ -5,15 +5,10 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from homeassistant.helpers import device_registry as dr
-from homeassistant.helpers.device_registry import CONNECTION_NETWORK_MAC, DeviceInfo
+from homeassistant.helpers.device_registry import ChildDeviceInfo, DeviceInfo
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
-from custom_components.tplink_deco.const import (
-    ATTRIBUTION,
-    CONF_LINK_DEVICES_BY_MAC,
-    DEFAULT_LINK_DEVICES_BY_MAC,
-    DOMAIN,
-)
+from custom_components.tplink_deco.const import ATTRIBUTION, DOMAIN
 from custom_components.tplink_deco.coordinator import TpLinkDecoDataUpdateCoordinator
 
 if TYPE_CHECKING:
@@ -38,39 +33,49 @@ class TpLinkDecoClientDevice(CoordinatorEntity[TpLinkDecoDataUpdateCoordinator])
         self._client_mac = client.mac
 
     @property
-    def device_info(self) -> DeviceInfo | None:
-        """Return device info linking this client to the master Deco node."""
-        info = DeviceInfo(
-            identifiers={(DOMAIN, self._client_mac)},
-            name=self.client.name if self.client else None,
+    def device_info(self) -> ChildDeviceInfo | DeviceInfo | None:
+        """Return this client as a child device of the master Deco node."""
+        name = self.client.name if self.client else None
+        identifiers = {(DOMAIN, self._client_mac)}
+        parent_device_id = self._parent_device_id
+        if parent_device_id is None:
+            return DeviceInfo(identifiers=identifiers, name=name)
+        return ChildDeviceInfo(
+            identifiers=identifiers,
+            parent_device_id=parent_device_id,
+            name=name,
         )
-        if self._link_devices_by_mac:
-            info["connections"] = {(CONNECTION_NETWORK_MAC, self._client_mac)}
-        master_device_id = self._master_node_device_id
-        if master_device_id:
-            info["via_device_id"] = master_device_id
-        return info
 
     @property
-    def _master_node_device_id(self) -> str | None:
-        """Return the registry id of the master node device, if registered."""
+    def _parent_device_id(self) -> str | None:
+        """
+        Return the registry id of the device this client nests under.
+
+        The device registry refuses to reparent a child device, so a client
+        stays under the node it was first nested under when the mesh elects
+        another master.
+        """
+        registry = dr.async_get(self.hass)
+        entry_id = self.coordinator.config_entry.entry_id
+        child = registry.async_get_child_device_by_identifier(
+            (DOMAIN, self._client_mac),
+            entry_id,
+        )
+        if child is not None:
+            return child.parent_device_id
         snapshot: TpLinkDecoSnapshot | None = self.coordinator.data
         if snapshot is None:
+            return None
+        if any(node.mac == self._client_mac for node in snapshot.nodes):
             return None
         master = next((n for n in snapshot.nodes if n.role == "master"), None)
         if master is None:
             return None
-        device = dr.async_get(self.hass).async_get_device_by_identifier(
+        device = registry.async_get_device_by_identifier(
             (DOMAIN, master.mac),
-            self.coordinator.config_entry.entry_id,
+            entry_id,
         )
         return device.id if device else None
-
-    @property
-    def _link_devices_by_mac(self) -> bool:
-        """Return whether device entries should advertise their MAC connection."""
-        entry = self.coordinator.config_entry
-        return entry.data.get(CONF_LINK_DEVICES_BY_MAC, DEFAULT_LINK_DEVICES_BY_MAC)
 
     @property
     def available(self) -> bool:

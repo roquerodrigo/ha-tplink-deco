@@ -34,7 +34,7 @@ from .node_registration import TpLinkDecoNodeRegistration
 
 if TYPE_CHECKING:
     from homeassistant.core import HomeAssistant
-    from homeassistant.helpers.device_registry import DeviceEntry
+    from homeassistant.helpers.device_registry import AnyDeviceEntry
 
     from .data import TpLinkDecoConfigEntry
 
@@ -155,7 +155,7 @@ async def async_reload_entry(
 async def async_remove_config_entry_device(
     hass: HomeAssistant,  # noqa: ARG001 -- HA device-removal contract requires this parameter
     entry: TpLinkDecoConfigEntry,
-    device_entry: DeviceEntry,
+    device_entry: AnyDeviceEntry,
 ) -> bool:
     """
     Allow removing a device that is not currently connected.

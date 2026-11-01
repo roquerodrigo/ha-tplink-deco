@@ -49,13 +49,12 @@ class TpLinkDecoClientRegistrationPolicy:
         client: ClientDevice,
         known_macs: set[str],
     ) -> bool:
+        identifier = (DOMAIN, client.mac)
+        entry_id = self._entry.entry_id
         registered = (
-            registry.async_get_device_by_identifier(
-                (DOMAIN, client.mac),
-                self._entry.entry_id,
-            )
-            is not None
-        )
+            registry.async_get_child_device_by_identifier(identifier, entry_id)
+            or registry.async_get_device_by_identifier(identifier, entry_id)
+        ) is not None
         if registered:
             return client.mac not in known_macs
         return client.online

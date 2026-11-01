@@ -70,20 +70,71 @@ async def test_client_device_info_links_to_master(hass: HomeAssistant) -> None:
 
     info = device.device_info
     assert info["identifiers"] == {(DOMAIN, client.mac)}
-    assert (CONNECTION_NETWORK_MAC, client.mac) in info["connections"]
-    assert info["via_device_id"] == master_device.id
-    assert "via_device" not in info
+    assert info["parent_device_id"] == master_device.id
+    assert "connections" not in info
+    assert "via_device_id" not in info
     assert info["name"] == "Phone"
 
 
+async def test_client_device_info_keeps_parent_after_master_change(
+    hass: HomeAssistant,
+) -> None:
+    """A client stays under its first parent, since reparenting is refused."""
+    entry = MockConfigEntry(domain=DOMAIN)
+    entry.add_to_hass(hass)
+    client = make_client(mac="AA:11:22:33:44:55")
+    former_master = make_node(mac="DD:EE:FF:00:11:22", role="slave")
+    current_master = make_node(mac="DD:EE:FF:00:11:33", role="master")
+    registry = dr.async_get(hass)
+    former_master_device = registry.async_get_or_create(
+        config_entry_id=entry.entry_id,
+        identifiers={(DOMAIN, former_master.mac)},
+    )
+    registry.async_get_or_create(
+        config_entry_id=entry.entry_id,
+        identifiers={(DOMAIN, current_master.mac)},
+    )
+    registry.async_get_or_create_child(
+        config_entry_id=entry.entry_id,
+        identifiers={(DOMAIN, client.mac)},
+        parent_device_id=former_master_device.id,
+    )
+    snapshot = TpLinkDecoSnapshot(
+        clients=[client],
+        nodes=[former_master, current_master],
+        performance=None,
+    )
+    device = _client_device_in_hass(hass, snapshot, client, entry)
+
+    assert device.device_info["parent_device_id"] == former_master_device.id
+
+
+async def test_client_device_info_shares_the_device_of_a_node_with_its_mac(
+    hass: HomeAssistant,
+) -> None:
+    """A client reported with a node's MAC is not nested, as that device is a node."""
+    entry = MockConfigEntry(domain=DOMAIN)
+    entry.add_to_hass(hass)
+    client = make_client(mac="DD:EE:FF:00:11:22")
+    master = make_node(mac="DD:EE:FF:00:11:22", role="master")
+    dr.async_get(hass).async_get_or_create(
+        config_entry_id=entry.entry_id,
+        identifiers={(DOMAIN, master.mac)},
+    )
+    snapshot = TpLinkDecoSnapshot(clients=[client], nodes=[master], performance=None)
+    device = _client_device_in_hass(hass, snapshot, client, entry)
+
+    assert "parent_device_id" not in device.device_info
+
+
 async def test_client_device_info_without_master_node(hass: HomeAssistant) -> None:
-    """device_info returns no via_device_id when no master is present."""
+    """device_info returns a main device when no master is present."""
     entry = MockConfigEntry(domain=DOMAIN)
     entry.add_to_hass(hass)
     client = make_client()
     snapshot = TpLinkDecoSnapshot(clients=[client], nodes=[], performance=None)
     device = _client_device_in_hass(hass, snapshot, client, entry)
-    assert "via_device_id" not in device.device_info
+    assert "parent_device_id" not in device.device_info
 
 
 async def test_client_device_info_without_registered_master(
@@ -96,14 +147,15 @@ async def test_client_device_info_without_registered_master(
     master = make_node(role="master")
     snapshot = TpLinkDecoSnapshot(clients=[client], nodes=[master], performance=None)
     device = _client_device_in_hass(hass, snapshot, client, entry)
-    assert "via_device_id" not in device.device_info
+    assert "parent_device_id" not in device.device_info
 
 
-def test_client_device_info_without_snapshot() -> None:
-    """device_info has no link before the first successful refresh."""
+async def test_client_device_info_without_snapshot(hass: HomeAssistant) -> None:
+    """device_info has no parent before the first successful refresh."""
     client = make_client()
     device = TpLinkDecoClientDevice(_coordinator(None), client)
-    assert "via_device_id" not in device.device_info
+    device.hass = hass
+    assert "parent_device_id" not in device.device_info
 
 
 def test_client_available_when_present() -> None:
@@ -163,20 +215,6 @@ def test_deco_unavailable_when_node_missing() -> None:
     device = TpLinkDecoDecoDevice(_coordinator(snapshot), node)
     assert device.available is False
     assert device.node is None
-
-
-async def test_client_device_info_omits_mac_connection_when_disabled(
-    hass: HomeAssistant,
-) -> None:
-    """device_info drops MAC connection when link_devices_by_mac is False."""
-    client = make_client()
-    snapshot = TpLinkDecoSnapshot(clients=[client], nodes=[], performance=None)
-    device = TpLinkDecoClientDevice(
-        _coordinator(snapshot, link_devices_by_mac=False),
-        client,
-    )
-    device.hass = hass
-    assert "connections" not in device.device_info
 
 
 def test_deco_device_info_omits_mac_connections_when_disabled() -> None:
