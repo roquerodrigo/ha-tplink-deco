@@ -7,13 +7,7 @@ from typing import TYPE_CHECKING
 from homeassistant.helpers.device_registry import CONNECTION_NETWORK_MAC, DeviceInfo
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
-from custom_components.tplink_deco.const import (
-    ATTRIBUTION,
-    CONF_LINK_DEVICES_BY_MAC,
-    DEFAULT_LINK_DEVICES_BY_MAC,
-    DOMAIN,
-    MANUFACTURER,
-)
+from custom_components.tplink_deco.const import ATTRIBUTION, DOMAIN, MANUFACTURER
 from custom_components.tplink_deco.coordinator import TpLinkDecoDataUpdateCoordinator
 
 if TYPE_CHECKING:
@@ -40,17 +34,7 @@ class TpLinkDecoDecoDevice(CoordinatorEntity[TpLinkDecoDataUpdateCoordinator]):
     @property
     def device_info(self) -> DeviceInfo | None:
         """Return device info for this Deco mesh node."""
-        return build_deco_device_info(
-            self.node,
-            self._node_mac,
-            link_devices_by_mac=self._link_devices_by_mac,
-        )
-
-    @property
-    def _link_devices_by_mac(self) -> bool:
-        """Return whether device entries should advertise MAC connections."""
-        entry = self.coordinator.config_entry
-        return entry.data.get(CONF_LINK_DEVICES_BY_MAC, DEFAULT_LINK_DEVICES_BY_MAC)
+        return build_deco_device_info(self.node, self._node_mac)
 
     @property
     def available(self) -> bool:
@@ -69,11 +53,20 @@ class TpLinkDecoDecoDevice(CoordinatorEntity[TpLinkDecoDataUpdateCoordinator]):
 def build_deco_device_info(
     node: Device | None,
     node_mac: str,
-    *,
-    link_devices_by_mac: bool,
 ) -> DeviceInfo:
     """Describe a Deco mesh node for the device registry."""
-    info = DeviceInfo(
+    connections = {(CONNECTION_NETWORK_MAC, node_mac)}
+    if node:
+        for bssid in (
+            node.bssid_2g,
+            node.bssid_5g,
+            node.bssid_sta_2g,
+            node.bssid_sta_5g,
+        ):
+            if bssid:
+                connections.add((CONNECTION_NETWORK_MAC, bssid))
+    return DeviceInfo(
+        connections=connections,
         identifiers={(DOMAIN, node_mac)},
         name=node.custom_nickname or node.nickname if node else None,
         model=node.device_model if node else None,
@@ -81,16 +74,3 @@ def build_deco_device_info(
         hw_version=node.hardware_ver if node else None,
         manufacturer=MANUFACTURER,
     )
-    if link_devices_by_mac:
-        connections = {(CONNECTION_NETWORK_MAC, node_mac)}
-        if node:
-            for bssid in (
-                node.bssid_2g,
-                node.bssid_5g,
-                node.bssid_sta_2g,
-                node.bssid_sta_5g,
-            ):
-                if bssid:
-                    connections.add((CONNECTION_NETWORK_MAC, bssid))
-        info["connections"] = connections
-    return info

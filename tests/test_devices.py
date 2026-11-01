@@ -10,11 +10,7 @@ from homeassistant.helpers.device_registry import CONNECTION_NETWORK_MAC
 from pytest_homeassistant_custom_component.common import MockConfigEntry
 
 from custom_components.tplink_deco.api import TpLinkDecoSnapshot
-from custom_components.tplink_deco.const import (
-    CONF_LINK_DEVICES_BY_MAC,
-    DOMAIN,
-    MANUFACTURER,
-)
+from custom_components.tplink_deco.const import DOMAIN, MANUFACTURER
 from custom_components.tplink_deco.device import (
     TpLinkDecoClientDevice,
     TpLinkDecoDecoDevice,
@@ -30,13 +26,11 @@ if TYPE_CHECKING:
 def _coordinator(
     snapshot: TpLinkDecoSnapshot | None,
     *,
-    link_devices_by_mac: bool = True,
     entry_id: str = "entry",
 ) -> MagicMock:
     mock = MagicMock()
     mock.data = snapshot
     mock.last_update_success = True
-    mock.config_entry.data = {CONF_LINK_DEVICES_BY_MAC: link_devices_by_mac}
     mock.config_entry.entry_id = entry_id
     return mock
 
@@ -215,20 +209,6 @@ def test_deco_unavailable_when_node_missing() -> None:
     device = TpLinkDecoDecoDevice(_coordinator(snapshot), node)
     assert device.available is False
     assert device.node is None
-
-
-def test_deco_device_info_omits_mac_connections_when_disabled() -> None:
-    """device_info drops MAC connections when link_devices_by_mac is False."""
-    node = make_node(
-        bssid_2g="AA:BB:CC:00:00:02",
-        bssid_5g="AA:BB:CC:00:00:03",
-    )
-    snapshot = TpLinkDecoSnapshot(clients=[], nodes=[node], performance=None)
-    device = TpLinkDecoDecoDevice(
-        _coordinator(snapshot, link_devices_by_mac=False),
-        node,
-    )
-    assert "connections" not in device.device_info
 
 
 def test_client_property_none_before_first_refresh() -> None:

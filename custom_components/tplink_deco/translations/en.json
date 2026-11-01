@@ -62,12 +62,10 @@
                     "host": "Router IP Address",
                     "username": "Username",
                     "password": "Password",
-                    "link_devices_by_mac": "Link devices by MAC address",
                     "scan_interval": "Update interval",
                     "timeout": "Request timeout"
                 },
                 "data_description": {
-                    "link_devices_by_mac": "When enabled, the MAC addresses of each Deco node are added to its device entry so other integrations and discovery flows can recognize it. Client devices are nested under the master node and do not carry MAC addresses.",
                     "scan_interval": "How often Home Assistant polls the router, in seconds. Larger networks take longer to answer, so raise this value if updates overlap with each other.",
                     "timeout": "How long, in seconds, to wait for each router response before giving up. Raise it on networks with many connected clients."
                 }
@@ -79,12 +77,10 @@
                     "host": "Router IP Address",
                     "username": "Username",
                     "password": "Password",
-                    "link_devices_by_mac": "Link devices by MAC address",
                     "scan_interval": "Update interval",
                     "timeout": "Request timeout"
                 },
                 "data_description": {
-                    "link_devices_by_mac": "When enabled, the MAC addresses of each Deco node are added to its device entry so other integrations and discovery flows can recognize it. Client devices are nested under the master node and do not carry MAC addresses.",
                     "scan_interval": "How often Home Assistant polls the router, in seconds. Larger networks take longer to answer, so raise this value if updates overlap with each other.",
                     "timeout": "How long, in seconds, to wait for each router response before giving up. Raise it on networks with many connected clients."
                 }
@@ -94,12 +90,10 @@
                     "host": "Router IP Address",
                     "username": "Username",
                     "password": "Password",
-                    "link_devices_by_mac": "Link devices by MAC address",
                     "scan_interval": "Update interval",
                     "timeout": "Request timeout"
                 },
                 "data_description": {
-                    "link_devices_by_mac": "When enabled, the MAC addresses of each Deco node are added to its device entry so other integrations and discovery flows can recognize it. Client devices are nested under the master node and do not carry MAC addresses.",
                     "scan_interval": "How often Home Assistant polls the router, in seconds. Larger networks take longer to answer, so raise this value if updates overlap with each other.",
                     "timeout": "How long, in seconds, to wait for each router response before giving up. Raise it on networks with many connected clients."
                 }
