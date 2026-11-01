@@ -9,7 +9,7 @@ from homeassistant.components.device_tracker import ScannerEntity, SourceType
 from custom_components.tplink_deco.device import TpLinkDecoClientDevice
 
 if TYPE_CHECKING:
-    from homeassistant.helpers.device_registry import DeviceInfo
+    from homeassistant.helpers.device_registry import ChildDeviceInfo, DeviceInfo
 
 
 class TpLinkDecoClientTracker(TpLinkDecoClientDevice, ScannerEntity):
@@ -50,7 +50,7 @@ class TpLinkDecoClientTracker(TpLinkDecoClientDevice, ScannerEntity):
         return self._client_mac
 
     @property  # type: ignore[misc]
-    def device_info(self) -> DeviceInfo | None:
+    def device_info(self) -> ChildDeviceInfo | DeviceInfo | None:  # type: ignore[override]
         """
         Return the parent's identifier-based device info.
 

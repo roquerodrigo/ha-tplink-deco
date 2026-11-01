@@ -51,7 +51,7 @@ def _sync(
     TpLinkDecoDeviceRegistrySync(hass, entry).sync(snapshot)
 
 
-def _device(hass: HomeAssistant, device_id: str) -> dr.DeviceEntry:
+def _device(hass: HomeAssistant, device_id: str) -> dr.AnyDeviceEntry:
     device = dr.async_get(hass).async_get(device_id)
     assert device is not None
     return device
@@ -61,6 +61,32 @@ async def test_sync_renames_client_renamed_on_router(hass: HomeAssistant) -> Non
     """A client renamed in the Deco app gets the new name in the registry."""
     entry = _entry(hass)
     device = _register(hass, entry, CLIENT_MAC, "Phone")
+
+    _sync(
+        hass,
+        entry,
+        TpLinkDecoSnapshot(
+            clients=[make_client(mac=CLIENT_MAC, name="Work Phone")],
+            nodes=[],
+            performance=None,
+        ),
+    )
+
+    assert _device(hass, device.id).name == "Work Phone"
+
+
+async def test_sync_renames_child_client_renamed_on_router(
+    hass: HomeAssistant,
+) -> None:
+    """A client nested under a node gets the new name in the registry."""
+    entry = _entry(hass)
+    node_device = _register(hass, entry, NODE_MAC, "Living Room")
+    device = dr.async_get(hass).async_get_or_create_child(
+        config_entry_id=entry.entry_id,
+        identifiers={(DOMAIN, CLIENT_MAC)},
+        parent_device_id=node_device.id,
+        name="Phone",
+    )
 
     _sync(
         hass,

@@ -26,6 +26,11 @@ router's local web API via the `tplink_deco_api` SDK.
   long after they disconnect, so `client_registration_policy.py` only creates
   entities for a client that is online or still has a device — otherwise a
   removed offline device would come back on every restart.
+- **Clients are child devices** (`ChildDeviceInfo`) of the master node, so they
+  have no `connections`, and registry lookups need
+  `async_get_child_device_by_identifier`: `async_get_device_by_identifier` only
+  searches main devices. The registry refuses to reparent, so a client keeps the
+  parent it already has when the mesh elects another master.
 - The bundled Lovelace card (`www/tplink-deco-card.js`) is served from
   `custom_components/tplink_deco/www` via a registered static path and
   registered as a **Lovelace dashboard resource** by `card_registration.py`

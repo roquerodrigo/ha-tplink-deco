@@ -18,6 +18,7 @@ if TYPE_CHECKING:
     from homeassistant.core import HomeAssistant
 
 CLIENT_MAC = "AA:BB:CC:DD:EE:01"
+NODE_MAC = "11:22:33:44:55:66"
 
 
 def _entry(hass: HomeAssistant) -> MockConfigEntry:
@@ -60,6 +61,30 @@ async def test_offline_client_with_device_is_selected(hass: HomeAssistant) -> No
     """An offline client that still has a device keeps its entities."""
     entry = _entry(hass)
     _register(hass, entry)
+    client = make_client(mac=CLIENT_MAC, online=False)
+
+    selected = TpLinkDecoClientRegistrationPolicy(hass, entry).select_new(
+        [client], set()
+    )
+
+    assert selected == [client]
+
+
+async def test_offline_client_with_child_device_is_selected(
+    hass: HomeAssistant,
+) -> None:
+    """An offline client nested under a node keeps its entities."""
+    entry = _entry(hass)
+    registry = dr.async_get(hass)
+    node_device = registry.async_get_or_create(
+        config_entry_id=entry.entry_id,
+        identifiers={(DOMAIN, NODE_MAC)},
+    )
+    registry.async_get_or_create_child(
+        config_entry_id=entry.entry_id,
+        identifiers={(DOMAIN, CLIENT_MAC)},
+        parent_device_id=node_device.id,
+    )
     client = make_client(mac=CLIENT_MAC, online=False)
 
     selected = TpLinkDecoClientRegistrationPolicy(hass, entry).select_new(
