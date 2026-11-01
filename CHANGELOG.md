@@ -1,5 +1,20 @@
 # Changelog
 
+## [1.10.0](https://github.com/roquerodrigo/ha-tplink-deco/compare/v1.9.0...v1.10.0) (2026-11-01)
+
+Client devices are now nested under the master Deco node, and the "Link devices by MAC address" option has been removed.
+
+### Breaking changes
+
+- Home Assistant 2026.10.4 is now the minimum supported version, and downgrading the integration is not supported once client devices have been converted. ([#133](https://github.com/roquerodrigo/ha-tplink-deco/pull/133))
+
+### Improvements
+
+- Client devices now appear nested under the master Deco node on the devices page, keeping their ids, entities, names, areas and labels. ([#133](https://github.com/roquerodrigo/ha-tplink-deco/pull/133))
+- A client without its own area now takes the area of the master Deco node. ([#133](https://github.com/roquerodrigo/ha-tplink-deco/pull/133))
+- Client devices no longer carry a MAC address connection. ([#133](https://github.com/roquerodrigo/ha-tplink-deco/pull/133))
+- The "Link devices by MAC address" option was removed; Deco nodes always register their MAC addresses, including entries that previously had the option disabled. ([#134](https://github.com/roquerodrigo/ha-tplink-deco/pull/134))
+
 ## [1.9.0](https://github.com/roquerodrigo/ha-tplink-deco/compare/v1.8.0...v1.9.0) (2026-10-01)
 
 
