@@ -18,8 +18,8 @@ dev = [
     "tplink-deco-api==1.2.2",
 ]
 lint = [
-    "ruff==0.17.2",
-    "mypy==2.4.0",
+    "ruff==0.17.3",
+    "mypy==2.4.1",
 ]
 
 [tool.pytest.ini_options]
