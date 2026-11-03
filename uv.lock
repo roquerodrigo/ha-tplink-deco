@@ -1187,9 +1187,6 @@ source = { virtual = "." }
 dev = [
     { name = "homeassistant" },
     { name = "pre-commit" },
-    { name = "pytest" },
-    { name = "pytest-asyncio" },
-    { name = "pytest-cov" },
     { name = "pytest-homeassistant-custom-component" },
     { name = "tplink-deco-api" },
 ]
@@ -1204,9 +1201,6 @@ lint = [
 dev = [
     { name = "homeassistant", specifier = "==2026.10.4" },
     { name = "pre-commit", specifier = "==4.7.0" },
-    { name = "pytest", specifier = "==9.0.3" },
-    { name = "pytest-asyncio", specifier = "==1.4.0" },
-    { name = "pytest-cov", specifier = "==7.1.0" },
     { name = "pytest-homeassistant-custom-component", specifier = "==0.13.375" },
     { name = "tplink-deco-api", specifier = "==1.2.2" },
 ]
