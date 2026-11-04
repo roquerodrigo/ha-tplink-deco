@@ -169,14 +169,14 @@ def test_client_unavailable_when_absent_from_snapshot() -> None:
     assert device.client is None
 
 
-def test_deco_device_info_includes_all_bssids() -> None:
-    """Deco device_info exposes main MAC plus every populated BSSID."""
+def test_deco_device_info_excludes_station_bssids() -> None:
+    """Deco device_info exposes the node MAC and its own AP BSSIDs only."""
     node = make_node(
         mac="AA:BB:CC:00:00:01",
         bssid_2g="AA:BB:CC:00:00:02",
         bssid_5g="AA:BB:CC:00:00:03",
         bssid_sta_2g="AA:BB:CC:00:00:04",
-        bssid_sta_5g="",
+        bssid_sta_5g="AA:BB:CC:00:00:05",
     )
     snapshot = TpLinkDecoSnapshot(clients=[], nodes=[node], performance=None)
     device = TpLinkDecoDecoDevice(_coordinator(snapshot), node)
@@ -187,7 +187,6 @@ def test_deco_device_info_includes_all_bssids() -> None:
         "AA:BB:CC:00:00:01",
         "AA:BB:CC:00:00:02",
         "AA:BB:CC:00:00:03",
-        "AA:BB:CC:00:00:04",
     }
     assert info["manufacturer"] == MANUFACTURER
     assert info["model"] == node.device_model

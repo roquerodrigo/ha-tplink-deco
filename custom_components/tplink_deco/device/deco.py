@@ -54,15 +54,15 @@ def build_deco_device_info(
     node: Device | None,
     node_mac: str,
 ) -> DeviceInfo:
-    """Describe a Deco mesh node for the device registry."""
+    """Describe a Deco mesh node for the device registry.
+
+    ``bssid_sta_*`` is the upstream access point a satellite is joined to,
+    not a radio of this node. Registering it merges the satellite into the
+    main node, and the next satellite then fails setup with DeviceInfoError.
+    """
     connections = {(CONNECTION_NETWORK_MAC, node_mac)}
     if node:
-        for bssid in (
-            node.bssid_2g,
-            node.bssid_5g,
-            node.bssid_sta_2g,
-            node.bssid_sta_5g,
-        ):
+        for bssid in (node.bssid_2g, node.bssid_5g):
             if bssid:
                 connections.add((CONNECTION_NETWORK_MAC, bssid))
     return DeviceInfo(
