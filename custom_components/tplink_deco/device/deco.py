@@ -54,7 +54,8 @@ def build_deco_device_info(
     node: Device | None,
     node_mac: str,
 ) -> DeviceInfo:
-    """Describe a Deco mesh node for the device registry.
+    """
+    Describe a Deco mesh node for the device registry.
 
     ``bssid_sta_*`` is the upstream access point a satellite is joined to,
     not a radio of this node. Registering it merges the satellite into the
