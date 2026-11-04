@@ -179,6 +179,50 @@ async def test_setup_registers_nodes_before_client_devices(
         await hass.async_block_till_done()
 
 
+async def test_setup_keeps_each_satellite_as_its_own_device(
+    hass: HomeAssistant,
+) -> None:
+    """Satellites joined to the same upstream radios never merge into the main node."""
+    main = make_node(
+        mac="AA:00:00:00:00:01",
+        bssid_2g="AA:00:00:00:00:02",
+        bssid_5g="AA:00:00:00:00:03",
+    )
+    satellites = [
+        make_node(
+            mac=f"BB:00:00:00:00:{index}1",
+            role="slave",
+            bssid_2g=f"BB:00:00:00:00:{index}2",
+            bssid_5g=f"BB:00:00:00:00:{index}3",
+            bssid_sta_2g=main.bssid_2g,
+            bssid_sta_5g=main.bssid_5g,
+        )
+        for index in (1, 2)
+    ]
+    snapshot = TpLinkDecoSnapshot(
+        clients=[], nodes=[main, *satellites], performance=None
+    )
+    entry = _setup_entry()
+    entry.add_to_hass(hass)
+
+    with patch("custom_components.tplink_deco.TpLinkDecoApiClient") as client_class:
+        client_class.return_value.get_snapshot.return_value = snapshot
+        assert await hass.config_entries.async_setup(entry.entry_id)
+        await hass.async_block_till_done()
+
+        assert entry.state is ConfigEntryState.LOADED
+        registry = dr.async_get(hass)
+        devices = [
+            registry.async_get_device_by_identifier((DOMAIN, node.mac), entry.entry_id)
+            for node in snapshot.nodes
+        ]
+        assert all(device is not None for device in devices)
+        assert len({device.id for device in devices if device is not None}) == 3
+
+        assert await hass.config_entries.async_unload(entry.entry_id)
+        await hass.async_block_till_done()
+
+
 async def test_setup_converts_existing_client_device_in_place(
     hass: HomeAssistant,
     snapshot: TpLinkDecoSnapshot,
