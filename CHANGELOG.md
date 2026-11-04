@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.10.1](https://github.com/roquerodrigo/ha-tplink-deco/compare/v1.10.0...v1.10.1) (2026-11-04)
+
+### Bug fixes
+
+- Mesh setup no longer fails on Home Assistant 2026.10 with several satellites, because satellites are no longer merged into the main node. ([#141](https://github.com/roquerodrigo/ha-tplink-deco/pull/141))
+
 ## [1.10.0](https://github.com/roquerodrigo/ha-tplink-deco/compare/v1.9.0...v1.10.0) (2026-11-01)
 
 Client devices are now nested under the master Deco node, and the "Link devices by MAC address" option has been removed.
