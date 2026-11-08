@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.10.2](https://github.com/roquerodrigo/ha-tplink-deco/compare/v1.10.1...v1.10.2) (2026-11-08)
+
+### Bug fixes
+
+- Setup of the integration is faster, since the router's slow performance reading no longer delays it; CPU and memory sensors show values shortly after startup. ([#144](https://github.com/roquerodrigo/ha-tplink-deco/pull/144))
+
 ## [1.10.1](https://github.com/roquerodrigo/ha-tplink-deco/compare/v1.10.0...v1.10.1) (2026-11-04)
 
 ### Bug fixes
