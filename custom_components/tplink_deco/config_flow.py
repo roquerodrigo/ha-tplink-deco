@@ -123,6 +123,8 @@ class TpLinkDecoFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
         entry = self._get_reconfigure_entry()
         _errors: dict[str, str] = {}
         if user_input is not None:
+            if not user_input.get(CONF_PASSWORD):
+                user_input = {**user_input, CONF_PASSWORD: entry.data[CONF_PASSWORD]}
             _errors = await self._validate(user_input)
             if not _errors:
                 return self.async_update_reload_and_abort(
@@ -134,6 +136,7 @@ class TpLinkDecoFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
             step_id="reconfigure",
             data_schema=self._build_schema(
                 user_input or cast("TpLinkDecoUserInput", dict(entry.data)),
+                password_required=False,
             ),
             errors=_errors,
         )
@@ -160,8 +163,13 @@ class TpLinkDecoFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
         return {}
 
     @staticmethod
-    def _build_schema(defaults: TpLinkDecoUserInput | None) -> probatio.Schema:
+    def _build_schema(
+        defaults: TpLinkDecoUserInput | None,
+        *,
+        password_required: bool = True,
+    ) -> probatio.Schema:
         """Build the credentials + options schema, prefilled with defaults."""
+        password_marker = probatio.Required if password_required else probatio.Optional
         prefill: TpLinkDecoUserInput = defaults or TpLinkDecoUserInput(
             host="192.168.0.1",
             username="admin",
@@ -185,7 +193,7 @@ class TpLinkDecoFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
                         type=selector.TextSelectorType.TEXT,
                     ),
                 ),
-                probatio.Required(CONF_PASSWORD): selector.TextSelector(
+                password_marker(CONF_PASSWORD): selector.TextSelector(
                     selector.TextSelectorConfig(
                         type=selector.TextSelectorType.PASSWORD,
                     ),

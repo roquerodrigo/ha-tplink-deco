@@ -15,6 +15,7 @@ from homeassistant.const import (
 )
 from pytest_homeassistant_custom_component.common import MockConfigEntry
 
+from custom_components.tplink_deco.api import TpLinkDecoApiClient
 from custom_components.tplink_deco.api.errors import (
     TpLinkDecoApiClientAuthenticationError,
     TpLinkDecoApiClientCommunicationError,
@@ -159,6 +160,76 @@ async def test_reconfigure_updates_polling_fields(
     assert result["type"] == data_entry_flow.FlowResultType.ABORT
     assert entry.data[CONF_SCAN_INTERVAL] == 60
     assert entry.data[CONF_TIMEOUT] == 45
+
+
+async def test_reconfigure_keeps_stored_password_when_left_blank(
+    hass: HomeAssistant,
+    snapshot: TpLinkDecoSnapshot,
+) -> None:
+    """A blank password validates and keeps the one already stored."""
+    entry = _existing_entry(hass)
+    result = await entry.start_reconfigure_flow(hass)
+
+    updated = {key: value for key, value in USER_INPUT.items() if key != CONF_PASSWORD}
+    updated[CONF_SCAN_INTERVAL] = 60
+    with (
+        patch(
+            "custom_components.tplink_deco.config_flow.TpLinkDecoApiClient.get_snapshot",
+            return_value=snapshot,
+        ),
+        patch(
+            "custom_components.tplink_deco.config_flow.TpLinkDecoApiClient",
+            wraps=TpLinkDecoApiClient,
+        ) as client_class,
+    ):
+        result = await hass.config_entries.flow.async_configure(
+            result["flow_id"], updated
+        )
+        await hass.async_block_till_done()
+    assert result["type"] == data_entry_flow.FlowResultType.ABORT
+    assert client_class.call_args.kwargs[CONF_PASSWORD] == "secret"
+    assert entry.data[CONF_PASSWORD] == "secret"
+    assert entry.data[CONF_SCAN_INTERVAL] == 60
+
+
+async def test_reconfigure_treats_empty_password_as_unchanged(
+    hass: HomeAssistant,
+    snapshot: TpLinkDecoSnapshot,
+) -> None:
+    """An empty password string also keeps the stored password."""
+    entry = _existing_entry(hass)
+    result = await entry.start_reconfigure_flow(hass)
+
+    with patch(
+        "custom_components.tplink_deco.config_flow.TpLinkDecoApiClient.get_snapshot",
+        return_value=snapshot,
+    ):
+        result = await hass.config_entries.flow.async_configure(
+            result["flow_id"], {**USER_INPUT, CONF_PASSWORD: ""}
+        )
+        await hass.async_block_till_done()
+    assert result["type"] == data_entry_flow.FlowResultType.ABORT
+    assert entry.data[CONF_PASSWORD] == "secret"
+
+
+async def test_reconfigure_replaces_password_when_filled(
+    hass: HomeAssistant,
+    snapshot: TpLinkDecoSnapshot,
+) -> None:
+    """A filled password replaces the stored one."""
+    entry = _existing_entry(hass)
+    result = await entry.start_reconfigure_flow(hass)
+
+    with patch(
+        "custom_components.tplink_deco.config_flow.TpLinkDecoApiClient.get_snapshot",
+        return_value=snapshot,
+    ):
+        result = await hass.config_entries.flow.async_configure(
+            result["flow_id"], {**USER_INPUT, CONF_PASSWORD: "new-secret"}
+        )
+        await hass.async_block_till_done()
+    assert result["type"] == data_entry_flow.FlowResultType.ABORT
+    assert entry.data[CONF_PASSWORD] == "new-secret"
 
 
 async def test_reconfigure_surfaces_credential_errors(hass: HomeAssistant) -> None:
