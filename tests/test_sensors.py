@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from unittest.mock import MagicMock
 
+import pytest
 from homeassistant.const import EntityCategory
 
 from custom_components.tplink_deco.api import TpLinkDecoSnapshot
@@ -169,6 +170,22 @@ def test_deco_cpu_returns_none_without_performance() -> None:
     snapshot = TpLinkDecoSnapshot(clients=[], nodes=[node], performance=None)
     sensor = TpLinkDecoDecoCpuSensor(_coord(snapshot), node)
     assert sensor.native_value is None
+
+
+@pytest.mark.parametrize(
+    "sensor_class", [TpLinkDecoDecoCpuSensor, TpLinkDecoDecoMemorySensor]
+)
+def test_performance_sensors_unavailable_until_performance_arrives(
+    sensor_class: type[TpLinkDecoDecoCpuSensor | TpLinkDecoDecoMemorySensor],
+) -> None:
+    """Performance sensors stay unavailable instead of reporting unknown."""
+    node = make_node()
+    pending = TpLinkDecoSnapshot(clients=[], nodes=[node], performance=None)
+    arrived = TpLinkDecoSnapshot(
+        clients=[], nodes=[node], performance=make_performance()
+    )
+    assert sensor_class(_coord(pending), node).available is False
+    assert sensor_class(_coord(arrived), node).available is True
 
 
 def test_deco_clients_counter_returns_count() -> None:

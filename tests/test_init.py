@@ -149,6 +149,29 @@ async def test_setup_applies_the_configured_polling_fields(
         await hass.async_block_till_done()
 
 
+async def test_setup_reads_performance_after_the_first_refresh(
+    hass: HomeAssistant,
+    snapshot: TpLinkDecoSnapshot,
+) -> None:
+    """Setup skips the slow performance read and fetches it right afterwards."""
+    entry = _setup_entry()
+    entry.add_to_hass(hass)
+
+    with patch("custom_components.tplink_deco.TpLinkDecoApiClient") as client_class:
+        get_snapshot = client_class.return_value.get_snapshot
+        get_snapshot.return_value = snapshot
+        assert await hass.config_entries.async_setup(entry.entry_id)
+        await hass.async_block_till_done()
+
+        assert [call.kwargs for call in get_snapshot.call_args_list] == [
+            {"include_performance": False},
+            {"include_performance": True},
+        ]
+
+        assert await hass.config_entries.async_unload(entry.entry_id)
+        await hass.async_block_till_done()
+
+
 async def test_setup_registers_nodes_before_client_devices(
     hass: HomeAssistant,
     snapshot: TpLinkDecoSnapshot,

@@ -42,7 +42,7 @@ class TpLinkDecoApiClient:
         self._session: DecoClient | None = None
         self._lock = Lock()
 
-    def get_snapshot(self) -> TpLinkDecoSnapshot:
+    def get_snapshot(self, *, include_performance: bool = True) -> TpLinkDecoSnapshot:
         """
         Fetch clients, nodes and performance over a single reused session.
 
@@ -50,26 +50,36 @@ class TpLinkDecoApiClient:
         poll both costs a full handshake and kicks the user out of the Deco
         app. The session is kept open across polls and only renewed once the
         router rejects it.
+
+        The performance endpoint samples the router's CPU for about three
+        seconds before answering, so ``include_performance=False`` skips it
+        when the caller cannot wait. Reading it concurrently with the other
+        calls is not an option: the router would measure its own load from
+        serving them.
         """
         with self._lock:
             try:
-                return self._fetch_reusing_session()
+                return self._fetch_reusing_session(
+                    include_performance=include_performance
+                )
             except (DecoError, OSError) as exception:
                 self._session = None
                 raise self._wrap(exception) from exception
 
-    def _fetch_reusing_session(self) -> TpLinkDecoSnapshot:
+    def _fetch_reusing_session(
+        self, *, include_performance: bool
+    ) -> TpLinkDecoSnapshot:
         """Fetch over the open session, logging in again if it was rejected."""
         session = self._session
         if session is None:
-            return self._fetch(self._login())
+            return self._fetch(self._login(), include_performance=include_performance)
         try:
-            return self._fetch(session)
+            return self._fetch(session, include_performance=include_performance)
         except DecoError as exception:
             if not _is_session_rejected(exception):
                 raise
             LOGGER.debug("Router rejected the open session, logging in again")
-            return self._fetch(self._login())
+            return self._fetch(self._login(), include_performance=include_performance)
 
     def _login(self) -> DecoClient:
         """Open a router session and keep it for the following fetches."""
@@ -84,12 +94,12 @@ class TpLinkDecoApiClient:
         return session
 
     @staticmethod
-    def _fetch(session: DecoClient) -> TpLinkDecoSnapshot:
-        """Read clients, nodes and performance through an open session."""
+    def _fetch(session: DecoClient, *, include_performance: bool) -> TpLinkDecoSnapshot:
+        """Read clients, nodes and, when asked, performance through an open session."""
         return TpLinkDecoSnapshot(
             clients=session.get_client_list(),
             nodes=session.get_device_list(),
-            performance=session.get_performance(),
+            performance=session.get_performance() if include_performance else None,
         )
 
     def _wrap(self, exception: DecoError | OSError) -> TpLinkDecoApiClientError:
