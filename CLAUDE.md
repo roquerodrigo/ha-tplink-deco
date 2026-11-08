@@ -74,3 +74,10 @@ single `DecoClient` logged in across polls: re-authenticating every cycle costs
 a full handshake and kicks the user out of the Deco app. The session is renewed
 only when the router rejects it (auth error, API error, or HTTP 401/403), and
 dropped whenever a poll fails so the next one starts clean.
+
+The router's performance endpoint samples CPU for about three seconds before
+answering, so the first refresh skips it to keep setup fast and
+`async_setup_entry` runs a full refresh in the background right after; the
+CPU and memory sensors stay unavailable until it lands. Never read it
+concurrently with the other calls: the router then measures the load of
+serving them and the CPU sensor roughly doubles.

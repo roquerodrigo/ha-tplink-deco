@@ -56,6 +56,7 @@ def _build_coordinator(
     runtime_data = MagicMock(client=api_client)
     config_entry = MagicMock(runtime_data=runtime_data)
     coordinator.config_entry = config_entry
+    coordinator.data = None
     coordinator._client_grace = {}
     coordinator._node_grace = {}
     coordinator._speed_ema = {}
@@ -81,6 +82,7 @@ def _build_coordinator_with_executor(
     runtime_data = MagicMock(client=api_client)
     config_entry = MagicMock(runtime_data=runtime_data)
     coordinator.config_entry = config_entry
+    coordinator.data = None
     coordinator._client_grace = {}
     coordinator._node_grace = {}
     coordinator._speed_ema = {}
@@ -99,6 +101,25 @@ async def test_update_returns_grace_augmented_snapshot() -> None:
     assert result.clients == snapshot.clients
     assert result.nodes == snapshot.nodes
     assert result.performance is snapshot.performance
+
+
+async def test_first_fetch_leaves_performance_for_the_next_one() -> None:
+    """Setup does not wait for the slow performance read; later polls include it."""
+    snapshot = TpLinkDecoSnapshot(
+        clients=[make_client()], nodes=[make_node()], performance=None
+    )
+    coordinator = _build_coordinator(snapshot)
+    executor = coordinator.hass.async_add_executor_job
+
+    await coordinator._async_update_data()
+    coordinator.data = snapshot
+    await coordinator._async_update_data()
+
+    fetches = [call.args[0] for call in executor.await_args_list]
+    assert [fetch.keywords for fetch in fetches] == [
+        {"include_performance": False},
+        {"include_performance": True},
+    ]
 
 
 async def test_update_auth_error_raises_config_entry_auth_failed() -> None:

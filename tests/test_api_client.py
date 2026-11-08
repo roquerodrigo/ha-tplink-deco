@@ -51,6 +51,18 @@ def test_get_snapshot_returns_dataclass() -> None:
     assert snapshot.performance is not None
 
 
+def test_get_snapshot_can_skip_performance() -> None:
+    """Skipping performance never calls the slow endpoint."""
+    session = _session()
+    with _patch(_factory(session)):
+        snapshot = TpLinkDecoApiClient("host", "user", "pass").get_snapshot(
+            include_performance=False
+        )
+    assert snapshot.performance is None
+    assert len(snapshot.clients) == 1
+    session.get_performance.assert_not_called()
+
+
 def test_session_is_reused_across_polls() -> None:
     """Consecutive polls share one session instead of logging in again."""
     session = _session()

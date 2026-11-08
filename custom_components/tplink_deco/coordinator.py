@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import dataclasses
 import time
+from functools import partial
 from typing import TYPE_CHECKING
 
 from homeassistant.exceptions import ConfigEntryAuthFailed
@@ -50,10 +51,15 @@ class TpLinkDecoDataUpdateCoordinator(DataUpdateCoordinator[TpLinkDecoSnapshot])
         self._speed_ema: dict[str, tuple[float, float]] = {}
 
     async def _async_update_data(self) -> TpLinkDecoSnapshot:
+        # Performance takes about three seconds to sample, so the first fetch
+        # leaves it out to keep setup fast; async_setup_entry refreshes again
+        # in the background right after.
+        fetch_snapshot = partial(
+            self.config_entry.runtime_data.client.get_snapshot,
+            include_performance=self.data is not None,
+        )
         try:
-            snapshot = await self.hass.async_add_executor_job(
-                self.config_entry.runtime_data.client.get_snapshot
-            )
+            snapshot = await self.hass.async_add_executor_job(fetch_snapshot)
         except TpLinkDecoApiClientAuthenticationError as exception:
             LOGGER.warning("Authentication failed: %s", exception)
             raise ConfigEntryAuthFailed(exception) from exception

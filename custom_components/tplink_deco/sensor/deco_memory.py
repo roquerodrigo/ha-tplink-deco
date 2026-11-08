@@ -29,6 +29,11 @@ class TpLinkDecoDecoMemorySensor(TpLinkDecoDecoDevice, SensorEntity):
         return f"{self._node_mac}_mem_usage"
 
     @property
+    def available(self) -> bool:
+        """Stay unavailable until the router's performance figures arrive."""
+        return super().available and self.coordinator.data.performance is not None
+
+    @property
     def native_value(self) -> float | None:
         """Return the memory usage percentage."""
         performance = self.coordinator.data.performance
