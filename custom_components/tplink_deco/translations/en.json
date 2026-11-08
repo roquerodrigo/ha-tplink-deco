@@ -94,6 +94,7 @@
                     "timeout": "Request timeout"
                 },
                 "data_description": {
+                    "password": "Leave blank to keep the current password.",
                     "scan_interval": "How often Home Assistant polls the router, in seconds. Larger networks take longer to answer, so raise this value if updates overlap with each other.",
                     "timeout": "How long, in seconds, to wait for each router response before giving up. Raise it on networks with many connected clients."
                 }

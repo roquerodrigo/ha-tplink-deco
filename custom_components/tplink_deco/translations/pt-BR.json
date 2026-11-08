@@ -94,6 +94,7 @@
                     "timeout": "Tempo limite da requisição"
                 },
                 "data_description": {
+                    "password": "Deixe em branco para manter a senha atual.",
                     "scan_interval": "Com que frequência o Home Assistant consulta o roteador, em segundos. Redes maiores demoram mais para responder, portanto aumente este valor se as atualizações se sobrepuserem.",
                     "timeout": "Quanto tempo, em segundos, aguardar cada resposta do roteador antes de desistir. Aumente em redes com muitos clientes conectados."
                 }

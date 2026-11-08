@@ -102,6 +102,9 @@ Large networks take longer to answer: on a mesh with dozens of connected
 clients, raise both values until the polls comfortably fit inside the
 interval.
 
+**Reconfigure** leaves the password field blank: submit it empty to keep the
+stored password, or fill it in to replace it.
+
 ## Translations
 
 Bundled language files: English and Portuguese (Brazil). To add a new
