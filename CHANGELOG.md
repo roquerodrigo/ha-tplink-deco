@@ -1,5 +1,21 @@
 # Changelog
 
+## [1.11.0](https://github.com/roquerodrigo/ha-tplink-deco/compare/v1.10.2...v1.11.0) (2026-11-09)
+
+This release adds password-free reconfiguration, fixes handling of interrupted router responses, and updates the tplink-deco-api dependency to 2.1.1.
+
+### New features
+
+- The Reconfigure form no longer requires the password: leaving it blank keeps the stored password, so other settings can be changed without retyping it. ([#146](https://github.com/roquerodrigo/ha-tplink-deco/pull/146))
+
+### Improvements
+
+- The integration now uses tplink-deco-api 2.1.1, which reports dropped or truncated router responses as communication failures. ([#148](https://github.com/roquerodrigo/ha-tplink-deco/pull/148))
+
+### Bug fixes
+
+- Router responses cut short during a poll are now reported as a regular update failure instead of an unexpected error with a full traceback, and the session is renewed. ([#148](https://github.com/roquerodrigo/ha-tplink-deco/pull/148))
+
 ## [1.10.2](https://github.com/roquerodrigo/ha-tplink-deco/compare/v1.10.1...v1.10.2) (2026-11-08)
 
 ### Bug fixes
