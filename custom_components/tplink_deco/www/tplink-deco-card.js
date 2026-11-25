@@ -340,7 +340,7 @@ class TpLinkDecoCard extends HTMLElement {
         );
       }
       .client {
-        --tile-color: var(--state-active-color, var(--primary-color));
+        --tile-color: var(--state-device_tracker-home-color, var(--state-active-color));
         --ha-ripple-color: var(--tile-color);
         --ha-ripple-hover-opacity: 0.04;
         --ha-ripple-pressed-opacity: 0.12;
