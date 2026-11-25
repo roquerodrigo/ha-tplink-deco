@@ -13,6 +13,8 @@ downloading and whether every Deco still reaches the internet. Home Assistant
 talks to the main Deco on your local network, using the same login as the
 Deco's web admin page, so nothing goes through TP-Link's cloud.
 
+![Card listing the devices on the mesh with their address and speed](images/dashboard.png)
+
 ## Features
 
 - Know when a phone joins or leaves the network, and use it to trigger
