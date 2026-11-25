@@ -1,30 +1,6 @@
-/**
- * TP-Link Deco card — a Lovelace custom card that lists the clients connected to
- * the TP-Link Deco mesh exposed by the `tplink_deco` integration, showing each
- * client's connection state, address and live throughput.
- *
- * Zero-build vanilla web component (no Lit/bundler). Styles are driven entirely
- * by Home Assistant design tokens so the card follows the active theme and
- * light/dark mode automatically. The layout mirrors the "IP tiles" look of the
- * built-in Internet dashboard: a rounded icon badge, a name, a secondary line
- * and a trailing status.
- *
- * Clients are discovered from the entity registry: every device that owns a
- * `tplink_deco` device_tracker entity is a client, and its companion entities
- * (IP, MAC, connection type, download/upload, connected) are matched by their
- * integration translation keys — so discovery is language independent.
- *
- * Config:
- *   type: custom:tplink-deco-card
- *   devices: [...]                # optional: device ids to show. when omitted,
- *                                 #   every Deco client is shown.
- *   secondary_info: ip            # ip | mac | connection | none (default ip)
- *   sort: name                    # name | download | upload | connection (default name)
- *   columns: 2                    # max columns (1-6, default 2); wraps down on
- *                                 #   narrow widths so it stays responsive
- *   show_offline: true            # include disconnected clients (default true)
- */
-
+const CARD_TYPE = "tplink-deco-card";
+const EDITOR_TYPE = "tplink-deco-card-editor";
+const INTEGRATION_PLATFORM = "tplink_deco";
 const DEFAULT_SECONDARY = "ip";
 const DEFAULT_SORT = "name";
 const DEFAULT_COLUMNS = 2;
@@ -32,6 +8,7 @@ const MAX_COLUMNS = 6;
 const MIN_COLUMN_WIDTH = "240px";
 const SECONDARY_OPTIONS = ["ip", "mac", "connection", "none"];
 const SORT_OPTIONS = ["name", "download", "upload", "connection"];
+const UNAVAILABLE_STATES = ["unavailable", "unknown"];
 
 const CONNECTION_ICONS = {
   wired: "mdi:ethernet",
@@ -40,29 +17,22 @@ const CONNECTION_ICONS = {
   band6: "mdi:wifi",
 };
 
-const CONNECTION_LABELS = {
-  wired: "Wired",
-  band2_4: "2.4 GHz",
-  band5: "5 GHz",
-  band6: "6 GHz",
-};
-
-// i18n — pure frontend plugin (no custom_component translations), so strings are
-// embedded here and picked by the active HA UI language, falling back to English.
 const TRANSLATIONS = {
   en: {
     "card.empty": "No TP-Link Deco clients found",
     "card.offline": "Offline",
+    "card.download": "Download",
+    "card.upload": "Upload",
     "conn.wired": "Wired",
     "conn.band2_4": "2.4 GHz",
     "conn.band5": "5 GHz",
     "conn.band6": "6 GHz",
     "editor.devices": "Clients to show (leave empty for all)",
-    "editor.secondary": "Secondary info",
-    "editor.secondary_ip": "IP address",
-    "editor.secondary_mac": "MAC address",
-    "editor.secondary_connection": "Connection type",
-    "editor.secondary_none": "None",
+    "editor.secondary_info": "Secondary info",
+    "editor.secondary_info_ip": "IP address",
+    "editor.secondary_info_mac": "MAC address",
+    "editor.secondary_info_connection": "Connection type",
+    "editor.secondary_info_none": "None",
     "editor.sort": "Sort by",
     "editor.sort_name": "Name",
     "editor.sort_download": "Download speed",
@@ -74,16 +44,18 @@ const TRANSLATIONS = {
   "pt-BR": {
     "card.empty": "Nenhum cliente TP-Link Deco encontrado",
     "card.offline": "Offline",
+    "card.download": "Download",
+    "card.upload": "Upload",
     "conn.wired": "Cabo",
     "conn.band2_4": "2,4 GHz",
     "conn.band5": "5 GHz",
     "conn.band6": "6 GHz",
     "editor.devices": "Clientes a exibir (vazio = todos)",
-    "editor.secondary": "Informação secundária",
-    "editor.secondary_ip": "Endereço IP",
-    "editor.secondary_mac": "Endereço MAC",
-    "editor.secondary_connection": "Tipo de conexão",
-    "editor.secondary_none": "Nenhuma",
+    "editor.secondary_info": "Informação secundária",
+    "editor.secondary_info_ip": "Endereço IP",
+    "editor.secondary_info_mac": "Endereço MAC",
+    "editor.secondary_info_connection": "Tipo de conexão",
+    "editor.secondary_info_none": "Nenhuma",
     "editor.sort": "Ordenar por",
     "editor.sort_name": "Nome",
     "editor.sort_download": "Velocidade de download",
@@ -94,52 +66,35 @@ const TRANSLATIONS = {
   },
 };
 
-const EDITOR_LABEL_KEYS = {
-  devices: "editor.devices",
-  secondary_info: "editor.secondary",
-  sort: "editor.sort",
-  columns: "editor.columns",
-  show_offline: "editor.show_offline",
+const resolveLanguage = (hass) => {
+  const language =
+    (hass && (hass.locale?.language || hass.language || hass.selectedLanguage)) || "en";
+  if (TRANSLATIONS[language]) return language;
+  if (language.split("-")[0] === "pt") return "pt-BR";
+  return "en";
 };
 
-/** The active HA UI language, or a supported fallback (base lang, then "en"). */
-function resolveLang(hass) {
-  const lang = (hass && (hass.locale?.language || hass.language || hass.selectedLanguage)) || "en";
-  if (TRANSLATIONS[lang]) return lang;
-  if (lang.split("-")[0] === "pt") return "pt-BR";
-  return "en";
-}
+const localize = (hass, key) =>
+  TRANSLATIONS[resolveLanguage(hass)]?.[key] ?? TRANSLATIONS.en[key] ?? key;
 
-/** Translate a dotted key for the active language; English is the fallback. */
-function localize(hass, key) {
-  const lang = resolveLang(hass);
-  return TRANSLATIONS[lang]?.[key] ?? TRANSLATIONS.en[key] ?? key;
-}
-
-/** Escape a string for safe interpolation into innerHTML. */
-function esc(value) {
-  return String(value ?? "").replace(/[&<>"']/g, (c) =>
-    ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]
+const escapeHtml = (value) =>
+  String(value ?? "").replace(
+    /[&<>"']/g,
+    (character) =>
+      ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[character],
   );
-}
 
-/** Human-readable connection label for a raw connection_type state. */
-function connectionLabel(hass, value) {
-  const key = `conn.${value}`;
-  const translated = TRANSLATIONS[resolveLang(hass)]?.[key];
-  if (translated) return translated;
-  return CONNECTION_LABELS[value] ?? value ?? "";
-}
+const connectionLabel = (hass, connectionType) => {
+  const key = `conn.${connectionType}`;
+  const label = localize(hass, key);
+  return label === key ? (connectionType ?? "") : label;
+};
 
-/** Format a throughput sensor state ("12.3" + "Mbit/s") into a compact string. */
-function formatSpeed(state) {
-  if (!state || state.state === "unavailable" || state.state === "unknown") return null;
-  const value = Number(state.state);
-  if (!Number.isFinite(value)) return null;
-  const unit = state.attributes?.unit_of_measurement ?? "";
-  const rounded = value >= 100 ? Math.round(value) : Math.round(value * 10) / 10;
-  return `${rounded} ${unit}`.trim();
-}
+const availableValue = (state) =>
+  state && !UNAVAILABLE_STATES.includes(state.state) ? state.state : null;
+
+const formatThroughput = (hass, state) =>
+  availableValue(state) === null ? null : hass.formatEntityState(state);
 
 class TpLinkDecoCard extends HTMLElement {
   constructor() {
@@ -151,12 +106,11 @@ class TpLinkDecoCard extends HTMLElement {
   }
 
   static getConfigElement() {
-    return document.createElement("tplink-deco-card-editor");
+    return document.createElement(EDITOR_TYPE);
   }
 
   static getStubConfig() {
     return {
-      type: "custom:tplink-deco-card",
       secondary_info: DEFAULT_SECONDARY,
       sort: DEFAULT_SORT,
       columns: DEFAULT_COLUMNS,
@@ -167,11 +121,11 @@ class TpLinkDecoCard extends HTMLElement {
   setConfig(config) {
     const secondary = config.secondary_info ?? DEFAULT_SECONDARY;
     if (!SECONDARY_OPTIONS.includes(secondary)) {
-      throw new Error(`tplink-deco-card: "secondary_info" must be one of ${SECONDARY_OPTIONS.join(", ")}`);
+      throw new Error(`${CARD_TYPE}: "secondary_info" must be one of ${SECONDARY_OPTIONS.join(", ")}`);
     }
     const sort = config.sort ?? DEFAULT_SORT;
     if (!SORT_OPTIONS.includes(sort)) {
-      throw new Error(`tplink-deco-card: "sort" must be one of ${SORT_OPTIONS.join(", ")}`);
+      throw new Error(`${CARD_TYPE}: "sort" must be one of ${SORT_OPTIONS.join(", ")}`);
     }
     const devices =
       Array.isArray(config.devices) && config.devices.length ? config.devices.slice() : null;
@@ -200,161 +154,175 @@ class TpLinkDecoCard extends HTMLElement {
     return { min_columns: 12, min_rows: 3 };
   }
 
-  /**
-   * Discover Deco client devices from the entity registry.
-   *
-   * Every tplink_deco device that owns a device_tracker entity is a client;
-   * companion entities are matched by their integration translation keys.
-   */
-  _collect() {
+  _clients() {
     const hass = this._hass;
     const entities = hass.entities || {};
     const devices = hass.devices || {};
 
-    const byDevice = {};
+    const entriesByDevice = {};
     for (const entry of Object.values(entities)) {
-      if (entry.platform !== "tplink_deco" || !entry.device_id) continue;
-      (byDevice[entry.device_id] ??= []).push(entry);
+      if (entry.platform !== INTEGRATION_PLATFORM || !entry.device_id) continue;
+      (entriesByDevice[entry.device_id] ??= []).push(entry);
     }
 
-    const wanted = this._config.devices ? new Set(this._config.devices) : null;
-    const items = [];
+    const wantedDevices = this._config.devices ? new Set(this._config.devices) : null;
+    const clients = [];
 
-    for (const [deviceId, list] of Object.entries(byDevice)) {
-      if (wanted && !wanted.has(deviceId)) continue;
+    for (const [deviceId, entries] of Object.entries(entriesByDevice)) {
+      if (wantedDevices && !wantedDevices.has(deviceId)) continue;
 
-      const tracker = list.find((e) => e.entity_id.startsWith("device_tracker."));
+      const tracker = entries.find((entry) => entry.entity_id.startsWith("device_tracker."));
       if (!tracker) continue;
 
-      const byKey = {};
-      for (const e of list) {
-        if (e.translation_key) byKey[e.translation_key] = e.entity_id;
+      const entityIdByKey = {};
+      for (const entry of entries) {
+        if (entry.translation_key) entityIdByKey[entry.translation_key] = entry.entity_id;
       }
+      const stateOf = (key) => (entityIdByKey[key] ? hass.states[entityIdByKey[key]] : null);
 
       const device = devices[deviceId] || {};
       const trackerState = hass.states[tracker.entity_id];
-      const connectedState = byKey.connected ? hass.states[byKey.connected] : null;
-      const online =
-        trackerState?.state === "home" || connectedState?.state === "on";
+      const downloadState = stateOf("download");
+      const uploadState = stateOf("upload");
 
-      const connectionState = byKey.connection_type ? hass.states[byKey.connection_type] : null;
-      const connectionType = connectionState?.state;
-      const ipState = byKey.ip ? hass.states[byKey.ip] : null;
-      const macState = byKey.mac ? hass.states[byKey.mac] : null;
-      const downloadState = byKey.download ? hass.states[byKey.download] : null;
-      const uploadState = byKey.upload ? hass.states[byKey.upload] : null;
-
-      items.push({
+      clients.push({
         deviceId,
-        moreInfoEntity: byKey.ip || tracker.entity_id,
+        moreInfoEntity: entityIdByKey.ip || tracker.entity_id,
         name:
           device.name_by_user ||
           device.name ||
           trackerState?.attributes?.friendly_name ||
           tracker.entity_id,
-        online,
-        connectionType,
-        ip: ipState && ["unavailable", "unknown"].includes(ipState.state) ? null : ipState?.state,
-        mac: macState && ["unavailable", "unknown"].includes(macState.state) ? null : macState?.state,
-        download: formatSpeed(downloadState),
-        upload: formatSpeed(uploadState),
+        online: trackerState?.state === "home" || stateOf("connected")?.state === "on",
+        connectionType: stateOf("connection_type")?.state,
+        ip: availableValue(stateOf("ip")),
+        mac: availableValue(stateOf("mac")),
+        download: formatThroughput(hass, downloadState),
+        upload: formatThroughput(hass, uploadState),
         downloadValue: Number(downloadState?.state) || 0,
         uploadValue: Number(uploadState?.state) || 0,
       });
     }
 
-    const filtered = this._config.showOffline ? items : items.filter((i) => i.online);
+    const shown = this._config.showOffline ? clients : clients.filter((client) => client.online);
     const collator = new Intl.Collator(undefined, { sensitivity: "base", numeric: true });
-    filtered.sort((a, b) => {
-      if (a.online !== b.online) return a.online ? -1 : 1;
+    shown.sort((left, right) => {
+      if (left.online !== right.online) return left.online ? -1 : 1;
       switch (this._config.sort) {
         case "download":
-          return b.downloadValue - a.downloadValue;
+          return right.downloadValue - left.downloadValue;
         case "upload":
-          return b.uploadValue - a.uploadValue;
+          return right.uploadValue - left.uploadValue;
         case "connection":
-          return collator.compare(a.connectionType || "", b.connectionType || "");
+          return collator.compare(left.connectionType || "", right.connectionType || "");
         default:
-          return collator.compare(a.name, b.name);
+          return collator.compare(left.name, right.name);
       }
     });
-    return filtered;
+    return shown;
+  }
+
+  _secondaryText(client) {
+    const hass = this._hass;
+    switch (this._config.secondaryInfo) {
+      case "ip":
+        return client.ip || "—";
+      case "mac":
+        return client.mac || "—";
+      case "connection":
+        return client.online
+          ? connectionLabel(hass, client.connectionType)
+          : localize(hass, "card.offline");
+      default:
+        return "";
+    }
   }
 
   _render() {
     if (!this._hass) return;
     const hass = this._hass;
-    const t = (key) => localize(hass, key);
-    const lang = resolveLang(hass);
-    const items = this._collect();
-    const secondary = this._config.secondaryInfo;
+    const clients = this._clients();
 
     const signature = JSON.stringify([
-      lang,
-      secondary,
-      this._config.sort,
-      this._config.columns,
-      this._config.showOffline,
-      items.map((i) => [i.deviceId, i.online, i.connectionType, i.ip, i.mac, i.download, i.upload]),
+      resolveLanguage(hass),
+      this._config,
+      clients.map((client) => [
+        client.deviceId,
+        client.name,
+        client.online,
+        client.connectionType,
+        client.ip,
+        client.mac,
+        client.download,
+        client.upload,
+      ]),
     ]);
     if (signature === this._signature) return;
     this._signature = signature;
 
-    const rows = items
-      .map((item) => {
-        const icon = item.online
-          ? CONNECTION_ICONS[item.connectionType] || "mdi:lan-connect"
-          : "mdi:wifi-off";
-
-        let secondaryText = "";
-        if (secondary === "ip") secondaryText = item.ip || "—";
-        else if (secondary === "mac") secondaryText = item.mac || "—";
-        else if (secondary === "connection")
-          secondaryText = item.online ? connectionLabel(hass, item.connectionType) : t("card.offline");
-
-        const secondaryHtml =
-          secondary === "none" ? "" : `<div class="secondary">${esc(secondaryText)}</div>`;
-
-        const trailing = item.online
-          ? `<div class="stats">
-               <span class="stat"><ha-icon icon="mdi:arrow-down"></ha-icon>${esc(item.download || "—")}</span>
-               <span class="stat"><ha-icon icon="mdi:arrow-up"></ha-icon>${esc(item.upload || "—")}</span>
-             </div>`
-          : `<div class="offline">${esc(t("card.offline"))}</div>`;
-
-        return `
-          <ha-card class="item ${item.online ? "" : "is-offline"}" data-entity="${esc(item.moreInfoEntity)}">
-            <div class="row">
-              <div class="badge">
-                <ha-icon icon="${esc(icon)}"></ha-icon>
-              </div>
-              <div class="body">
-                <div class="name">${esc(item.name)}</div>
-                ${secondaryHtml}
-              </div>
-              ${trailing}
-            </div>
-            <ha-ripple></ha-ripple>
-          </ha-card>`;
-      })
-      .join("");
-
-    const empty = `<ha-card class="empty-card"><div class="empty"><ha-icon icon="mdi:router-wireless-off"></ha-icon><span>${t("card.empty")}</span></div></ha-card>`;
+    const empty = `
+      <ha-card class="empty">
+        <ha-icon icon="mdi:router-wireless-off"></ha-icon>
+        <span>${escapeHtml(localize(hass, "card.empty"))}</span>
+      </ha-card>`;
 
     this.shadowRoot.innerHTML = `
       <style>${TpLinkDecoCard.styles}</style>
-      <div class="grid" style="--cols:${this._config.columns}">${items.length ? rows : empty}</div>`;
+      <div class="grid" style="--columns:${this._config.columns}">
+        ${clients.length ? clients.map((client) => this._renderClient(client)).join("") : empty}
+      </div>`;
 
-    this.shadowRoot.querySelectorAll(".item").forEach((item) => {
-      item.addEventListener("click", () => this._showMore(item.dataset.entity));
+    this.shadowRoot.querySelectorAll(".client").forEach((element) => {
+      element.addEventListener("click", () => this._showMoreInfo(element.dataset.entity));
+      element.addEventListener("keydown", (event) => {
+        if (event.key !== "Enter" && event.key !== " ") return;
+        event.preventDefault();
+        this._showMoreInfo(element.dataset.entity);
+      });
     });
   }
 
-  /** Open the more-info dialog for an entity (standard HA behaviour). */
-  _showMore(entityId) {
+  _renderClient(client) {
+    const hass = this._hass;
+    const icon = client.online
+      ? CONNECTION_ICONS[client.connectionType] || "mdi:lan-connect"
+      : "mdi:wifi-off";
+    const secondary = this._secondaryText(client);
+    const trailing = client.online
+      ? `<div class="throughput">
+          <span title="${escapeHtml(localize(hass, "card.download"))}">
+            <ha-icon icon="mdi:arrow-down"></ha-icon>${escapeHtml(client.download || "—")}
+          </span>
+          <span title="${escapeHtml(localize(hass, "card.upload"))}">
+            <ha-icon icon="mdi:arrow-up"></ha-icon>${escapeHtml(client.upload || "—")}
+          </span>
+        </div>`
+      : `<span class="offline">${escapeHtml(localize(hass, "card.offline"))}</span>`;
+
+    return `
+      <ha-card
+        class="client ${client.online ? "online" : "is-offline"}"
+        data-entity="${escapeHtml(client.moreInfoEntity)}"
+        role="button"
+        tabindex="0"
+        aria-label="${escapeHtml(client.name)}"
+      >
+        <ha-ripple></ha-ripple>
+        <div class="content">
+          <ha-tile-icon icon="${escapeHtml(icon)}"></ha-tile-icon>
+          <ha-tile-info
+            primary="${escapeHtml(client.name)}"
+            ${secondary ? `secondary="${escapeHtml(secondary)}"` : ""}
+          ></ha-tile-info>
+          ${trailing}
+        </div>
+      </ha-card>`;
+  }
+
+  _showMoreInfo(entityId) {
     if (!entityId) return;
     this.dispatchEvent(
-      new CustomEvent("hass-more-info", { detail: { entityId }, bubbles: true, composed: true })
+      new CustomEvent("hass-more-info", { detail: { entityId }, bubbles: true, composed: true }),
     );
   }
 
@@ -362,103 +330,69 @@ class TpLinkDecoCard extends HTMLElement {
     return `
       :host { display: block; }
       .grid {
-        --cols: 1;
-        --gap: 8px;
+        --columns: 1;
+        --gap: var(--ha-space-2, 8px);
         display: grid;
         gap: var(--gap);
         grid-template-columns: repeat(
           auto-fill,
-          minmax(max(${MIN_COLUMN_WIDTH}, calc((100% - (var(--cols) - 1) * var(--gap)) / var(--cols))), 1fr)
+          minmax(max(${MIN_COLUMN_WIDTH}, calc((100% - (var(--columns) - 1) * var(--gap)) / var(--columns))), 1fr)
         );
       }
-      .item {
+      .client {
+        --tile-color: var(--state-active-color, var(--primary-color));
+        --ha-ripple-color: var(--tile-color);
+        --ha-ripple-hover-opacity: 0.04;
+        --ha-ripple-pressed-opacity: 0.12;
         position: relative;
         overflow: hidden;
         cursor: pointer;
-        --ha-ripple-color: var(--primary-color);
+        outline: none;
       }
-      .item.is-offline { opacity: 0.55; }
-      .row {
+      .client:focus-visible { box-shadow: 0 0 0 2px var(--tile-color); }
+      .client.is-offline { --tile-color: var(--state-inactive-color, var(--disabled-color)); }
+      .content {
+        position: relative;
         display: flex;
         align-items: center;
-        gap: 14px;
-        padding: 10px 12px;
-        min-height: 44px;
+        gap: var(--ha-space-3, 12px);
+        min-height: 56px;
+        padding: 0 var(--ha-space-3, 12px);
+        box-sizing: border-box;
       }
-      .badge {
-        flex: 0 0 auto;
-        width: 38px;
-        height: 38px;
-        border-radius: 10px;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        background: color-mix(in srgb, var(--primary-color) 18%, transparent);
-        color: var(--primary-color);
-      }
-      .item.is-offline .badge {
-        background: var(--secondary-background-color);
-        color: var(--secondary-text-color);
-      }
-      .badge ha-icon { --mdc-icon-size: 22px; }
-      .body { flex: 1 1 auto; min-width: 0; }
-      .name {
-        color: var(--primary-text-color);
-        font-size: 1rem;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-      }
-      .secondary {
-        color: var(--secondary-text-color);
-        font-size: 0.8125rem;
-        margin-top: 2px;
-        font-variant-numeric: tabular-nums;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-      }
-      .stats {
-        flex: 0 0 auto;
+      ha-tile-icon { --tile-icon-color: var(--tile-color); }
+      ha-tile-info { flex: 1 1 auto; min-width: 0; }
+      .throughput {
+        flex: none;
         display: flex;
         flex-direction: column;
         align-items: flex-end;
         gap: 2px;
-      }
-      .stat {
-        display: inline-flex;
-        align-items: center;
-        gap: 3px;
         color: var(--secondary-text-color);
-        font-size: 0.8125rem;
+        font-size: var(--ha-font-size-s, 12px);
         font-variant-numeric: tabular-nums;
         white-space: nowrap;
       }
-      .stat ha-icon { --mdc-icon-size: 15px; }
+      .throughput span { display: inline-flex; align-items: center; gap: 2px; }
+      .throughput ha-icon { --mdc-icon-size: 14px; }
       .offline {
-        flex: 0 0 auto;
+        flex: none;
         color: var(--secondary-text-color);
-        font-size: 0.85rem;
+        font-size: var(--ha-font-size-s, 12px);
       }
-      .empty-card { grid-column: 1 / -1; }
       .empty {
+        grid-column: 1 / -1;
         display: flex;
         align-items: center;
-        gap: 8px;
+        gap: var(--ha-space-2, 8px);
+        padding: var(--ha-space-4, 16px);
         color: var(--secondary-text-color);
-        padding: 16px 12px;
       }
     `;
   }
 }
 
 class TpLinkDecoCardEditor extends HTMLElement {
-  constructor() {
-    super();
-    this._config = {};
-    this._hass = null;
-  }
-
   setConfig(config) {
     this._config = config;
     this._render();
@@ -470,66 +404,43 @@ class TpLinkDecoCardEditor extends HTMLElement {
   }
 
   _schema() {
-    const t = (key) => localize(this._hass, key);
+    const label = (key) => localize(this._hass, key);
+    const select = (name, values) => ({
+      name,
+      selector: {
+        select: {
+          mode: "dropdown",
+          options: values.map((value) => ({ value, label: label(`editor.${name}_${value}`) })),
+        },
+      },
+    });
     return [
       {
         name: "devices",
-        selector: {
-          device: {
-            multiple: true,
-            filter: { integration: "tplink_deco" },
-          },
-        },
+        selector: { device: { multiple: true, filter: { integration: INTEGRATION_PLATFORM } } },
       },
-      {
-        name: "secondary_info",
-        selector: {
-          select: {
-            mode: "dropdown",
-            options: [
-              { value: "ip", label: t("editor.secondary_ip") },
-              { value: "mac", label: t("editor.secondary_mac") },
-              { value: "connection", label: t("editor.secondary_connection") },
-              { value: "none", label: t("editor.secondary_none") },
-            ],
-          },
-        },
-      },
-      {
-        name: "sort",
-        selector: {
-          select: {
-            mode: "dropdown",
-            options: [
-              { value: "name", label: t("editor.sort_name") },
-              { value: "download", label: t("editor.sort_download") },
-              { value: "upload", label: t("editor.sort_upload") },
-              { value: "connection", label: t("editor.sort_connection") },
-            ],
-          },
-        },
-      },
-      {
-        name: "columns",
-        selector: { number: { min: 1, max: MAX_COLUMNS, mode: "box" } },
-      },
+      select("secondary_info", SECONDARY_OPTIONS),
+      select("sort", SORT_OPTIONS),
+      { name: "columns", selector: { number: { min: 1, max: MAX_COLUMNS, mode: "box" } } },
       { name: "show_offline", selector: { boolean: {} } },
     ];
   }
 
-  _labels(schema) {
-    return localize(this._hass, EDITOR_LABEL_KEYS[schema.name] ?? schema.name);
-  }
-
   _render() {
-    if (!this._hass) return;
+    if (!this._hass || !this._config) return;
     if (!this._form) {
       this._form = document.createElement("ha-form");
-      this._form.computeLabel = (schema) => this._labels(schema);
-      this._form.addEventListener("value-changed", (ev) => {
-        const config = { type: "custom:tplink-deco-card", ...ev.detail.value };
+      this._form.computeLabel = (field) => localize(this._hass, `editor.${field.name}`);
+      this._form.addEventListener("value-changed", (event) => {
+        const config = { ...this._config, ...event.detail.value };
+        for (const [key, value] of Object.entries(config)) {
+          if (value === "" || value == null || (Array.isArray(value) && value.length === 0)) {
+            delete config[key];
+          }
+        }
+        config.type = this._config.type ?? `custom:${CARD_TYPE}`;
         this.dispatchEvent(
-          new CustomEvent("config-changed", { detail: { config }, bubbles: true, composed: true })
+          new CustomEvent("config-changed", { detail: { config }, bubbles: true, composed: true }),
         );
       });
       this.appendChild(this._form);
@@ -546,24 +457,20 @@ class TpLinkDecoCardEditor extends HTMLElement {
   }
 }
 
-// The module runs once per URL it is served from, and the card URL carries the
-// integration version. Upgrading the integration without restarting Home
-// Assistant leaves the previous version's URL registered alongside the new one,
-// so the module is evaluated twice. Without this guard the second run throws on
-// the already-taken tag name and registers a duplicate card picker entry.
-if (!customElements.get("tplink-deco-card")) {
-  customElements.define("tplink-deco-card", TpLinkDecoCard);
-  customElements.define("tplink-deco-card-editor", TpLinkDecoCardEditor);
+// The module is evaluated once per URL, and the URL carries the integration
+// version: upgrading without a restart loads it a second time.
+if (!customElements.get(CARD_TYPE)) {
+  customElements.define(CARD_TYPE, TpLinkDecoCard);
+  customElements.define(EDITOR_TYPE, TpLinkDecoCardEditor);
 
   window.customCards = window.customCards || [];
   window.customCards.push({
-    type: "tplink-deco-card",
+    type: CARD_TYPE,
     name: "TP-Link Deco Card",
     description: "Lists the clients connected to the TP-Link Deco mesh with their address and throughput.",
     preview: true,
     documentationURL: "https://github.com/roquerodrigo/ha-tplink-deco",
   });
 
-  // eslint-disable-next-line no-console
   console.info("%c tplink-deco-card ", "background:#4ABC96;color:#fff;border-radius:3px", "loaded");
 }
