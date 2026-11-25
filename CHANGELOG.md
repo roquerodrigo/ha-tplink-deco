@@ -1,5 +1,18 @@
 # Changelog
 
+## [1.12.0](https://github.com/roquerodrigo/ha-tplink-deco/compare/v1.11.0...v1.12.0) (2026-11-25)
+
+The dashboard card now uses Home Assistant's native components, matching built-in cards and themes.
+
+### Improvements
+
+- The dashboard card is now built from Home Assistant's native components, matching the built-in tile cards and the active theme, with press feedback and keyboard access on every client. ([#157](https://github.com/roquerodrigo/ha-tplink-deco/pull/157))
+- Download and upload speeds on the card follow the unit set on the entity and the user's number format; online clients use the color of a device at home and offline ones appear grey. ([#157](https://github.com/roquerodrigo/ha-tplink-deco/pull/157))
+
+### Bug fixes
+
+- The card's visual editor no longer discards configuration options it does not display. ([#157](https://github.com/roquerodrigo/ha-tplink-deco/pull/157))
+
 ## [1.11.0](https://github.com/roquerodrigo/ha-tplink-deco/compare/v1.10.2...v1.11.0) (2026-11-09)
 
 This release adds password-free reconfiguration, fixes handling of interrupted router responses, and updates the tplink-deco-api dependency to 2.1.1.
